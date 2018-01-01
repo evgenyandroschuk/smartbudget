@@ -18,7 +18,7 @@ public class Expenses implements Serializable {
 
     int year;
 
-    String desc;
+    String description;
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "expenses_type_id", nullable=false)
@@ -32,10 +32,10 @@ public class Expenses implements Serializable {
         super();
     }
 
-    public Expenses(int month, int year, String desc, ExpensesType expensesType, double amount, Date date) {
+    public Expenses(int month, int year, String description, ExpensesType expensesType, double amount, Date date) {
         this.month = month;
         this.year = year;
-        this.desc = desc;
+        this.description = description;
         this.expensesType = expensesType;
         this.amount = amount;
         this.date = date;
@@ -57,12 +57,12 @@ public class Expenses implements Serializable {
         this.year = year;
     }
 
-    public String getDesc() {
-        return desc;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public ExpensesType getExpensesType() {
@@ -100,7 +100,7 @@ public class Expenses implements Serializable {
         if (month != expenses.month) return false;
         if (year != expenses.year) return false;
         if (Double.compare(expenses.amount, amount) != 0) return false;
-        if (!desc.equals(expenses.desc)) return false;
+        if (!description.equals(expenses.description)) return false;
         if (!expensesType.equals(expenses.expensesType)) return false;
         return date.equals(expenses.date);
 
@@ -113,7 +113,7 @@ public class Expenses implements Serializable {
         result = (int) (id ^ (id >>> 32));
         result = 31 * result + month;
         result = 31 * result + year;
-        result = 31 * result + desc.hashCode();
+        result = 31 * result + description.hashCode();
         result = 31 * result + expensesType.hashCode();
         temp = Double.doubleToLongBits(amount);
         result = 31 * result + (int) (temp ^ (temp >>> 32));

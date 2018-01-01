@@ -10,16 +10,16 @@ import java.io.Serializable;
 @XmlRootElement(name = "Response")
 public class ExpensesTypeResponse implements Serializable {
 
-    private ExpensesTypeRequest request;
+    private ExpensesTypeView request;
 
     private String status;
 
     @XmlElement(name = "expensesType",required = true)
-    public ExpensesTypeRequest getRequest() {
+    public ExpensesTypeView getRequest() {
         return request;
     }
 
-    public void setRequest(ExpensesTypeRequest request) {
+    public void setRequest(ExpensesTypeView request) {
         this.request = request;
     }
 

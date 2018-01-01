@@ -1,9 +1,6 @@
 package smartbudget.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
 
 /**
@@ -16,8 +13,10 @@ public class ExpensesType implements Serializable {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private int id;
 
+    @Column(name = "description")
     private String desc;
 
+    @Column(name = "description_rus")
     private String descRus;
 
     private boolean isIncome;
