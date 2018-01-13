@@ -4,12 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.web.bind.annotation.*;
+import smartbudget.model.Expenses;
 import smartbudget.model.ExpensesType;
 import smartbudget.service.ExpensesService;
 import smartbudget.service.ModelConverter;
-import smartbudget.view.ExpensesTypeListResponse;
-import smartbudget.view.ExpensesTypeView;
-import smartbudget.view.ExpensesTypeResponse;
+import smartbudget.view.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -67,6 +66,44 @@ public class BudgetController {
         return response;
     }
 
+    @RequestMapping(value = "/create_expenses", method = RequestMethod.POST, consumes = "application/xml", produces = "application/xml")
+    @ResponseBody
+    public ExpensesResponse saveExpensesList(@RequestBody ExpensesRequest expensesRequest) {
+
+        List<Expenses> expensesList = new LinkedList<>();
+
+        ExpensesResponse expensesResponse = new ExpensesResponse();
+        String status = "No items of Expenses";
+
+
+        expensesRequest.getExpensesList().getExpenses().forEach(
+                t -> {
+                    Expenses e = new Expenses();
+                    ExpensesType expensesType = expensesService.getExpensesType(t.getType());
+                    if(expensesType == null) {
+                        throw new RuntimeException("Expenses type not found by id = " + t.getType());
+                    }
+                    e.setMonth(expensesRequest.getMonth());
+                    e.setYear(expensesRequest.getYear());
+                    e.setDate(new java.util.Date());
+                    e.setExpensesType(expensesService.getExpensesType(t.getType()));
+                    e.setDescription(t.getDescription());
+                    e.setAmount(t.getAmount());
+                    expensesList.add(e);
+                }
+
+        );
+
+        if(!expensesList.isEmpty()) {
+            expensesService.saveExpensesList(expensesList);
+            status = "Done";
+        }
+
+        expensesResponse.setStatus(status);
+        expensesResponse.setRequest(expensesRequest);
+
+        return expensesResponse;
+    }
 
 
     @RequestMapping(value = "/")
@@ -78,7 +115,5 @@ public class BudgetController {
     public String kuku() {
         return "String = kuku";
     }
-
-
 
 }

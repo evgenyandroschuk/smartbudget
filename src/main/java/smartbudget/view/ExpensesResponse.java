@@ -10,70 +10,24 @@ import java.io.Serializable;
 @XmlRootElement(name = "Expenses")
 public class ExpensesResponse implements Serializable {
 
-    private int month;
+    private ExpensesRequest request;
 
-    private int year;
+    private String status;
 
-    private String desc;
-
-    private int type;
-
-    private double amount;
-
-    private String updateDate;
-
-    @XmlElement(name = "month", required = true)
-    public int getMonth() {
-        return month;
+    @XmlElement(name = "items", required = true)
+    public ExpensesRequest getRequest() {
+        return request;
     }
 
-    public void setMonth(int month) {
-        this.month = month;
+    public void setRequest(ExpensesRequest request) {
+        this.request = request;
     }
 
-    @XmlElement(name = "year", required = true)
-    public int getYear() {
-        return year;
+    public String getStatus() {
+        return status;
     }
 
-    public void setYear(int year) {
-        this.year = year;
+    public void setStatus(String status) {
+        this.status = status;
     }
-
-    @XmlElement(name = "description")
-    public String getDesc() {
-        return desc;
-    }
-
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
-
-    @XmlElement(name = "type", required = true)
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
-    @XmlElement(name = "amount", required = true)
-    public double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    @XmlElement(name = "updateDate", required = true)
-    public String getUpdateDate() {
-        return updateDate;
-    }
-
-    public void setUpdateDate(String updateDate) {
-        this.updateDate = updateDate;
-    }
-
 }

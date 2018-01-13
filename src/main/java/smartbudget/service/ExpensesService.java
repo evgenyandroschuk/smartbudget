@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Service;
 import smartbudget.model.Expenses;
 import smartbudget.model.ExpensesType;
+import smartbudget.repository.ExpensesRepository;
 import smartbudget.repository.ExpensesTypeRepository;
 
 import java.util.Iterator;
@@ -21,7 +22,7 @@ public class ExpensesService {
     private ExpensesTypeRepository expensesTypeRepository;
 
     @Autowired
-    private ExpensesService expensesService;
+    private ExpensesRepository expensesRepository;
 
 
     public void saveExpensesType(ExpensesType type) {
@@ -43,6 +44,12 @@ public class ExpensesService {
     public Iterable<ExpensesType> findAllExpensesType() {
         return  expensesTypeRepository.findAll();
     }
+
+    public void saveExpensesList(Iterable<Expenses> expenses) {
+        expensesRepository.save(expenses);
+    }
+
+
 
 
 }

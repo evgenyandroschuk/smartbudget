@@ -2,7 +2,8 @@ package smartbudget.model;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Date;
+import java.util.Date;
+
 
 /**
  * Created by evgenyandroshchuk on 19.12.17.
