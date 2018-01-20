@@ -35,7 +35,7 @@ public class BudgetController {
 
 
 
-    @RequestMapping(value = "/create_expenses_type", method = RequestMethod.POST, consumes = "application/xml", produces = "application/xml")
+    @RequestMapping(value = "/create/expensestype", method = RequestMethod.POST, consumes = "application/xml", produces = "application/xml")
     @ResponseBody
     public ExpensesTypeResponse createExpensesType(@RequestBody ExpensesTypeView request) {
         //GetMapping
@@ -76,7 +76,7 @@ public class BudgetController {
         return response;
     }
 
-    @RequestMapping(value = "/create_expenses", method = RequestMethod.POST, consumes = "application/xml", produces = "application/xml")
+    @RequestMapping(value = "/create/expenses", method = RequestMethod.POST, consumes = "application/xml", produces = "application/xml")
     @ResponseBody
     public ExpensesResponse saveExpensesList(@RequestHeader String header, @RequestBody ExpensesRequest expensesRequest) {
 
