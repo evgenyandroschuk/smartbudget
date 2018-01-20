@@ -29,11 +29,8 @@ import java.util.Map;
 @RequestMapping(value = "/expenses")
 public class BudgetController {
 
-
     @Autowired
     private ExpensesService expensesService;
-
-
 
     @RequestMapping(value = "/create/expensestype", method = RequestMethod.POST, consumes = "application/xml", produces = "application/xml")
     @ResponseBody
