@@ -9,6 +9,7 @@ import java.util.List;
  * Created by evgenyandroshchuk on 23.12.17.
  */
 @XmlRootElement(name = "ExpensesItems")
+@XmlType(namespace = "http://localhost:7004/expensesrequest")
 public class ExpensesRequest implements Serializable {
 
 

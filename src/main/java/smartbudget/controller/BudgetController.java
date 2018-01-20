@@ -1,8 +1,10 @@
 package smartbudget.controller;
 
+import groovy.lang.GroovyShell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import smartbudget.model.Expenses;
 import smartbudget.model.ExpensesType;
@@ -10,8 +12,13 @@ import smartbudget.service.ExpensesService;
 import smartbudget.service.ModelConverter;
 import smartbudget.view.*;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by evgenyandroshchuk on 19.12.17.
@@ -19,6 +26,7 @@ import java.util.List;
 @RestController
 @EnableAutoConfiguration
 @EnableConfigurationProperties
+@RequestMapping(value = "/expenses")
 public class BudgetController {
 
 
@@ -43,8 +51,10 @@ public class BudgetController {
         return response;
     }
 
-    @RequestMapping(value = "/expensestype/active", method = RequestMethod.GET, produces = "application/xml")
-    public ExpensesTypeListResponse getActiveExpensesType() {
+    @RequestMapping( value = "/expensestype/active", method = RequestMethod.GET, produces = "application/xml")
+    @ResponseBody
+    public ExpensesTypeListResponse getActiveExpensesType(@RequestHeader Map<String, String> httpHeaders) {
+
         ExpensesTypeListResponse response = new ExpensesTypeListResponse();
         List<ExpensesTypeView> listForView = new LinkedList<>();
         expensesService.findActiveExpensesType().forEach(
@@ -68,7 +78,7 @@ public class BudgetController {
 
     @RequestMapping(value = "/create_expenses", method = RequestMethod.POST, consumes = "application/xml", produces = "application/xml")
     @ResponseBody
-    public ExpensesResponse saveExpensesList(@RequestBody ExpensesRequest expensesRequest) {
+    public ExpensesResponse saveExpensesList(@RequestHeader String header, @RequestBody ExpensesRequest expensesRequest) {
 
         List<Expenses> expensesList = new LinkedList<>();
 
@@ -80,7 +90,7 @@ public class BudgetController {
                 t -> {
                     Expenses e = new Expenses();
                     ExpensesType expensesType = expensesService.getExpensesType(t.getType());
-                    if(expensesType == null) {
+                    if (expensesType == null) {
                         throw new RuntimeException("Expenses type not found by id = " + t.getType());
                     }
                     e.setMonth(expensesRequest.getMonth());
@@ -111,9 +121,22 @@ public class BudgetController {
         return "test String";
     }
 
+    /**
+     *
+     * @return string from groovy file. For testing purpose
+     */
     @RequestMapping(value = "/kuku")
-    public String kuku() {
-        return "String = kuku";
+    public String kuku()  {
+
+        GroovyShell shell = new GroovyShell();
+        String result = null;
+        try {
+            result = (String) shell.evaluate(new FileReader("script.groovy"));
+        } catch (IOException e) {
+            result = "File not found!";
+        }
+
+        return result;
     }
 
 }

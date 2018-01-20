@@ -2,12 +2,14 @@ package smartbudget.view;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 
 /**
  * Created by evgenyandroshchuk on 19.12.17.
  */
 @XmlRootElement(name = "ExpensesType")
+@XmlType(name = "expensestype", namespace = "localhost:7004/xsd/expensestype")
 public class ExpensesTypeView implements Serializable {
 
     private Integer id;
