@@ -4,21 +4,18 @@ import groovy.lang.GroovyShell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import smartbudget.model.Expenses;
 import smartbudget.model.ExpensesType;
 import smartbudget.service.ExpensesService;
 import smartbudget.service.ModelConverter;
 import smartbudget.view.*;
-
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.apache.log4j.Logger;
 
 /**
  * Created by evgenyandroshchuk on 19.12.17.
@@ -113,9 +110,13 @@ public class BudgetController {
     }
 
 
+    /**
+     *
+     * @return This is used for JUnit test. DO NOT DELETE!!
+     */
     @RequestMapping(value = "/")
     public String testString() {
-        return "test String";
+        return "Connection test for Expenses";
     }
 
     /**
