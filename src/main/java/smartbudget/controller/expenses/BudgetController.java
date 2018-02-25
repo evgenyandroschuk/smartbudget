@@ -1,4 +1,4 @@
-package smartbudget.controller;
+package smartbudget.controller.expenses;
 
 import groovy.lang.GroovyShell;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ import smartbudget.view.xml.*;
 @EnableAutoConfiguration
 @EnableConfigurationProperties
 @RequestMapping(value = "/expenses")
-public class BudgetXmlController {
+public class BudgetController {
 
     @Autowired
     private ExpensesService expensesService;

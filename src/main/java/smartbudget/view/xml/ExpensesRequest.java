@@ -1,4 +1,4 @@
-package smartbudget.view;
+package smartbudget.view.xml;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;

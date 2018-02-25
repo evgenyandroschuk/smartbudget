@@ -1,7 +1,7 @@
 package smartbudget.service;
 
 import smartbudget.model.ExpensesType;
-import smartbudget.view.ExpensesTypeView;
+import smartbudget.view.xml.ExpensesTypeView;
 
 /**
  * Created by evgenyandroshchuk on 01.01.2018.

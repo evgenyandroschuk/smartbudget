@@ -1,4 +1,4 @@
-package smartbudget.view;
+package smartbudget.view.xml;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
