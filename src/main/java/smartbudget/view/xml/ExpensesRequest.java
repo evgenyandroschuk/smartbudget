@@ -2,8 +2,6 @@ package smartbudget.view;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by evgenyandroshchuk on 23.12.17.

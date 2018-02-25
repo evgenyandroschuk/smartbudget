@@ -4,18 +4,20 @@ import groovy.lang.GroovyShell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import smartbudget.model.Expenses;
 import smartbudget.model.ExpensesType;
 import smartbudget.service.ExpensesService;
 import smartbudget.service.ModelConverter;
-import smartbudget.view.*;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
+
+import smartbudget.view.xml.*;
 
 /**
  * Created by evgenyandroshchuk on 19.12.17.
@@ -24,7 +26,7 @@ import org.apache.log4j.Logger;
 @EnableAutoConfiguration
 @EnableConfigurationProperties
 @RequestMapping(value = "/expenses")
-public class BudgetController {
+public class BudgetXmlController {
 
     @Autowired
     private ExpensesService expensesService;
@@ -45,7 +47,7 @@ public class BudgetController {
         return response;
     }
 
-    @RequestMapping( value = "/expensestype/active", method = RequestMethod.GET, produces = "application/xml")
+    @RequestMapping( value = "/expensestype/active", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public ExpensesTypeListResponse getActiveExpensesType(@RequestHeader Map<String, String> httpHeaders) {
 
@@ -59,18 +61,21 @@ public class BudgetController {
         return response;
     }
 
-    @RequestMapping(value = "/expensestype/all", method = RequestMethod.GET, produces = "application/xml")
+    @RequestMapping(value = "/expensestype/all", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE })
     public ExpensesTypeListResponse getAllExpensesType() {
         ExpensesTypeListResponse response = new ExpensesTypeListResponse();
         List<ExpensesTypeView> typeViewList = new LinkedList<>();
         expensesService.findAllExpensesType().forEach(
                 t -> typeViewList.add(ModelConverter.convertToExpensesTypeView(t))
         );
+        if(typeViewList.isEmpty()) {
+            throw new RuntimeException("Expenses type list is empty");
+        }
         response.setExpensesTypeList(typeViewList);
         return response;
     }
 
-    @RequestMapping(value = "/create/expenses", method = RequestMethod.POST, consumes = "application/xml", produces = "application/xml")
+    @RequestMapping(value = "/create/expenses", method = RequestMethod.POST, consumes = MediaType.APPLICATION_XML_VALUE, produces = "application/xml")
     @ResponseBody
     public ExpensesResponse saveExpensesList(@RequestHeader String header, @RequestBody ExpensesRequest expensesRequest) {
 
