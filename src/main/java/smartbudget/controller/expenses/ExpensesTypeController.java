@@ -2,7 +2,6 @@ package smartbudget.controller.expenses;
 
 import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,13 +15,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/expenses/exptype")
-@EnableAutoConfiguration
 public class ExpensesTypeController {
 
-
-
     private ApplicationProjectService service;
-
 
     @Autowired
     public ExpensesTypeController(ApplicationProjectService service, ApplicationProperties properties) {

@@ -12,9 +12,6 @@ public class DbUtil {
 
     AppProperties properties;
 
-    public DbUtil(AppProperties properties) {
-        this.properties = properties;
-    }
 
     public ResultSet getQueryResult(String query) throws SQLException {
         Connection connection = new DbConnector(properties).getConnection();
@@ -24,7 +21,7 @@ public class DbUtil {
 
     }
 
-
-
-
+    public void setProperties(AppProperties properties) {
+        this.properties = properties;
+    }
 }

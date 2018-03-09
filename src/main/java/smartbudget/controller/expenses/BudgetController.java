@@ -13,6 +13,7 @@ import smartbudget.service.ModelConverter;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,7 @@ import smartbudget.view.xml.*;
 @RestController
 @EnableAutoConfiguration
 @EnableConfigurationProperties
-@RequestMapping(value = "/expenses")
+@RequestMapping(value = "/budget")
 public class BudgetController {
 
     @Autowired
@@ -94,7 +95,7 @@ public class BudgetController {
                     }
                     e.setMonth(expensesRequest.getMonth());
                     e.setYear(expensesRequest.getYear());
-                    e.setDate(new java.util.Date());
+                    e.setDate(LocalDate.now());
                     e.setExpensesType(expensesService.getExpensesType(t.getType()));
                     e.setDescription(t.getDescription());
                     e.setAmount(t.getAmount());

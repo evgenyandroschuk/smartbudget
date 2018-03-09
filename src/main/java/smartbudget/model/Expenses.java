@@ -2,6 +2,7 @@ package smartbudget.model;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 
 
@@ -27,19 +28,37 @@ public class Expenses implements Serializable {
 
     double amount;
 
-    Date date;
+    LocalDate date;
 
     public Expenses() {
         super();
     }
 
-    public Expenses(int month, int year, String description, ExpensesType expensesType, double amount, Date date) {
+    public Expenses(int month, int year, String description, ExpensesType expensesType, double amount, LocalDate date) {
         this.month = month;
         this.year = year;
         this.description = description;
         this.expensesType = expensesType;
         this.amount = amount;
         this.date = date;
+    }
+
+    public Expenses(long id, int month, int year, String description, ExpensesType expensesType, double amount, LocalDate date) {
+        this.id = id;
+        this.month = month;
+        this.year = year;
+        this.description = description;
+        this.expensesType = expensesType;
+        this.amount = amount;
+        this.date = date;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public int getMonth() {
@@ -82,11 +101,11 @@ public class Expenses implements Serializable {
         this.amount = amount;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
