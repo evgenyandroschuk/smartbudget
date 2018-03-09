@@ -8,7 +8,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ApplicationProperties {
+public class ApplicationProperties implements AppProperties {
 
 
     @Autowired
@@ -16,6 +16,11 @@ public class ApplicationProperties {
 
     public String getProperty(String key) {
         return environment.getProperty(key);
+    }
+
+    @Override
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
 

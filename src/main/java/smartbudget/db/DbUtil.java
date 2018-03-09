@@ -1,5 +1,6 @@
 package smartbudget.db;
 
+import smartbudget.util.AppProperties;
 import smartbudget.util.ApplicationProperties;
 
 import java.sql.Connection;
@@ -9,9 +10,9 @@ import java.sql.Statement;
 
 public class DbUtil {
 
-    ApplicationProperties properties;
+    AppProperties properties;
 
-    public DbUtil(ApplicationProperties properties) {
+    public DbUtil(AppProperties properties) {
         this.properties = properties;
     }
 

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import smartbudget.db.DbConnector;
 import smartbudget.db.DbUtil;
 import smartbudget.model.ExpensesType;
+import smartbudget.util.AppProperties;
 import smartbudget.util.ApplicationProperties;
 
 import java.sql.Connection;
@@ -16,8 +17,9 @@ import java.util.List;
 @Service
 public class ApplicationProjectService {
 
-    public List<ExpensesType> getExpensesType(ApplicationProperties properties)  {
+    private AppProperties properties;
 
+    public List<ExpensesType> getExpensesType()  {
 
         List<ExpensesType> types = new LinkedList<>();
 
@@ -40,5 +42,7 @@ public class ApplicationProjectService {
 
     }
 
-
+    public void setProperties(AppProperties properties) {
+        this.properties = properties;
+    }
 }

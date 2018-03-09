@@ -1,28 +1,15 @@
 package smartbudget.db;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Service;
-import smartbudget.Application;
-import smartbudget.util.ApplicationProperties;
-import smartbudget.util.ConfigProperties;
-
+import smartbudget.util.AppProperties;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-@Service
 public class DbConnector {
 
-    ApplicationProperties properties;
+    AppProperties properties;
 
-    public DbConnector(ApplicationProperties properties) {
+    public DbConnector(AppProperties properties) {
         this.properties = properties;
     }
 

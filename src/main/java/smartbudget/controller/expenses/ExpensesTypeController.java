@@ -10,12 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import smartbudget.model.ExpensesType;
 import smartbudget.service.ApplicationProjectService;
 import smartbudget.util.ApplicationProperties;
-import smartbudget.service.ExpensesService;
-import smartbudget.util.ConfigProperties;
 import smartbudget.view.json.expenses.type.TypeResponse;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -28,12 +24,10 @@ public class ExpensesTypeController {
     private ApplicationProjectService service;
 
 
-    private ApplicationProperties properties;
-
     @Autowired
     public ExpensesTypeController(ApplicationProjectService service, ApplicationProperties properties) {
+        service.setProperties(properties);
         this.service = service;
-        this.properties = properties;
     }
 
     @RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -41,7 +35,7 @@ public class ExpensesTypeController {
 
         List<ExpensesType> types;
 
-        types = service.getExpensesType(properties);
+        types = service.getExpensesType();
 
         if(types !=null && types.isEmpty()) {
             return new TypeResponse("properties = " , ImmutableList.of());

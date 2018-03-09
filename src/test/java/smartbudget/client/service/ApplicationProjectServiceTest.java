@@ -18,11 +18,11 @@ public class ApplicationProjectServiceTest {
         ApplicationProjectService service = mock(ApplicationProjectService.class);
         ApplicationProperties properties = mock(ApplicationProperties.class);
 
-        when(service.getExpensesType(properties)).thenReturn(ImmutableList.<ExpensesType>builder()
+        when(service.getExpensesType()).thenReturn(ImmutableList.<ExpensesType>builder()
                 .add(new ExpensesType("desc","desc", true,true))
                 .build());
 
-        Assert.assertNotNull(service.getExpensesType(properties));
+        Assert.assertNotNull(service.getExpensesType());
 
     }
 
