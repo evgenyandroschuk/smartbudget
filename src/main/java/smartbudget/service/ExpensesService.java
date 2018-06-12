@@ -1,55 +1,30 @@
 package smartbudget.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.stereotype.Service;
-import smartbudget.model.Expenses;
-import smartbudget.model.ExpensesType;
-import smartbudget.repository.ExpensesRepository;
-import smartbudget.repository.ExpensesTypeRepository;
+import smartbudget.model.ExpensesData;
 
-import java.util.Iterator;
+import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Created by evgenyandroshchuk on 21.12.17.
- */
-@Service
-@EnableAutoConfiguration
-public class ExpensesService {
+public interface ExpensesService {
 
-    @Autowired
-    private ExpensesTypeRepository expensesTypeRepository;
+    void create(ExpensesData expensesData);
 
-    @Autowired
-    private ExpensesRepository expensesRepository;
+    void create(List<ExpensesData> expensesDataList);
 
+    void update(Long id, ExpensesData expensesData);
 
-    public void saveExpensesType(ExpensesType type) {
-        expensesTypeRepository.save(type);
-    }
+    void delete(Long id );
 
-    public ExpensesType getExpensesType(Integer id) {
-        return expensesTypeRepository.findOne(id);
-    }
+    ExpensesData findById(Long id);
 
-    public Iterable<ExpensesType> getExpensesTypeList() {
-        return expensesTypeRepository.findAll();
-    }
+    List<ExpensesData> findByMonthYear(int month, int year);
 
-    public List<ExpensesType> findActiveExpensesType() {
-        return expensesTypeRepository.findActiveExpensesType();
-    }
+    List<ExpensesData> findByYear(int year);
 
-    public Iterable<ExpensesType> findAllExpensesType() {
-        return  expensesTypeRepository.findAll();
-    }
+    List<ExpensesData> findByDescription(String description, String start, String end);
 
-    public void saveExpensesList(Iterable<Expenses> expenses) {
-        expensesRepository.save(expenses);
-    }
+    List<ExpensesData> findByTypeMonthYear(int type, int month, int year);
 
-
-
+    List<ExpensesData> findByTypeYear(int type, int year);
 
 }
