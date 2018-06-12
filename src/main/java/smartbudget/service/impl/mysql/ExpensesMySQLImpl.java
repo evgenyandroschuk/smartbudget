@@ -5,6 +5,7 @@ import smartbudget.model.ExpensesData;
 import smartbudget.service.ExpensesService;
 import smartbudget.service.impl.AbstractService;
 import smartbudget.util.AppProperties;
+import smartbudget.util.Numerator;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -119,6 +120,19 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
     public List<ExpensesData> findByTypeYear(int type, int year) {
         String query = "select * from expenses where year_id = " + year + " and operation_type_id = " + type;
         return getExpensesDataByQuery(query);
+    }
+
+    private long getMaxIdByNumerator(int id) {
+        String query = "select * from numerator where id = " + id;
+        try(ResultSet rs = dbUtil.getQueryResult(query)) {
+            if (rs.next()) {
+                return rs.getLong("current_value") - 1; // current_value is value for nextId
+            } else {
+                throw new RuntimeException("No such numerator with id = " + id);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private List<ExpensesData> getExpensesDataByQuery(String query) {

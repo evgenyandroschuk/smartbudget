@@ -11,13 +11,16 @@ import smartbudget.model.ExpensesData;
 import smartbudget.model.ExpensesTypeData;
 import smartbudget.service.ExpensesFactory;
 import smartbudget.service.ExpensesService;
+import smartbudget.util.Numerator;
+import smartbudget.util.SystemParams;
 import smartbudget.util.AppProperties;
 import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/budget")
+@RequestMapping(value = "/budget/")
 public class ExpensesOperationController {
 
     ExpensesFactory expensesFactory;
@@ -114,6 +117,46 @@ public class ExpensesOperationController {
         return "Expenses successfully updated";
     }
 
+    /**
+     *
+     * @param amount
+     * http://localhost:7004/budget/expenses/update/expenses_balance?amount=134112
+     * @return
+     */
+    @RequestMapping(value = "/expenses/update/expenses_balance", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public String updateExpensesBalance(@RequestParam Double amount) {
+        double currentId = expensesFactory.getCommonService().getMaxIdByNumerator(Numerator.EXPENSES);
+        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.EXPENSES_OPENING_BALANCE, amount);
+        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.EXPENSES_OPENING_ID, currentId);
+
+        return "Expenses balance successfully updated";
+    }
+
+
+    /**
+     *
+     * @param dollar
+     * @param euro
+     * @param rub
+     * http://localhost:7004/budget/expenses/update/fund_balance?dollar=12001&euro=10001&rub=12001
+     * @return
+     */
+    @RequestMapping(value = "/expenses/update/fund_balance", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public String updateFundBalance(
+            @RequestParam(value = "dollar") Double dollar,
+            @RequestParam(value = "euro") Double euro,
+            @RequestParam(value = "rub") Double rub
+    ) {
+
+        double fundCurrentId = expensesFactory.getCommonService().getMaxIdByNumerator(Numerator.FUND);
+        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.DOLLAR, dollar);
+        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.EURO, euro);
+        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.RUB, rub);
+        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.FUND, fundCurrentId);
+
+        return "Fund balance successfully updated";
+    }
+
 
     /*---------------------------------EXPENSES TYPE-----------------------*/
 
@@ -183,4 +226,66 @@ public class ExpensesOperationController {
         expensesFactory.getExpensesTypeService().update(id ,data);
         return "Expenses type successfully updated";
     }
+
+    /*---------------------------------Other operations-----------------------*/
+
+    /**
+     *
+     * @param userId
+     * @param paramId
+     * http://localhost:7004/budget/common/param?user_id=1&param_id=1
+     * @return
+     */
+    @RequestMapping(value = "/common/param", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public double getUserParamValue(
+            @RequestParam(value = "user_id") int userId,
+            @RequestParam(value = "param_id") int paramId
+    ) {
+        return expensesFactory.getCommonService().getUserParamValue(userId, paramId);
+    }
+
+
+    /**
+     *
+     * @param userId
+     * @param paramId
+     * @param value
+     * http://localhost:7004/budget/common/param/update?user_id=1&param_id=3&value=13
+     * @return
+     */
+    @RequestMapping(value = "/common/param/update", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public String updateUserParamValue(
+            @RequestParam(value = "user_id") int userId,
+            @RequestParam(value = "param_id") int paramId,
+            @RequestParam(value = "value") double value
+    ) {
+        expensesFactory.getCommonService().createReplaceUserParams(userId, paramId, value);
+        return "User param successfully updated";
+    }
+
+    @RequestMapping(value = "/fund", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public List<Map<String,Object>> getFunds() {
+        return expensesFactory.getCommonService().getQueryRequest("select * from fund");
+    }
+
+    @RequestMapping(value = "/fund/save", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public String saveFund(
+            @RequestParam int currency,
+            @RequestParam String description,
+            @RequestParam Double price,
+            @RequestParam Double amount
+    ){
+        String query = String.format("insert into fund values(get_id(5), sysdate(), %d, %.2f, '%s', %.2f)", currency, amount,  description, price);
+        expensesFactory.getCommonService().execute(query);
+        return "Fund successfully saved";
+    }
+
+    @RequestMapping(value = "/fund/delete", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public String deleteFund(
+            @RequestParam int id
+    ) {
+        expensesFactory.getCommonService().execute("delete from fund where id = " + id);
+        return "Fund successfully deleted";
+    }
+
 }

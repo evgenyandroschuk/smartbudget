@@ -16,10 +16,6 @@ public class DbUtil {
         this.properties = properties;
     }
 
-    public DbUtil() {
-        super();
-    }
-
     public ResultSet getQueryResult(String query) throws SQLException {
         Connection connection = new DbConnector(properties).getConnection();
         Statement statement = connection.createStatement();
@@ -37,9 +33,5 @@ public class DbUtil {
             throw new IllegalArgumentException(e);
         }
 
-    }
-
-    public void setProperties(AppProperties properties) {
-        this.properties = properties;
     }
 }

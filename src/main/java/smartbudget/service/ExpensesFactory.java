@@ -1,6 +1,6 @@
 package smartbudget.service;
 
-import org.springframework.stereotype.Service;
+import smartbudget.service.impl.mysql.CommonMySQLImpl;
 import smartbudget.service.impl.mysql.ExpensesMySQLImpl;
 import smartbudget.service.impl.mysql.ExpensesTypeMySQLImpl;
 import smartbudget.util.AppProperties;
@@ -30,6 +30,13 @@ public class ExpensesFactory {
     public ExpensesTypeService getExpensesTypeService() {
         if (name.equals("mysql")) {
             return new ExpensesTypeMySQLImpl(properties);
+        }
+        throw throwException(name);
+    }
+
+    public CommonService getCommonService() {
+        if(name.equals("mysql")) {
+            return new CommonMySQLImpl(properties);
         }
         throw throwException(name);
     }

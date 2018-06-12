@@ -27,4 +27,5 @@ public interface ExpensesService {
 
     List<ExpensesData> findByTypeYear(int type, int year);
 
+
 }
