@@ -7,10 +7,7 @@ import smartbudget.util.AppProperties;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CommonMySQLImpl extends AbstractService implements CommonService {
 
@@ -67,15 +64,15 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
     }
 
     @Override
-    public List<Map<String, Object>> getQueryRequest(String query) {
-        List<Map<String, Object>> resultList = new LinkedList<>();
+    public List<Map<String, String>> getQueryRequest(String query) {
+        List<Map<String, String>> resultList = new ArrayList<>();
         try(ResultSet rs = dbUtil.getQueryResult(query)) {
             while(rs.next()) {
-                Map<String, Object> map = new HashMap<>();
+                Map<String, String> map = new HashMap<>();
                 int i = 0;
                 while(i < rs.getMetaData().getColumnCount()) {
                     i++;
-                    map.put(rs.getMetaData().getColumnName(i), rs.getObject(i));
+                    map.put(rs.getMetaData().getColumnName(i), rs.getString(i));
                 }
                 resultList.add(map);
             }

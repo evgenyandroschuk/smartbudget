@@ -264,8 +264,8 @@ public class ExpensesOperationController {
     }
 
     @RequestMapping(value = "/fund", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public List<Map<String,Object>> getFunds() {
-        return expensesFactory.getCommonService().getQueryRequest("select * from fund");
+    public List<Map<String,String>> getFunds() {
+        return expensesFactory.getCommonService().getQueryRequest("select * from fund order by id");
     }
 
     @RequestMapping(value = "/fund/save", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

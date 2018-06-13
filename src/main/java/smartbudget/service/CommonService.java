@@ -11,7 +11,7 @@ public interface CommonService {
 
     long getMaxIdByNumerator(int id);
 
-    List<Map<String, Object>> getQueryRequest(String query);
+    List<Map<String, String>> getQueryRequest(String query);
 
     void execute(String query);
 
