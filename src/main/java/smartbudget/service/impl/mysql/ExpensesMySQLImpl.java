@@ -1,14 +1,13 @@
 package smartbudget.service.impl.mysql;
 
-import smartbudget.db.DbUtil;
 import smartbudget.model.ExpensesData;
 import smartbudget.service.ExpensesService;
 import smartbudget.service.impl.AbstractService;
-import smartbudget.util.AppProperties;
-import smartbudget.util.Numerator;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -17,14 +16,10 @@ import java.util.regex.Pattern;
 
 public class ExpensesMySQLImpl extends AbstractService implements ExpensesService {
 
-
-    private DbUtil dbUtil;
-
     private String dateRegEx = "^[0-9]{4}-[0-9]{1}[0-9]{1}-[0-3]{1}[0-9]{1}$";
 
-    public ExpensesMySQLImpl(AppProperties properties) {
-        super(properties);
-        dbUtil = new DbUtil(properties);
+    public ExpensesMySQLImpl(Connection connection) throws SQLException {
+        super(connection);
     }
 
     private void checkDateFormat(String dateString) {
@@ -48,7 +43,13 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
                 "insert into expenses ( id, description, month_id, year_id, operation_type_id, update_date, amount)"
                  + "values(get_id(1), '" + description + "', " + month + ", "+year+ ", "
                         + type + ", '" + updateDate + "', " + amountString + " )";
-        dbUtil.executeQuery(query);
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            statement.execute(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -71,14 +72,25 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
                 + ", month_id = " + month + ", year_id = " + year + ", amount = " + amountString
                 + " where id = " + id;
 
-        dbUtil.executeQuery(query);
-
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            statement.execute(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void delete(Long id) {
         String query = "delete from expenses where id = " + id;
-        dbUtil.executeQuery(query);
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            statement.execute(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -124,7 +136,8 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
 
     private long getMaxIdByNumerator(int id) {
         String query = "select * from numerator where id = " + id;
-        try(ResultSet rs = dbUtil.getQueryResult(query)) {
+        try(Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(query)) {
             if (rs.next()) {
                 return rs.getLong("current_value") - 1; // current_value is value for nextId
             } else {
@@ -139,7 +152,8 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
 
         List<ExpensesData> result = new LinkedList<>();
 
-        try(ResultSet rs = dbUtil.getQueryResult(query)) {
+        try(Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(query)) {
             while (rs.next()){
                 long id = rs.getLong("id");
                 int month_id = rs.getInt("month_id");

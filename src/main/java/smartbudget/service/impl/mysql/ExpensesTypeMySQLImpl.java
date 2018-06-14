@@ -1,24 +1,19 @@
 package smartbudget.service.impl.mysql;
 
-import com.google.common.base.Objects;
-import smartbudget.db.DbUtil;
 import smartbudget.model.ExpensesTypeData;
 import smartbudget.service.ExpensesTypeService;
 import smartbudget.service.impl.AbstractService;
-import smartbudget.util.AppProperties;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 
 public class ExpensesTypeMySQLImpl extends AbstractService implements ExpensesTypeService {
-
-    DbUtil dbUtil;
-
-    public ExpensesTypeMySQLImpl(AppProperties properties) {
-        super(properties);
-        dbUtil = new DbUtil(properties);
+    public ExpensesTypeMySQLImpl(Connection connection) {
+        super(connection);
     }
 
     @Override
@@ -33,7 +28,13 @@ public class ExpensesTypeMySQLImpl extends AbstractService implements ExpensesTy
         String query =
                 "insert into t_operation_type (id, description, description_ru, is_income, is_active ) values(" +
                         id + ", '" + description + "', '" + descriptionRus + "', " + isIncome + ", " + isActive + ")";
-        dbUtil.executeQuery(query);
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            statement.execute(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -47,7 +48,13 @@ public class ExpensesTypeMySQLImpl extends AbstractService implements ExpensesTy
                 "update t_operation_type set description = '" + desc + "', description_ru = '" + descRu + "', " +
                         "is_income = " + isIncome + ", is_active = " + isActive + " where id = " + id;
 
-        dbUtil.executeQuery(query);
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            statement.execute(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -76,7 +83,8 @@ public class ExpensesTypeMySQLImpl extends AbstractService implements ExpensesTy
 
         List<ExpensesTypeData> result = new LinkedList<>();
 
-        try (ResultSet rs = dbUtil.getQueryResult(query)){
+        try (Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery(query)){
             while (rs.next()) {
                 int id = rs.getInt("id");
                 String description = rs.getString("description");

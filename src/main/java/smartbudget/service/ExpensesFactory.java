@@ -5,38 +5,43 @@ import smartbudget.service.impl.mysql.ExpensesMySQLImpl;
 import smartbudget.service.impl.mysql.ExpensesTypeMySQLImpl;
 import smartbudget.util.AppProperties;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 public class ExpensesFactory {
 
     private String name;
-    private AppProperties properties;
+    Connection connection;
 
-    public ExpensesFactory(AppProperties properties, String name) {
+    public ExpensesFactory(String name, Connection connection) {
         if (!name.equals("mysql")) {
             throw throwException(name);
         }
-        this.properties = properties;
         this.name = name;
+        this.connection = connection;
     }
-
 
     public ExpensesService getExpensesService() {
         if (name.equals("mysql")) {
-            return new ExpensesMySQLImpl(properties);
+            try {
+                return new ExpensesMySQLImpl(connection);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         throw throwException(name);
-
     }
 
     public ExpensesTypeService getExpensesTypeService() {
         if (name.equals("mysql")) {
-            return new ExpensesTypeMySQLImpl(properties);
+            return new ExpensesTypeMySQLImpl(connection);
         }
         throw throwException(name);
     }
 
     public CommonService getCommonService() {
         if(name.equals("mysql")) {
-            return new CommonMySQLImpl(properties);
+                return new CommonMySQLImpl(connection);
         }
         throw throwException(name);
     }

@@ -4,12 +4,14 @@ import org.springframework.stereotype.Service;
 import smartbudget.db.DbUtil;
 import smartbudget.util.AppProperties;
 
+import java.sql.Connection;
+
 public abstract class AbstractService {
 
-    protected DbUtil dbUtil;
+    protected Connection connection;
 
-    public AbstractService(AppProperties properties) {
-        dbUtil = new DbUtil(properties);
+    public AbstractService(Connection connection) {
+        this.connection = connection;
     }
 
 }

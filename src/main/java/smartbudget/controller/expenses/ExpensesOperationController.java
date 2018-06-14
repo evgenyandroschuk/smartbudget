@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import smartbudget.db.DbUtil;
 import smartbudget.model.ExpensesData;
 import smartbudget.model.ExpensesTypeData;
 import smartbudget.service.ExpensesFactory;
@@ -14,6 +15,9 @@ import smartbudget.service.ExpensesService;
 import smartbudget.util.Numerator;
 import smartbudget.util.SystemParams;
 import smartbudget.util.AppProperties;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,9 +30,10 @@ public class ExpensesOperationController {
     ExpensesFactory expensesFactory;
 
     @Autowired
-    public ExpensesOperationController(AppProperties properties) {
+    public ExpensesOperationController(AppProperties properties) throws SQLException {
         String name = properties.getProperty("app.impl");
-        expensesFactory = new ExpensesFactory(properties, name);
+        Connection connection = new DbUtil(properties).getConnect();
+        expensesFactory = new ExpensesFactory(name, connection);
     }
 
     @RequestMapping(value = "/expenses", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
