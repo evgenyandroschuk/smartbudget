@@ -376,13 +376,19 @@ public class ExpensesOperationController {
                 String.format("select sum(amount) amount from fund where id > %.2f and currency_id = 3", fundId)).get(0).get("amount")
         );
 
-        double restDollarAmount = (startDollarAmount + fundDollarAmount) * dollarPrice;
-        double restEuroAmount = (startEuroAmount + fundEuroAmount) * euroPrice;
+        double restDollarAmount = (startDollarAmount + fundDollarAmount);
+        double restEuroAmount = (startEuroAmount + fundEuroAmount);
         double restRubAmount =  startRubAmount + fundRubAmount;
         double restAllAmount = restDollarAmount + restEuroAmount + restRubAmount + restAmount;
+        double restDollarAmountRub = restDollarAmount * dollarPrice;
+        double restEuroAmountRub = restEuroAmount * euroPrice;
 
         result.put("rest_dollar_amount", String.format("%.2f",restDollarAmount));
+        result.put("rest_dollar_in_rub", String.format("%.2f",restDollarAmountRub));
+
         result.put("rest_euro_amount", String.format("%.2f", restEuroAmount));
+        result.put("rest_euro_in_rub", String.format("%.2f", restEuroAmountRub));
+
         result.put("rest_rub_amount", String.format("%.2f",restRubAmount));
         result.put("rest_all_amount", String.format("%.2f", restAllAmount));
         result.put("dollar_price", String.format("%.2f", dollarPrice));
