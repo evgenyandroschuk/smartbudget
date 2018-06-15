@@ -3,7 +3,6 @@ package smartbudget.service;
 import smartbudget.service.impl.mysql.CommonMySQLImpl;
 import smartbudget.service.impl.mysql.ExpensesMySQLImpl;
 import smartbudget.service.impl.mysql.ExpensesTypeMySQLImpl;
-import smartbudget.util.AppProperties;
 
 import java.sql.Connection;
 import java.sql.SQLException;

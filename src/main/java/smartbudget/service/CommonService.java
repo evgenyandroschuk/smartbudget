@@ -9,6 +9,8 @@ public interface CommonService {
 
     double getUserParamValue(int userId, int paramId);
 
+    String getUserParamUpdateDate(int userId, int paramId);
+
     long getMaxIdByNumerator(int id);
 
     List<Map<String, String>> getQueryRequest(String query);

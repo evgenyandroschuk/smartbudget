@@ -54,6 +54,19 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
         throw new RuntimeException(String.format("No such system_param with userId = %d and param_id = %d ", userId, paramId));
     }
 
+    public String getUserParamUpdateDate(int userId, int paramId) {
+        String query = "select * from  t_user_system_params where userid = " + userId +" and system_param_id = " + paramId;
+        try (Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery(query)) {
+            if (rs.next()) {
+                return rs.getString("update_date");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        throw new RuntimeException(String.format("No such system_param with userId = %d and param_id = %d ", userId, paramId));
+    }
+
     public long getMaxIdByNumerator(int id) {
         String query = "select * from numerator where id = " + id;
         try(Statement statement = connection.createStatement();

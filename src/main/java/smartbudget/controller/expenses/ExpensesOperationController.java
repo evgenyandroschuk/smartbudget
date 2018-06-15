@@ -1,8 +1,11 @@
 package smartbudget.controller.expenses;
 
 import com.google.common.collect.ImmutableList;
+import org.codehaus.groovy.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +22,8 @@ import smartbudget.util.AppProperties;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -154,10 +159,10 @@ public class ExpensesOperationController {
     ) {
 
         double fundCurrentId = expensesFactory.getCommonService().getMaxIdByNumerator(Numerator.FUND);
-        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.DOLLAR, dollar);
-        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.EURO, euro);
-        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.RUB, rub);
-        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.FUND, fundCurrentId);
+        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.DOLLAR_OPENING_BALANCE, dollar);
+        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.EURO_OPENING_BALANCE, euro);
+        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.RUB_OPENING_BALANCE, rub);
+        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.FUND_OPENING_ID, fundCurrentId);
 
         return "Fund balance successfully updated";
     }
@@ -292,5 +297,107 @@ public class ExpensesOperationController {
         expensesFactory.getCommonService().execute("delete from fund where id = " + id);
         return "Fund successfully deleted";
     }
+
+    /*--------------Statistics-----------------*/
+
+    @RequestMapping(value = "/statistic/expenses", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public Map<String, String> getTotalExpensesByMonthYear(
+            @RequestParam (value = "year")Integer year,
+            @RequestParam (value = "month", required = false, defaultValue = "")Integer month
+    ) {
+        Map<String, String> result = new HashMap<>();
+        if (month != null) {
+            return expensesFactory.getCommonService().getQueryRequest(
+                    String.format(
+                            "select sum( amount) as amount from expenses, t_operation_type \n" +
+                                    "where expenses.operation_type_id = t_operation_type.id\n" +
+                                    "and is_income = 0 " +
+                                    "and year_id = %d " +
+                                    "and month_id = %d", year, month )
+            ).get(0);
+        }
+        return expensesFactory.getCommonService().getQueryRequest(
+                String.format(
+                        "select sum( amount) as amount from expenses, t_operation_type \n" +
+                                "where expenses.operation_type_id = t_operation_type.id\n" +
+                                "and is_income = 0\n" +
+                                "and year_id = %d",  year)
+        ).get(0);
+    }
+
+    @RequestMapping(value = "/statistic/current", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public Map<String, String> getCurrentStatistic() {
+
+        LocalDate now = LocalDate.now();
+
+        Map<String, String> result = getTotalExpensesByMonthYear(now.getYear(), now.getMonthValue());
+        double startAmount = expensesFactory.getCommonService().getUserParamValue(1, SystemParams.EXPENSES_OPENING_BALANCE);
+        String startAmountDate = expensesFactory.getCommonService().getUserParamUpdateDate(1, SystemParams.EXPENSES_OPENING_BALANCE);
+        double startId = expensesFactory.getCommonService().getUserParamValue(1, SystemParams.EXPENSES_OPENING_ID);
+
+        result.put("open_balance_amount", String.format("%.2f", startAmount));
+
+        LocalDate balance_date = LocalDate.parse(startAmountDate,DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        result.put("open_balance_date", balance_date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+
+
+        double expensesAmount = getDoubleOrZero(expensesFactory.getCommonService().getQueryRequest(
+                String.format("select sum(amount) expens_amount from expenses where id > %.2f",  startId)).get(0).get("expens_amount")
+        );
+
+        double restAmount = startAmount - expensesAmount;
+        result.put("rest_amount", String.format("%.2f", restAmount));
+
+        //Fund values
+        double fundId = expensesFactory.getCommonService().getUserParamValue(1, SystemParams.FUND_OPENING_ID);
+        double startDollarAmount = expensesFactory.getCommonService().getUserParamValue(1, SystemParams.DOLLAR_OPENING_BALANCE);
+        double startEuroAmount = expensesFactory.getCommonService().getUserParamValue(1, SystemParams.EURO_OPENING_BALANCE);
+        double startRubAmount = expensesFactory.getCommonService().getUserParamValue(1, SystemParams.RUB_OPENING_BALANCE);
+
+        double dollarPrice = getDoubleOrZero(
+                expensesFactory.getCommonService().getQueryRequest("select * from currency where id = 1").get(0).get("price")
+        );
+
+        double euroPrice = getDoubleOrZero(
+                expensesFactory.getCommonService().getQueryRequest("select * from currency where id = 2").get(0).get("price")
+        );
+
+        double fundDollarAmount = getDoubleOrZero(
+                expensesFactory.getCommonService().getQueryRequest(
+                    String.format("select sum(amount) amount from fund where id > %.2f and currency_id = 1", fundId)
+                ).get(0).get("amount")
+        );
+        double fundEuroAmount = getDoubleOrZero(expensesFactory.getCommonService().getQueryRequest(
+                String.format("select sum(amount) amount from fund where id > %.2f and currency_id = 2", fundId)).get(0).get("amount")
+        );
+
+        double fundRubAmount = getDoubleOrZero(expensesFactory.getCommonService().getQueryRequest(
+                String.format("select sum(amount) amount from fund where id > %.2f and currency_id = 3", fundId)).get(0).get("amount")
+        );
+
+        double restDollarAmount = (startDollarAmount + fundDollarAmount) * dollarPrice;
+        double restEuroAmount = (startEuroAmount + fundEuroAmount) * euroPrice;
+        double restRubAmount =  startRubAmount + fundRubAmount;
+        double restAllAmount = restDollarAmount + restEuroAmount + restRubAmount + restAmount;
+
+        result.put("rest_dollar_amount", String.format("%.2f",restDollarAmount));
+        result.put("rest_euro_amount", String.format("%.2f", restEuroAmount));
+        result.put("rest_rub_amount", String.format("%.2f",restRubAmount));
+        result.put("rest_all_amount", String.format("%.2f", restAllAmount));
+        result.put("dollar_price", String.format("%.2f", dollarPrice));
+        result.put("euro_price", String.format("%.2f", euroPrice));
+
+        return result;
+    }
+
+    private double getDoubleOrZero(String string) {
+        if (string == null) {
+            return 0;
+        }
+        return Double.valueOf(string);
+    }
+
+
 
 }
