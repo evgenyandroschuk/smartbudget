@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class CommonMySQLImpl extends AbstractService implements CommonService {
@@ -22,7 +24,7 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
         try (Statement statement = connection.createStatement();
              ResultSet rs = statement.executeQuery(query)) {
             if (rs.next()) {
-                execute = "update t_user_system_params set system_value = " + value + " where userid = " + userId +" and system_param_id = " + paramId;
+                execute = String.format("update t_user_system_params set system_value = %.2f, update_date =sysdate() where userid = %d and system_param_id = %d", value, userId, paramId);
             } else {
                 execute = "insert into t_user_system_params (id, userid, system_param_id, system_value, update_date) " +
                         "values(get_id(7), " + userId + ", " + paramId + ", " + value + ", sysdate())";
@@ -34,9 +36,9 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
         Statement statement = null;
         try {
             statement = connection.createStatement();
-            statement.execute(query);
+            statement.execute(execute);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -108,7 +110,7 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
             statement = connection.createStatement();
             statement.execute(query);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }

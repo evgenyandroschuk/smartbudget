@@ -25,7 +25,7 @@ public class ExpensesFactory {
             try {
                 return new ExpensesMySQLImpl(connection);
             } catch (SQLException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
         throw throwException(name);

@@ -33,7 +33,7 @@ public class ExpensesTypeMySQLImpl extends AbstractService implements ExpensesTy
             statement = connection.createStatement();
             statement.execute(query);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -53,7 +53,7 @@ public class ExpensesTypeMySQLImpl extends AbstractService implements ExpensesTy
             statement = connection.createStatement();
             statement.execute(query);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
