@@ -48,7 +48,7 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
             statement = connection.createStatement();
             statement.execute(query);
         } catch (SQLException e) {
-            e.printStackTrace();
+           throw new RuntimeException(e);
         }
     }
 
@@ -77,7 +77,7 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
             statement = connection.createStatement();
             statement.execute(query);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -89,7 +89,7 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
             statement = connection.createStatement();
             statement.execute(query);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -101,7 +101,7 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
 
     @Override
     public List<ExpensesData> findByMonthYear(int month, int year) {
-        String query = "select * from expenses where month_id = " + month + " and year_id = " + year;
+        String query = "select * from expenses where month_id = " + month + " and year_id = " + year + " order by id desc";
         return getExpensesDataByQuery(query);
     }
 

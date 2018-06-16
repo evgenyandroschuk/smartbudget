@@ -379,9 +379,9 @@ public class ExpensesOperationController {
         double restDollarAmount = (startDollarAmount + fundDollarAmount);
         double restEuroAmount = (startEuroAmount + fundEuroAmount);
         double restRubAmount =  startRubAmount + fundRubAmount;
-        double restAllAmount = restDollarAmount + restEuroAmount + restRubAmount + restAmount;
         double restDollarAmountRub = restDollarAmount * dollarPrice;
         double restEuroAmountRub = restEuroAmount * euroPrice;
+        double restAllAmount = restDollarAmountRub + restEuroAmountRub + restRubAmount + restAmount;
 
         result.put("rest_dollar_amount", String.format("%.2f",restDollarAmount));
         result.put("rest_dollar_in_rub", String.format("%.2f",restDollarAmountRub));
