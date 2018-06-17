@@ -35,7 +35,7 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
         int year = expensesData.getYear();
         int type = expensesData.getType();
         double amount = expensesData.getAmount();
-        String amountString = NumberFormat.getInstance().format(amount);
+        String amountString = Double.toString(amount);
 
         String updateDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
