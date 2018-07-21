@@ -47,7 +47,7 @@ public class ExpensesOperationController {
             @RequestParam(value = "type",  required = false, defaultValue = "") Integer type,
             @RequestParam(value = "year", required = false, defaultValue = "") Integer year,
             @RequestParam(value = "month", required = false, defaultValue = "") Integer month
-    ) {
+    ) throws SQLException {
         List<ExpensesData> result = new LinkedList<>();
 
         LocalDate now = LocalDate.now();
@@ -79,7 +79,7 @@ public class ExpensesOperationController {
             @RequestParam String description,
             @RequestParam String start,
             @RequestParam String end
-    ) {
+    ) throws SQLException {
         return expensesFactory.getExpensesService().findByDescription(description, start, end);
     }
 
@@ -111,7 +111,7 @@ public class ExpensesOperationController {
             @RequestParam (value = "type", required = false, defaultValue = "") Integer type,
             @RequestParam (value = "amount", required = false, defaultValue = "") Double amount,
             @RequestParam(value = "description", required = false, defaultValue = "") String description
-    ) {
+    ) throws SQLException {
 
         ExpensesService service = expensesFactory.getExpensesService();
         ExpensesData oldData = service.findById(id);
@@ -343,10 +343,20 @@ public class ExpensesOperationController {
 
 
         double expensesAmount = getDoubleOrZero(expensesFactory.getCommonService().getQueryRequest(
-                String.format("select sum(amount) expens_amount from expenses where id > %.2f",  startId)).get(0).get("expens_amount")
+                String.format("select sum(amount) expens_amount from expenses e " +
+                        "join t_operation_type t on t.id = e.operation_type_id\n" +
+                        " where e.id > %.2f \n" +
+                        " and t.is_income = 0",  startId)).get(0).get("expens_amount")
         );
 
-        double restAmount = startAmount - expensesAmount;
+        double incomeAmount = getDoubleOrZero(expensesFactory.getCommonService().getQueryRequest(
+                String.format("select sum(amount) expens_amount from expenses e " +
+                        "join t_operation_type t on t.id = e.operation_type_id\n" +
+                        " where e.id > %.2f \n" +
+                        " and t.is_income = 1",  startId)).get(0).get("expens_amount")
+        );
+
+        double restAmount = startAmount - expensesAmount + incomeAmount;
         result.put("rest_amount", String.format("%.2f", restAmount));
 
         //Fund values

@@ -4,14 +4,12 @@ import smartbudget.model.ExpensesData;
 import smartbudget.service.ExpensesService;
 import smartbudget.service.impl.AbstractService;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 public class ExpensesMySQLImpl extends AbstractService implements ExpensesService {
@@ -43,7 +41,7 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
                 "insert into expenses ( id, description, month_id, year_id, operation_type_id, update_date, amount)"
                  + "values(get_id(1), '" + description + "', " + month + ", "+year+ ", "
                         + type + ", '" + updateDate + "', " + amountString + " )";
-        Statement statement = null;
+        Statement statement;
         try {
             statement = connection.createStatement();
             statement.execute(query);
@@ -94,50 +92,71 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
     }
 
     @Override
-    public ExpensesData findById(Long id) {
-        String query = "select * from expenses where id = " + id;
-        return getExpensesDataByQuery(query).get(0);
+    public ExpensesData findById(Long id) throws SQLException {
+        String query = "select * from expenses where id = ?";
+        PreparedStatement statement = connection.prepareStatement(query);
+        statement.setLong(1, id);
+        return getExpensesByPreparedStatement(statement).get(0);
     }
 
     @Override
-    public List<ExpensesData> findByMonthYear(int month, int year) {
-        String query = "select * from expenses where month_id = " + month + " and year_id = " + year + " order by id desc";
-        return getExpensesDataByQuery(query);
+    public List<ExpensesData> findByMonthYear(int month, int year) throws SQLException {
+        String query = "select * from expenses where month_id = ? and year_id = ? order by id desc";
+        PreparedStatement statement = connection.prepareStatement(query);
+        statement.setInt(1, month);
+        statement.setInt(2, year);
+        return getExpensesByPreparedStatement(statement);
     }
 
     @Override
-    public List<ExpensesData> findByYear(int year) {
-        String query = "select * from expenses where year_id = " + year;
-        return getExpensesDataByQuery(query);
+    public List<ExpensesData> findByYear(int year) throws SQLException {
+        String query = "select * from expenses where year_id = ?";
+        PreparedStatement statement = connection.prepareStatement(query);
+        statement.setInt(1, year);
+        return getExpensesByPreparedStatement(statement);
     }
 
     @Override
-    public List<ExpensesData> findByDescription(String description, String start, String end) {
+    public List<ExpensesData> findByDescription(String description, String start, String end) throws SQLException {
         checkDateFormat(start);
         checkDateFormat(end);
-        String query = "select * from expenses where lower(description) like '%" + description.toLowerCase() + "%'"
-                + " and update_date > '" + start + "'"
-                + " and update_date < '" + end + "'";
-        return getExpensesDataByQuery(query);
+        String query = "select * from expenses where lower(description) like ?"
+                + " and update_date > ?"
+                + " and update_date < ?";
+        PreparedStatement statement = connection.prepareStatement(query);
+        statement.setString(1, "%" + description.toLowerCase() + "%");
+        statement.setString(2, start);
+        statement.setString(3, end);
+        return getExpensesByPreparedStatement(statement);
     }
 
     @Override
-    public List<ExpensesData> findByTypeMonthYear(int type, int month, int year) {
+    public List<ExpensesData> findByTypeMonthYear(int type, int month, int year) throws SQLException {
         String query =
-                "select * from expenses where month_id = " + month + " and year_id = " + year + " and operation_type_id = " + type;
-        return getExpensesDataByQuery(query);
+                "select * from expenses where month_id = ? and year_id = ? and operation_type_id = ?";
+        PreparedStatement statement = connection.prepareStatement(query);
+        statement.setInt(1, month);
+        statement.setInt(2, year);
+        statement.setInt(3, type);
+        return getExpensesByPreparedStatement(statement);
     }
 
     @Override
-    public List<ExpensesData> findByTypeYear(int type, int year) {
-        String query = "select * from expenses where year_id = " + year + " and operation_type_id = " + type;
-        return getExpensesDataByQuery(query);
+    public List<ExpensesData> findByTypeYear(int type, int year) throws SQLException {
+        String query = "select * from expenses where year_id = ? and operation_type_id = ?";
+        PreparedStatement statement = connection.prepareStatement(query);
+        statement.setInt(1, year);
+        statement.setInt(2, type);
+        return getExpensesByPreparedStatement(statement);
     }
 
     private long getMaxIdByNumerator(int id) {
-        String query = "select * from numerator where id = " + id;
-        try(Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(query)) {
+        String query = "select * from numerator where id = ?" ;
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery(query);
             if (rs.next()) {
                 return rs.getLong("current_value") - 1; // current_value is value for nextId
             } else {
@@ -148,13 +167,11 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
         }
     }
 
-    private List<ExpensesData> getExpensesDataByQuery(String query) {
-
+    private List<ExpensesData> getExpensesByPreparedStatement(PreparedStatement statement) {
         List<ExpensesData> result = new LinkedList<>();
 
-        try(Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(query)) {
-            while (rs.next()){
+        try ( ResultSet rs = statement.executeQuery()) {
+            while (rs.next()) {
                 long id = rs.getLong("id");
                 int month_id = rs.getInt("month_id");
                 int year_id = rs.getInt("year_id");
@@ -173,9 +190,13 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
 
                 result.add(ExpensesData.of(id, month_id, year_id, expensesType, description, amount, localDate));
             }
+
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         }
         return result;
     }
+
+
+
 }
