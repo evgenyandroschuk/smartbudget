@@ -3,10 +3,7 @@ package smartbudget.service.impl.mysql;
 import smartbudget.service.CommonService;
 import smartbudget.service.impl.AbstractService;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -19,23 +16,29 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
 
     @Override
     public void createReplaceUserParams(int userId, int paramId, double value) {
-        String query = "select * from  t_user_system_params where userid = " + userId +" and system_param_id = " + paramId;
+        String query = "select * from t_user_system_params where userid = ? and system_param_id = ?";
         String execute;
-        try (Statement statement = connection.createStatement();
-             ResultSet rs = statement.executeQuery(query)) {
+        try (PreparedStatement statement = connection.prepareStatement(query)
+            ) {
+            statement.setInt(1, userId);
+            statement.setInt(2, paramId);
+            ResultSet rs = statement.executeQuery(query);
             if (rs.next()) {
-                execute = String.format("update t_user_system_params set system_value = %.2f, update_date =sysdate() where userid = %d and system_param_id = %d", value, userId, paramId);
+                execute = "update t_user_system_params set system_value = ?, update_date = sysdate() where userid = ? and system_param_id = ?";
             } else {
-                execute = "insert into t_user_system_params (id, userid, system_param_id, system_value, update_date) " +
-                        "values(get_id(7), " + userId + ", " + paramId + ", " + value + ", sysdate())";
+                execute = "insert into t_user_system_params (id, system_value, userid, system_param_id, update_date) " +
+                        "values(get_id(7), ?, ?, ?, sysdate())";
             }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        Statement statement = null;
+        PreparedStatement statement;
         try {
-            statement = connection.createStatement();
+            statement = connection.prepareStatement(query);
+            statement.setDouble(1, value);
+            statement.setInt(2, userId);
+            statement.setInt(3, paramId);
             statement.execute(execute);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -103,9 +106,20 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
         return resultList;
     }
 
+    public void updateCurrencyCost(int currencyId, double price) {
+        String query = "update currency set price = ? where id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query))  {
+            statement.setDouble(1, price);
+            statement.setInt(2, currencyId);
+            statement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void execute(String query) {
-        Statement statement = null;
+        Statement statement;
         try {
             statement = connection.createStatement();
             statement.execute(query);

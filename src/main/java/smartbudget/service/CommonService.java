@@ -17,6 +17,8 @@ public interface CommonService {
 
     void execute(String query);
 
+    void updateCurrencyCost(int currencyId, double amount);
+
 
 
 }

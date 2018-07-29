@@ -298,6 +298,14 @@ public class ExpensesOperationController {
         return "Fund successfully deleted";
     }
 
+    @RequestMapping(value = "/currency/update", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public String updateCurrency(@RequestParam String currency, @RequestParam String amount) {
+        int currencyId = Integer.parseInt(currency);
+        double price = Double.parseDouble(amount);
+        expensesFactory.getCommonService().updateCurrencyCost(currencyId, price);
+        return "Currency successfully updated";
+    }
+
     /*--------------Statistics-----------------*/
 
     @RequestMapping(value = "/statistic/expenses", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
