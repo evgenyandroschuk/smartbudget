@@ -4,8 +4,6 @@ import smartbudget.service.CommonService;
 import smartbudget.service.impl.AbstractService;
 
 import java.sql.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class CommonMySQLImpl extends AbstractService implements CommonService {
@@ -22,7 +20,7 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
             ) {
             statement.setInt(1, userId);
             statement.setInt(2, paramId);
-            ResultSet rs = statement.executeQuery(query);
+            ResultSet rs = statement.executeQuery();
             if (rs.next()) {
                 execute = "update t_user_system_params set system_value = ?, update_date = sysdate() where userid = ? and system_param_id = ?";
             } else {
@@ -35,11 +33,11 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
         }
         PreparedStatement statement;
         try {
-            statement = connection.prepareStatement(query);
+            statement = connection.prepareStatement(execute);
             statement.setDouble(1, value);
             statement.setInt(2, userId);
             statement.setInt(3, paramId);
-            statement.execute(execute);
+            statement.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -47,9 +45,11 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
 
     @Override
     public double getUserParamValue(int userId, int paramId) {
-        String query = "select * from  t_user_system_params where userid = " + userId +" and system_param_id = " + paramId;
-        try (Statement statement = connection.createStatement();
-             ResultSet rs = statement.executeQuery(query)) {
+        String query = "select * from  t_user_system_params where userid = ? and system_param_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)){
+             statement.setInt(1, userId);
+             statement.setInt(2, paramId);
+             ResultSet rs = statement.executeQuery();
             if (rs.next()) {
                 return rs.getDouble("system_value");
             }
@@ -60,9 +60,11 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
     }
 
     public String getUserParamUpdateDate(int userId, int paramId) {
-        String query = "select * from  t_user_system_params where userid = " + userId +" and system_param_id = " + paramId;
-        try (Statement statement = connection.createStatement();
-             ResultSet rs = statement.executeQuery(query)) {
+        String query = "select * from  t_user_system_params where userid = ? and system_param_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)){
+             statement.setInt(1, userId);
+             statement.setInt(2, paramId);
+             ResultSet rs = statement.executeQuery();
             if (rs.next()) {
                 return rs.getString("update_date");
             }
@@ -73,9 +75,10 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
     }
 
     public long getMaxIdByNumerator(int id) {
-        String query = "select * from numerator where id = " + id;
-        try(Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(query)) {
+        String query = "select * from numerator where id = ?";
+        try(PreparedStatement statement = connection.prepareStatement(query)) {
+                 statement.setInt(1, id);
+                 ResultSet rs = statement.executeQuery();
             if (rs.next()) {
                 return rs.getLong("current_value") - 1; // current_value is value for nextId
             } else {
