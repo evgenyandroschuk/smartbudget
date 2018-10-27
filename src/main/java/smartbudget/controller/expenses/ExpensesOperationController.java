@@ -1,11 +1,8 @@
 package smartbudget.controller.expenses;
 
 import com.google.common.collect.ImmutableList;
-import org.codehaus.groovy.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import smartbudget.db.DbUtil;
 import smartbudget.model.ExpensesData;
 import smartbudget.model.ExpensesTypeData;
-import smartbudget.service.ExpensesFactory;
+import smartbudget.service.DbServiceFactory;
 import smartbudget.service.ExpensesService;
 import smartbudget.util.Numerator;
 import smartbudget.util.SystemParams;
@@ -32,13 +29,13 @@ import java.util.Map;
 @RequestMapping(value = "/budget/")
 public class ExpensesOperationController {
 
-    ExpensesFactory expensesFactory;
+    DbServiceFactory dbServiceFactory;
 
     @Autowired
     public ExpensesOperationController(AppProperties properties) throws SQLException {
         String name = properties.getProperty("app.impl");
         Connection connection = new DbUtil(properties).getConnect();
-        expensesFactory = new ExpensesFactory(name, connection);
+        dbServiceFactory = new DbServiceFactory(name, connection);
     }
 
     @RequestMapping(value = "/expenses", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -54,21 +51,21 @@ public class ExpensesOperationController {
         year = year == null ? now.getYear() : year;
 
         if(id != null) {
-            return ImmutableList.of(expensesFactory.getExpensesService().findById(id));
+            return ImmutableList.of(dbServiceFactory.getExpensesService().findById(id));
         }
 
         if(type == null) {
             if (month == null) {
-                result.addAll(expensesFactory.getExpensesService().findByYear(year)) ;
+                result.addAll(dbServiceFactory.getExpensesService().findByYear(year)) ;
             } else {
-                result.addAll(expensesFactory.getExpensesService().findByMonthYear(month, year));
+                result.addAll(dbServiceFactory.getExpensesService().findByMonthYear(month, year));
             }
 
         } else {
             if (month == null) {
-                result.addAll(expensesFactory.getExpensesService().findByTypeYear(type, year));
+                result.addAll(dbServiceFactory.getExpensesService().findByTypeYear(type, year));
             } else {
-                result.addAll(expensesFactory.getExpensesService().findByTypeMonthYear(type, month, year));
+                result.addAll(dbServiceFactory.getExpensesService().findByTypeMonthYear(type, month, year));
             }
         }
         return result;
@@ -80,7 +77,7 @@ public class ExpensesOperationController {
             @RequestParam String start,
             @RequestParam String end
     ) throws SQLException {
-        return expensesFactory.getExpensesService().findByDescription(description, start, end);
+        return dbServiceFactory.getExpensesService().findByDescription(description, start, end);
     }
 
     @RequestMapping(value = "/expenses/save", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -93,13 +90,13 @@ public class ExpensesOperationController {
     ) {
 
         ExpensesData data = ExpensesData.of(month, year, type, description, amount, LocalDate.now());
-        expensesFactory.getExpensesService().create(data);
+        dbServiceFactory.getExpensesService().create(data);
         return "Expenses saving success";
     }
 
     @RequestMapping(value = "/expenses/delete", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public String deleteExpenses(@RequestParam Long id) {
-        expensesFactory.getExpensesService().delete(id);
+        dbServiceFactory.getExpensesService().delete(id);
         return "Expenses with id = " + id + " successfully deleted";
     }
 
@@ -113,7 +110,7 @@ public class ExpensesOperationController {
             @RequestParam(value = "description", required = false, defaultValue = "") String description
     ) throws SQLException {
 
-        ExpensesService service = expensesFactory.getExpensesService();
+        ExpensesService service = dbServiceFactory.getExpensesService();
         ExpensesData oldData = service.findById(id);
         int newMonth = month == null ? oldData.getMonth() : month;
         int newYear = year == null ? oldData.getYear() : year;
@@ -135,9 +132,9 @@ public class ExpensesOperationController {
      */
     @RequestMapping(value = "/expenses/update/expenses_balance", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public String updateExpensesBalance(@RequestParam Double amount) {
-        double currentId = expensesFactory.getCommonService().getMaxIdByNumerator(Numerator.EXPENSES);
-        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.EXPENSES_OPENING_BALANCE, amount);
-        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.EXPENSES_OPENING_ID, currentId);
+        double currentId = dbServiceFactory.getCommonService().getMaxIdByNumerator(Numerator.EXPENSES);
+        dbServiceFactory.getCommonService().createReplaceUserParams(1, SystemParams.EXPENSES_OPENING_BALANCE, amount);
+        dbServiceFactory.getCommonService().createReplaceUserParams(1, SystemParams.EXPENSES_OPENING_ID, currentId);
 
         return "Expenses balance successfully updated";
     }
@@ -158,11 +155,11 @@ public class ExpensesOperationController {
             @RequestParam(value = "rub") Double rub
     ) {
 
-        double fundCurrentId = expensesFactory.getCommonService().getMaxIdByNumerator(Numerator.FUND);
-        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.DOLLAR_OPENING_BALANCE, dollar);
-        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.EURO_OPENING_BALANCE, euro);
-        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.RUB_OPENING_BALANCE, rub);
-        expensesFactory.getCommonService().createReplaceUserParams(1, SystemParams.FUND_OPENING_ID, fundCurrentId);
+        double fundCurrentId = dbServiceFactory.getCommonService().getMaxIdByNumerator(Numerator.FUND);
+        dbServiceFactory.getCommonService().createReplaceUserParams(1, SystemParams.DOLLAR_OPENING_BALANCE, dollar);
+        dbServiceFactory.getCommonService().createReplaceUserParams(1, SystemParams.EURO_OPENING_BALANCE, euro);
+        dbServiceFactory.getCommonService().createReplaceUserParams(1, SystemParams.RUB_OPENING_BALANCE, rub);
+        dbServiceFactory.getCommonService().createReplaceUserParams(1, SystemParams.FUND_OPENING_ID, fundCurrentId);
 
         return "Fund balance successfully updated";
     }
@@ -177,12 +174,12 @@ public class ExpensesOperationController {
     ) {
         try {
             if (id != null) {
-                return ImmutableList.of(expensesFactory.getExpensesTypeService().getById(id));
+                return ImmutableList.of(dbServiceFactory.getExpensesTypeService().getById(id));
             }
             if (isActive == null || isActive == true) {
-                return expensesFactory.getExpensesTypeService().getActiveType();
+                return dbServiceFactory.getExpensesTypeService().getActiveType();
             }
-            return expensesFactory.getExpensesTypeService().getAll();
+            return dbServiceFactory.getExpensesTypeService().getAll();
 
         } catch (RuntimeException e) {
             throw e;
@@ -209,7 +206,7 @@ public class ExpensesOperationController {
     ) {
 
         ExpensesTypeData data = ExpensesTypeData.of(id, description, descriptionRus, isIncome, isActive);
-        expensesFactory.getExpensesTypeService().save(data);
+        dbServiceFactory.getExpensesTypeService().save(data);
 
         return "Expenses type successfully saved";
     }
@@ -233,7 +230,7 @@ public class ExpensesOperationController {
             @RequestParam(value = "is_active")  boolean isActive
     ){
         ExpensesTypeData data = ExpensesTypeData.of(description, descriptionRus, isIncome, isActive);
-        expensesFactory.getExpensesTypeService().update(id ,data);
+        dbServiceFactory.getExpensesTypeService().update(id ,data);
         return "Expenses type successfully updated";
     }
 
@@ -251,7 +248,7 @@ public class ExpensesOperationController {
             @RequestParam(value = "user_id") int userId,
             @RequestParam(value = "param_id") int paramId
     ) {
-        return expensesFactory.getCommonService().getUserParamValue(userId, paramId);
+        return dbServiceFactory.getCommonService().getUserParamValue(userId, paramId);
     }
 
 
@@ -269,13 +266,13 @@ public class ExpensesOperationController {
             @RequestParam(value = "param_id") int paramId,
             @RequestParam(value = "value") double value
     ) {
-        expensesFactory.getCommonService().createReplaceUserParams(userId, paramId, value);
+        dbServiceFactory.getCommonService().createReplaceUserParams(userId, paramId, value);
         return "User param successfully updated";
     }
 
     @RequestMapping(value = "/fund", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public List<Map<String,String>> getFunds() {
-        return expensesFactory.getCommonService().getQueryRequest("select * from fund order by id");
+        return dbServiceFactory.getCommonService().getQueryRequest("select * from fund order by id");
     }
 
     @RequestMapping(value = "/fund/save", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -286,7 +283,7 @@ public class ExpensesOperationController {
             @RequestParam Double amount
     ){
         String query = String.format("insert into fund values(get_id(5), sysdate(), %d, %.2f, '%s', %.2f)", currency, amount,  description, price);
-        expensesFactory.getCommonService().execute(query);
+        dbServiceFactory.getCommonService().execute(query);
         return "Fund successfully saved";
     }
 
@@ -294,7 +291,7 @@ public class ExpensesOperationController {
     public String deleteFund(
             @RequestParam int id
     ) {
-        expensesFactory.getCommonService().execute("delete from fund where id = " + id);
+        dbServiceFactory.getCommonService().execute("delete from fund where id = " + id);
         return "Fund successfully deleted";
     }
 
@@ -302,7 +299,7 @@ public class ExpensesOperationController {
     public String updateCurrency(@RequestParam String currency, @RequestParam String amount) {
         int currencyId = Integer.parseInt(currency);
         double price = Double.parseDouble(amount);
-        expensesFactory.getCommonService().updateCurrencyCost(currencyId, price);
+        dbServiceFactory.getCommonService().updateCurrencyCost(currencyId, price);
         return "Currency successfully updated";
     }
 
@@ -315,7 +312,7 @@ public class ExpensesOperationController {
     ) {
         Map<String, String> result = new HashMap<>();
         if (month != null) {
-            return expensesFactory.getCommonService().getQueryRequest(
+            return dbServiceFactory.getCommonService().getQueryRequest(
                     String.format(
                             "select sum( amount) as amount from expenses, t_operation_type \n" +
                                     "where expenses.operation_type_id = t_operation_type.id\n" +
@@ -324,7 +321,7 @@ public class ExpensesOperationController {
                                     "and month_id = %d", year, month )
             ).get(0);
         }
-        return expensesFactory.getCommonService().getQueryRequest(
+        return dbServiceFactory.getCommonService().getQueryRequest(
                 String.format(
                         "select sum( amount) as amount from expenses, t_operation_type \n" +
                                 "where expenses.operation_type_id = t_operation_type.id\n" +
@@ -339,9 +336,9 @@ public class ExpensesOperationController {
         LocalDate now = LocalDate.now();
 
         Map<String, String> result = getTotalExpensesByMonthYear(now.getYear(), now.getMonthValue());
-        double startAmount = expensesFactory.getCommonService().getUserParamValue(1, SystemParams.EXPENSES_OPENING_BALANCE);
-        String startAmountDate = expensesFactory.getCommonService().getUserParamUpdateDate(1, SystemParams.EXPENSES_OPENING_BALANCE);
-        double startId = expensesFactory.getCommonService().getUserParamValue(1, SystemParams.EXPENSES_OPENING_ID);
+        double startAmount = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.EXPENSES_OPENING_BALANCE);
+        String startAmountDate = dbServiceFactory.getCommonService().getUserParamUpdateDate(1, SystemParams.EXPENSES_OPENING_BALANCE);
+        double startId = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.EXPENSES_OPENING_ID);
 
         result.put("open_balance_amount", String.format("%.2f", startAmount));
 
@@ -350,14 +347,14 @@ public class ExpensesOperationController {
         result.put("open_balance_date", balance_date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
 
 
-        double expensesAmount = getDoubleOrZero(expensesFactory.getCommonService().getQueryRequest(
+        double expensesAmount = getDoubleOrZero(dbServiceFactory.getCommonService().getQueryRequest(
                 String.format("select sum(amount) expens_amount from expenses e " +
                         "join t_operation_type t on t.id = e.operation_type_id\n" +
                         " where e.id > %.2f \n" +
                         " and t.is_income = 0",  startId)).get(0).get("expens_amount")
         );
 
-        double incomeAmount = getDoubleOrZero(expensesFactory.getCommonService().getQueryRequest(
+        double incomeAmount = getDoubleOrZero(dbServiceFactory.getCommonService().getQueryRequest(
                 String.format("select sum(amount) expens_amount from expenses e " +
                         "join t_operation_type t on t.id = e.operation_type_id\n" +
                         " where e.id > %.2f \n" +
@@ -368,29 +365,29 @@ public class ExpensesOperationController {
         result.put("rest_amount", String.format("%.2f", restAmount));
 
         //Fund values
-        double fundId = expensesFactory.getCommonService().getUserParamValue(1, SystemParams.FUND_OPENING_ID);
-        double startDollarAmount = expensesFactory.getCommonService().getUserParamValue(1, SystemParams.DOLLAR_OPENING_BALANCE);
-        double startEuroAmount = expensesFactory.getCommonService().getUserParamValue(1, SystemParams.EURO_OPENING_BALANCE);
-        double startRubAmount = expensesFactory.getCommonService().getUserParamValue(1, SystemParams.RUB_OPENING_BALANCE);
+        double fundId = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.FUND_OPENING_ID);
+        double startDollarAmount = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.DOLLAR_OPENING_BALANCE);
+        double startEuroAmount = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.EURO_OPENING_BALANCE);
+        double startRubAmount = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.RUB_OPENING_BALANCE);
 
         double dollarPrice = getDoubleOrZero(
-                expensesFactory.getCommonService().getQueryRequest("select * from currency where id = 1").get(0).get("price")
+                dbServiceFactory.getCommonService().getQueryRequest("select * from currency where id = 1").get(0).get("price")
         );
 
         double euroPrice = getDoubleOrZero(
-                expensesFactory.getCommonService().getQueryRequest("select * from currency where id = 2").get(0).get("price")
+                dbServiceFactory.getCommonService().getQueryRequest("select * from currency where id = 2").get(0).get("price")
         );
 
         double fundDollarAmount = getDoubleOrZero(
-                expensesFactory.getCommonService().getQueryRequest(
+                dbServiceFactory.getCommonService().getQueryRequest(
                     String.format("select sum(amount) amount from fund where id > %.2f and currency_id = 1", fundId)
                 ).get(0).get("amount")
         );
-        double fundEuroAmount = getDoubleOrZero(expensesFactory.getCommonService().getQueryRequest(
+        double fundEuroAmount = getDoubleOrZero(dbServiceFactory.getCommonService().getQueryRequest(
                 String.format("select sum(amount) amount from fund where id > %.2f and currency_id = 2", fundId)).get(0).get("amount")
         );
 
-        double fundRubAmount = getDoubleOrZero(expensesFactory.getCommonService().getQueryRequest(
+        double fundRubAmount = getDoubleOrZero(dbServiceFactory.getCommonService().getQueryRequest(
                 String.format("select sum(amount) amount from fund where id > %.2f and currency_id = 3", fundId)).get(0).get("amount")
         );
 

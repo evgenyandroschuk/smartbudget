@@ -1,5 +1,7 @@
 package smartbudget.model;
 
+import com.google.common.base.Objects;
+
 public class ExpensesTypeData {
 
     private Integer id;
@@ -48,4 +50,31 @@ public class ExpensesTypeData {
         return isActive;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ExpensesTypeData data = (ExpensesTypeData) o;
+        return isIncome == data.isIncome &&
+                isActive == data.isActive &&
+                Objects.equal(id, data.id) &&
+                Objects.equal(desc, data.desc) &&
+                Objects.equal(descRus, data.descRus);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id, desc, descRus, isIncome, isActive);
+    }
+
+    @Override
+    public String toString() {
+        return "ExpensesTypeData{" +
+                "id=" + id +
+                ", desc='" + desc + '\'' +
+                ", descRus='" + descRus + '\'' +
+                ", isIncome=" + isIncome +
+                ", isActive=" + isActive +
+                '}';
+    }
 }
