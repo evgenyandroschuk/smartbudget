@@ -1,5 +1,7 @@
 package smartbudget.controller.vehicle;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -7,7 +9,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import smartbudget.db.DbUtil;
+import smartbudget.model.vehicles.Vehicle;
 import smartbudget.model.vehicles.VehicleData;
+import smartbudget.model.vehicles.VehicleServiceType;
 import smartbudget.service.DbServiceFactory;
 import smartbudget.util.AppProperties;
 
@@ -74,4 +78,41 @@ public class VehicleController {
         dbServiceFactory.getVehicleService().createVehicleData(vehicleData);
         return "successfully saved";
     }
+
+    /**
+     *
+     * @param id
+     * http://localhost:7004/vehicle/data/delete?id=
+     * @return
+     */
+    @RequestMapping(value = "/data/delete", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public String deleteVehicleData(@RequestParam Long id) {
+        dbServiceFactory.getVehicleService().deleteVehicleData(id);
+        return "successfully deleted";
+    }
+
+    /**
+     *
+     * @param id
+     *
+     * http://localhost:7004/vehicle/servicetype?id=2
+     * @return
+     */
+    @RequestMapping(value = "/servicetype", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    List<VehicleServiceType> getServiceTypes(@RequestParam(value = "id", required = false, defaultValue = "") Integer id) {
+        if (id != null) {
+            return ImmutableList.of(dbServiceFactory.getVehicleService().findServiceTypeById(id));
+        }
+        return dbServiceFactory.getVehicleService().getVehicleServiceTypes();
+    }
+
+    @RequestMapping(value = "/vehicles", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    List<Vehicle> getVehicles(@RequestParam(value = "id", required = false, defaultValue = "") Integer id) {
+        if (id != null) {
+            return ImmutableList.of(dbServiceFactory.getVehicleService().findVehicleById(id));
+        }
+        return dbServiceFactory.getVehicleService().getVehicles();
+    }
+
+
 }

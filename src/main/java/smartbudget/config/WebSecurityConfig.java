@@ -26,6 +26,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 .mvcMatchers("/", "/home", "/budget/fund/").hasAuthority(role)
+                .mvcMatchers("/vehicle/**").hasAuthority(role)
                 .mvcMatchers("/**")
                 .permitAll()
                 .anyRequest().hasAuthority(role)

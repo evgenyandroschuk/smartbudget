@@ -14,8 +14,10 @@ public interface VehicleService {
     List<VehicleData> findVehicleDataByYear(int year);
     List<VehicleData> findLastVehicleData(int size);
 
+    List<Vehicle> getVehicles();
     Vehicle findVehicleById(int id);
 
+    List<VehicleServiceType> getVehicleServiceTypes();
     VehicleServiceType findServiceTypeById(int id);
 
 }

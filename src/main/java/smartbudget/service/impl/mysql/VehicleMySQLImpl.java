@@ -47,7 +47,13 @@ public class VehicleMySQLImpl extends AbstractService implements VehicleService 
 
     @Override
     public void deleteVehicleData(Long id) {
-
+        String query = "delete from vehicle_data where id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setLong(1, id);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            new RuntimeException(e);
+        }
     }
 
     @Override
@@ -107,13 +113,79 @@ public class VehicleMySQLImpl extends AbstractService implements VehicleService 
         return vehicleDataList;
     }
 
+    public List<Vehicle> getVehicles() {
+        String query = "select * from vehicle";
+        List<Vehicle> vehicles = new LinkedList<>();
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                Vehicle vehicle;
+                int id = rs.getInt("id");
+                String description = rs.getString("description");
+                String licensePlate = rs.getString("license_plate");
+                String vin = rs.getString("vin_nr");
+                String sts = rs.getString("sts_nr");
+                vehicle = Vehicle.of(id, description, licensePlate, vin, sts);
+                vehicles.add(vehicle);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return vehicles;
+    }
+
     @Override
     public Vehicle findVehicleById(int id) {
-        return null;
+        String query = "select * from vehicle where id = ?";
+        Vehicle vehicle = null;
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                String description = rs.getString("description");
+                String licensePlate = rs.getString("license_plate");
+                String vin = rs.getString("vin_nr");
+                String sts = rs.getString("sts_nr");
+                vehicle = Vehicle.of(id, description, licensePlate, vin, sts);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return vehicle;
+    }
+
+    public List<VehicleServiceType> getVehicleServiceTypes() {
+        String query = "select * from vehicle_service_type";
+        List<VehicleServiceType> serviceTypes = new LinkedList<>();
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                VehicleServiceType serviceType = null;
+                int id = rs.getInt("id");
+                String description = rs.getString("description");
+                serviceType = VehicleServiceType.of(id, description);
+                serviceTypes.add(serviceType);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return serviceTypes;
     }
 
     @Override
     public VehicleServiceType findServiceTypeById(int id) {
-        return null;
+        String query = "select * from vehicle_service_type where id = ?";
+        VehicleServiceType serviceType = null;
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                String description = rs.getString("description");
+                serviceType = VehicleServiceType.of(id, description);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return serviceType;
     }
 }
