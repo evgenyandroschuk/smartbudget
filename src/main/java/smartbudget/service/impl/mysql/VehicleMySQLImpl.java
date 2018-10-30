@@ -86,18 +86,18 @@ public class VehicleMySQLImpl extends AbstractService implements VehicleService 
     }
 
     @Override
-    public List<VehicleData> findLastVehicleData(int size) {
-        String query = "select * from vehicle_data order by id desc limit ?";
+    public List<VehicleData> findLastVehicleData(int vehicleId, int size) {
+        String query = "select * from vehicle_data where vehicle_id = ? order by id desc limit ?";
         List<VehicleData> vehicleDataList = new LinkedList<>();
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, size);
+            statement.setInt(1, vehicleId);
+            statement.setInt(2, size);
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 VehicleData vehicleData = null;
                 long id = rs.getLong("id");
                 int serviceID = rs.getInt("vehicle_service_type_id");
-                int vehicleId = rs.getInt("vehicle_id");
                 String description = rs.getString("description");
                 int mileage = rs.getInt("mileage");
                 double price = rs.getDouble("price");

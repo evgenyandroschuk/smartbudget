@@ -12,7 +12,7 @@ public interface VehicleService {
     void deleteVehicleData(Long id);
     VehicleData findVehicleDataById(Long id);
     List<VehicleData> findVehicleDataByYear(int year);
-    List<VehicleData> findLastVehicleData(int size);
+    List<VehicleData> findLastVehicleData(int vehicleId, int size);
 
     List<Vehicle> getVehicles();
     Vehicle findVehicleById(int id);

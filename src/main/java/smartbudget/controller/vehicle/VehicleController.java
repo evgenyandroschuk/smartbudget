@@ -47,12 +47,15 @@ public class VehicleController {
     /**
      *
      * @param size
-     * http://localhost:7004/vehicle/last/data?size=21
+     * http://localhost:7004/vehicle/data/last?vehicle=1&size=21
      * @return
      */
     @RequestMapping(value = "/data/last", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public List<VehicleData> getLastVehicleData(@RequestParam(value = "size") int size) {
-        return dbServiceFactory.getVehicleService().findLastVehicleData(size);
+    public List<VehicleData> getLastVehicleData(
+            @RequestParam(value = "vehicle") int vehicleId,
+            @RequestParam(value = "size") int size
+    ) {
+        return dbServiceFactory.getVehicleService().findLastVehicleData(vehicleId, size);
     }
 
 

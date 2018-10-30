@@ -338,7 +338,8 @@ public class ExpensesOperationController {
         Map<String, String> result = getTotalExpensesByMonthYear(now.getYear(), now.getMonthValue());
         double startAmount = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.EXPENSES_OPENING_BALANCE);
         String startAmountDate = dbServiceFactory.getCommonService().getUserParamUpdateDate(1, SystemParams.EXPENSES_OPENING_BALANCE);
-        double startId = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.EXPENSES_OPENING_ID);
+        double startIdDouble = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.EXPENSES_OPENING_ID);
+        int startId = Integer.parseInt(String.format("%.0f", startIdDouble));
 
         result.put("open_balance_amount", String.format("%.2f", startAmount));
 
@@ -347,17 +348,22 @@ public class ExpensesOperationController {
         result.put("open_balance_date", balance_date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
 
 
-        double expensesAmount = getDoubleOrZero(dbServiceFactory.getCommonService().getQueryRequest(
-                String.format("select sum(amount) expens_amount from expenses e " +
-                        "join t_operation_type t on t.id = e.operation_type_id\n" +
-                        " where e.id > %.2f \n" +
-                        " and t.is_income = 0",  startId)).get(0).get("expens_amount")
+        String query = String.format("select sum(amount) expens_amount from expenses e " +
+                "join t_operation_type t on t.id = e.operation_type_id" +
+                " where e.id > %d " +
+                " and t.is_income = 0",  startId);
+
+        System.out.println("startId: " + startId);
+        System.out.println("getCurrentStatistic.SqlQuery = " + query);
+
+        double expensesAmount = getDoubleOrZero(
+                dbServiceFactory.getCommonService().getQueryRequest(query).get(0).get("expens_amount")
         );
 
         double incomeAmount = getDoubleOrZero(dbServiceFactory.getCommonService().getQueryRequest(
                 String.format("select sum(amount) expens_amount from expenses e " +
                         "join t_operation_type t on t.id = e.operation_type_id\n" +
-                        " where e.id > %.2f \n" +
+                        " where e.id > %d \n" +
                         " and t.is_income = 1",  startId)).get(0).get("expens_amount")
         );
 
@@ -365,7 +371,8 @@ public class ExpensesOperationController {
         result.put("rest_amount", String.format("%.2f", restAmount));
 
         //Fund values
-        double fundId = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.FUND_OPENING_ID);
+        double fundIdDouble = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.FUND_OPENING_ID);
+        int fundId = Integer.parseInt(String.format("%.0f", fundIdDouble));
         double startDollarAmount = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.DOLLAR_OPENING_BALANCE);
         double startEuroAmount = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.EURO_OPENING_BALANCE);
         double startRubAmount = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.RUB_OPENING_BALANCE);
@@ -380,15 +387,15 @@ public class ExpensesOperationController {
 
         double fundDollarAmount = getDoubleOrZero(
                 dbServiceFactory.getCommonService().getQueryRequest(
-                    String.format("select sum(amount) amount from fund where id > %.2f and currency_id = 1", fundId)
+                    String.format("select sum(amount) amount from fund where id > %d and currency_id = 1", fundId)
                 ).get(0).get("amount")
         );
         double fundEuroAmount = getDoubleOrZero(dbServiceFactory.getCommonService().getQueryRequest(
-                String.format("select sum(amount) amount from fund where id > %.2f and currency_id = 2", fundId)).get(0).get("amount")
+                String.format("select sum(amount) amount from fund where id > %d and currency_id = 2", fundId)).get(0).get("amount")
         );
 
         double fundRubAmount = getDoubleOrZero(dbServiceFactory.getCommonService().getQueryRequest(
-                String.format("select sum(amount) amount from fund where id > %.2f and currency_id = 3", fundId)).get(0).get("amount")
+                String.format("select sum(amount) amount from fund where id > %d and currency_id = 3", fundId)).get(0).get("amount")
         );
 
         double restDollarAmount = (startDollarAmount + fundDollarAmount);
