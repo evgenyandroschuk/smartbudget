@@ -18,6 +18,7 @@ import smartbudget.util.AppProperties;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -66,7 +67,7 @@ public class VehicleController {
      * @param description
      * @param mileage
      * @param price
-     * http://localhost:7004/vehicle/data/save?type=2&vehicle=1&description=то60000&mileage=61200&price=39400
+     * http://localhost:7004/vehicle/data/save?type=2&vehicle=1&description=то60000&mileage=61200&price=39400&date=2018-11-03
      * @return
      */
     @RequestMapping(value = "/data/save", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -75,9 +76,10 @@ public class VehicleController {
             @RequestParam int vehicle,
             @RequestParam(value = "description", required = false, defaultValue = "") String description,
             @RequestParam int mileage,
-            @RequestParam double price
+            @RequestParam double price,
+            @RequestParam String date
     ) {
-        VehicleData vehicleData = VehicleData.of(type, vehicle, description, mileage, price, LocalDate.now());
+        VehicleData vehicleData = VehicleData.of(type, vehicle, description, mileage, price, LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         dbServiceFactory.getVehicleService().createVehicleData(vehicleData);
         return "successfully saved";
     }
