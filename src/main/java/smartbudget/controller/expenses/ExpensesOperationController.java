@@ -20,7 +20,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -310,7 +309,6 @@ public class ExpensesOperationController {
             @RequestParam (value = "year")Integer year,
             @RequestParam (value = "month", required = false, defaultValue = "")Integer month
     ) {
-        Map<String, String> result = new HashMap<>();
         if (month != null) {
             return dbServiceFactory.getCommonService().getQueryRequest(
                     String.format(
@@ -418,6 +416,20 @@ public class ExpensesOperationController {
 
         return result;
     }
+
+    /*  http://localhost:7004/budget/statistic/expenses/yearly?year=2017    */
+    @RequestMapping(value = "/statistic/expenses/yearly", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public List<Map<String, String>> getYearlyExpenses(@RequestParam (value = "year")Integer year) {
+        return dbServiceFactory.getCommonService().getQueryRequest(
+                String.format(
+                        "select expenses.id, month_id, year_id, is_income, t_operation_type.description, amount " +
+                                "from expenses, t_operation_type \n" +
+                                "where expenses.operation_type_id = t_operation_type.id\n" +
+                                "and year_id = %d",  year)
+        );
+
+    }
+
 
     private double getDoubleOrZero(String string) {
         if (string == null) {
