@@ -1,9 +1,7 @@
 package smartbudget.service;
 
-import smartbudget.service.impl.mysql.CommonMySQLImpl;
-import smartbudget.service.impl.mysql.ExpensesMySQLImpl;
-import smartbudget.service.impl.mysql.ExpensesTypeMySQLImpl;
-import smartbudget.service.impl.mysql.VehicleMySQLImpl;
+import smartbudget.service.impl.mysql.*;
+import smartbudget.service.services.PropertyService;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -47,9 +45,16 @@ public class DbServiceFactory {
     }
 
     public VehicleService getVehicleService() {
-        if(name.equals("mysql")) {
+        if (name.equals("mysql")) {
             return new VehicleMySQLImpl(connection) {
             };
+        }
+        throw throwException(name);
+    }
+
+    public PropertyService getPropertyService() {
+        if (name.equals("mysql")) {
+            return new PropertyServiceMySQLImpl(connection);
         }
         throw throwException(name);
     }
