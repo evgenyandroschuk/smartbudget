@@ -74,6 +74,14 @@ public class PropertyController {
         return dbServiceFactory.getPropertyService().getPropertyServiceDataByPeriod(property, start, end);
     }
 
+    /**
+     *
+     curl -H "Accept: application/json; charset=UTF-8" -H "Content-type: application/json; charset=UTF-8" \
+     -X POST -d '{"property":{"id":2,"description":"Бибирево"},"propertyServiceType":{"id":8,"description":"Прочее"},"description":"description test","name":"name test","price":0.0,"updateDate":"2019-01-02"}' \
+     http://localhost:7004/property/data/save
+     * @param serviceData
+     * @return
+     */
     @RequestMapping(
             value = "/data/save", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE
