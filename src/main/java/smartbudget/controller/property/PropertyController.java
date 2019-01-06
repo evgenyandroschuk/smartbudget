@@ -91,7 +91,7 @@ public class PropertyController {
                 serviceData.getDescription(),
                 serviceData.getName(),
                 serviceData.getPrice(),
-                LocalDate.parse(serviceData.getUpdateDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                serviceData.getUpdateDate()
         );
         dbServiceFactory.getPropertyService().savePropertyServiceData(propertyServiceData);
         return new PropertyResponse("Ok", serviceData);

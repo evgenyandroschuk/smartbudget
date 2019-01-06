@@ -67,7 +67,13 @@ public class PropertyServiceMySQLImpl extends AbstractService implements Propert
                 Date date = rs.getDate("update_date");
                 LocalDate updateDate = HelpUtils.convertDateToLocalDate(date);
                 PropertyServiceData data = new PropertyServiceData(
-                        id, property,serviceType, description, name, price, updateDate
+                        id,
+                        property,
+                        serviceType,
+                        description,
+                        name,
+                        price,
+                        updateDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 );
                 serviceDataList.add(data);
             }
@@ -87,7 +93,7 @@ public class PropertyServiceMySQLImpl extends AbstractService implements Propert
         String description = propertyServiceData.getDescription();
         String name = propertyServiceData.getName();
         double price = propertyServiceData.getPrice();
-        String updateDate = formattedDate(propertyServiceData.getUpdateDate());
+        String updateDate = propertyServiceData.getUpdateDate();
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, propertyId);
             statement.setInt(2, serviceTypeId);

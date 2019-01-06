@@ -10,7 +10,7 @@ public class PropertyServiceData {
     private String description;
     private String name;
     private double price;
-    private LocalDate updateDate;
+    private String updateDate;
 
     public PropertyServiceData(
             long id,
@@ -19,7 +19,7 @@ public class PropertyServiceData {
             String description,
             String name,
             double price,
-            LocalDate updateDate
+            String updateDate
     ) {
         this.id = id;
         this.property = property;
@@ -36,7 +36,7 @@ public class PropertyServiceData {
             String description,
             String name,
             double price,
-            LocalDate updateDate
+            String updateDate
     ) {
         this.property = property;
         this.propertyServiceType = propertyServiceType;
@@ -70,7 +70,7 @@ public class PropertyServiceData {
         return price;
     }
 
-    public LocalDate getUpdateDate() {
+    public String getUpdateDate() {
         return updateDate;
     }
 
