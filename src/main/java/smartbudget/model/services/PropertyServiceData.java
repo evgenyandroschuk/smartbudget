@@ -1,7 +1,5 @@
 package smartbudget.model.services;
 
-import java.time.LocalDate;
-
 public class PropertyServiceData {
 
     private long id;

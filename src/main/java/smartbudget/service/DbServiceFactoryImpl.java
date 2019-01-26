@@ -1,22 +1,32 @@
 package smartbudget.service;
 
+import org.springframework.stereotype.Service;
+import smartbudget.db.DbUtil;
 import smartbudget.service.impl.mysql.*;
+import smartbudget.service.services.DbServiceFactory;
 import smartbudget.service.services.PropertyService;
+import smartbudget.util.AppProperties;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class DbServiceFactory {
+@Service
+public class DbServiceFactoryImpl implements DbServiceFactory {
 
     private String name;
-    Connection connection;
+    private Connection connection;
 
-    public DbServiceFactory(String name, Connection connection) {
+
+    public DbServiceFactoryImpl(AppProperties appProperties) {
+        this.name = appProperties.getProperty("app.impl");
         if (!name.equals("mysql")) {
             throw throwException(name);
         }
-        this.name = name;
-        this.connection = connection;
+        try {
+            connection = new DbUtil(appProperties).getConnect();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error in constructor DbServiceFactoryImpl" + e.getMessage());
+        }
     }
 
     public ExpensesService getExpensesService() {

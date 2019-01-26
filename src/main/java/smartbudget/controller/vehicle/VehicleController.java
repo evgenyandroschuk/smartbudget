@@ -1,21 +1,18 @@
 package smartbudget.controller.vehicle;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import smartbudget.db.DbUtil;
 import smartbudget.model.vehicles.Vehicle;
 import smartbudget.model.vehicles.VehicleData;
 import smartbudget.model.vehicles.VehicleServiceType;
-import smartbudget.service.DbServiceFactory;
+import smartbudget.service.services.DbServiceFactory;
 import smartbudget.util.AppProperties;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -28,10 +25,8 @@ public class VehicleController {
     DbServiceFactory dbServiceFactory;
 
     @Autowired
-    public VehicleController(AppProperties properties) throws SQLException {
-        String name = properties.getProperty("app.impl");
-        Connection connection = new DbUtil(properties).getConnect();
-        dbServiceFactory = new DbServiceFactory(name, connection);
+    public VehicleController(DbServiceFactory dbServiceFactory) throws SQLException {
+        this.dbServiceFactory = dbServiceFactory;
     }
 
     /**

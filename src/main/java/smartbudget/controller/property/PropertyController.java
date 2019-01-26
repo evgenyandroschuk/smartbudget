@@ -3,17 +3,14 @@ package smartbudget.controller.property;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import smartbudget.db.DbUtil;
 import smartbudget.model.services.Property;
 import smartbudget.model.services.PropertyServiceData;
 import smartbudget.model.services.PropertyServiceType;
-import smartbudget.service.DbServiceFactory;
-import smartbudget.util.AppProperties;
+import smartbudget.service.services.DbServiceFactory;
 import smartbudget.view.PropertyDataRequest;
 import smartbudget.view.property.PropertyResponse;
 import smartbudget.view.property.ServiceData;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -26,10 +23,8 @@ public class PropertyController {
     private DbServiceFactory dbServiceFactory;
 
     @Autowired
-    public PropertyController (AppProperties properties) throws SQLException {
-        String name = properties.getProperty("app.impl");
-        Connection connection = new DbUtil(properties).getConnect();
-        dbServiceFactory = new DbServiceFactory(name, connection);
+    public PropertyController (DbServiceFactory dbServiceFactory) throws SQLException {
+        this.dbServiceFactory = dbServiceFactory;
     }
 
     /**

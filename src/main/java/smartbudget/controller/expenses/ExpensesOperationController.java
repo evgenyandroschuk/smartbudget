@@ -7,16 +7,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import smartbudget.db.DbUtil;
 import smartbudget.model.ExpensesData;
 import smartbudget.model.ExpensesTypeData;
-import smartbudget.service.DbServiceFactory;
 import smartbudget.service.ExpensesService;
+import smartbudget.service.services.DbServiceFactory;
 import smartbudget.util.Numerator;
 import smartbudget.util.SystemParams;
-import smartbudget.util.AppProperties;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -28,13 +25,12 @@ import java.util.Map;
 @RequestMapping(value = "/budget/")
 public class ExpensesOperationController {
 
-    DbServiceFactory dbServiceFactory;
+
+    private  final DbServiceFactory dbServiceFactory;
 
     @Autowired
-    public ExpensesOperationController(AppProperties properties) throws SQLException {
-        String name = properties.getProperty("app.impl");
-        Connection connection = new DbUtil(properties).getConnect();
-        dbServiceFactory = new DbServiceFactory(name, connection);
+    public ExpensesOperationController(DbServiceFactory dbServiceFactory) {
+        this.dbServiceFactory = dbServiceFactory;
     }
 
     @RequestMapping(value = "/expenses", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
