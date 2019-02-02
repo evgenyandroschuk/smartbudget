@@ -13,8 +13,6 @@ public interface CommonService {
 
     long getMaxIdByNumerator(int id);
 
-    List<Map<String, String>> getQueryRequest(String query);
-
     void execute(String query);
 
     void updateCurrencyCost(int currencyId, double amount);

@@ -31,11 +31,7 @@ public class DbServiceFactoryImpl implements DbServiceFactory {
 
     public ExpensesService getExpensesService() {
         if (name.equals("mysql")) {
-            try {
-                return new ExpensesMySQLImpl(connection);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            return new ExpensesMySQLImpl(connection);
         }
         throw throwException(name);
     }

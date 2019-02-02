@@ -89,26 +89,6 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
         }
     }
 
-    @Override
-    public List<Map<String, String>> getQueryRequest(String query) {
-        List<Map<String, String>> resultList = new ArrayList<>();
-        try(Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(query)) {
-            while(rs.next()) {
-                Map<String, String> map = new HashMap<>();
-                int i = 0;
-                while(i < rs.getMetaData().getColumnCount()) {
-                    i++;
-                    map.put(rs.getMetaData().getColumnName(i), rs.getString(i));
-                }
-                resultList.add(map);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return resultList;
-    }
-
     public void updateCurrencyCost(int currencyId, double price) {
         String query = "update currency set price = ? where id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query))  {

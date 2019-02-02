@@ -16,7 +16,7 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
 
     private String dateRegEx = "^[0-9]{4}-[0-9]{1}[0-9]{1}-[0-3]{1}[0-9]{1}$";
 
-    public ExpensesMySQLImpl(Connection connection) throws SQLException {
+    public ExpensesMySQLImpl(Connection connection) {
         super(connection);
     }
 
@@ -33,20 +33,21 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
         int year = expensesData.getYear();
         int type = expensesData.getType();
         double amount = expensesData.getAmount();
-        String amountString = Double.toString(amount);
-
         String updateDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         String query =
-                "insert into expenses ( id, description, month_id, year_id, operation_type_id, update_date, amount)"
-                 + "values(get_id(1), '" + description + "', " + month + ", "+year+ ", "
-                        + type + ", '" + updateDate + "', " + amountString + " )";
-        Statement statement;
-        try {
-            statement = connection.createStatement();
-            statement.execute(query);
+                "insert into expenses (id, description, month_id, year_id, operation_type_id, update_date, amount)\n" +
+                        "values(get_id(1), ?, ?, ?, ?, ?, ?)";
+        try(PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, description);
+            preparedStatement.setInt(2, month);
+            preparedStatement.setInt(3, year);
+            preparedStatement.setInt(4, type);
+            preparedStatement.setString(5, updateDate);
+            preparedStatement.setDouble(6, amount);
+            preparedStatement.execute();
         } catch (SQLException e) {
-           throw new RuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -57,23 +58,34 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
 
     @Override
     public void update(Long id, ExpensesData expensesData) {
-
         String description = expensesData.getDescription();
         int month = expensesData.getMonth();
         int year = expensesData.getYear();
         int type = expensesData.getType();
         double amount = expensesData.getAmount();
-        String amountString = NumberFormat.getInstance().format(amount);
+        String updateDate = expensesData.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         String query =
-                "update expenses set description = '" + description + "', operation_type_id = " + type
-                + ", month_id = " + month + ", year_id = " + year + ", amount = " + amountString
-                + " where id = " + id;
+                "update expenses \n" +
+                        "set description = ?,\n" +
+                        "month_id = ?,\n" +
+                        "year_id = ?,\n" +
+                        "operation_type_id = ?,\n" +
+                        "update_date = ?,\n" +
+                        "amount = ?\n" +
+                        "where id = ?";
 
-        Statement statement = null;
-        try {
-            statement = connection.createStatement();
-            statement.execute(query);
+        try(PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, description);
+            preparedStatement.setInt(2, month);
+            preparedStatement.setInt(3, year);
+            preparedStatement.setInt(4, type);
+            preparedStatement.setString(5, updateDate);
+            preparedStatement.setDouble(6, amount);
+            preparedStatement.setLong(7, id);
+            if (!preparedStatement.execute()) {
+                throw new RuntimeException("Expenses does not updated!");
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -81,11 +93,10 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
 
     @Override
     public void delete(Long id) {
-        String query = "delete from expenses where id = " + id;
-        Statement statement = null;
-        try {
-            statement = connection.createStatement();
-            statement.execute(query);
+        String query = "delete from expenses where id = ?";
+        try(PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setLong(1, id);
+            preparedStatement.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -197,6 +208,165 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
         return result;
     }
 
+    @Override
+    public Map<String, String> getStatisticByYear(int year) {
+        String query = "select sum(amount) as amount from expenses, t_operation_type \n" +
+            "where expenses.operation_type_id = t_operation_type.id\n" +
+            "and is_income = 0 and year_id = ?";
+        Map<String, String> resultMap = new HashMap<>();
+        try(PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, year);
+            ResultSet rs = preparedStatement.executeQuery();
+            if(rs.first()) {
+                int i = 0;
+                while(i < rs.getMetaData().getColumnCount()) {
+                    i++;
+                    resultMap.put(rs.getMetaData().getColumnName(i), rs.getString(i));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return resultMap;
+    }
 
+    @Override
+    public Map<String, String> getStatisticByYearMonth(int year, int month) {
+        String query = "select sum(amount) as amount from expenses, t_operation_type \n" +
+                "where expenses.operation_type_id = t_operation_type.id\n" +
+                "and is_income = 0 and year_id = ? and month_id = ?";
+        Map<String, String> resultMap = new HashMap<>();
+        try(PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, year);
+            preparedStatement.setInt(2, month);
+            ResultSet rs = preparedStatement.executeQuery();
+            if(rs.first()) {
+                int i = 0;
+                while(i < rs.getMetaData().getColumnCount()) {
+                    i++;
+                    resultMap.put(rs.getMetaData().getColumnName(i), rs.getString(i));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return resultMap;
+    }
+
+    @Override
+    public double getLastPeriodExpenses(int startId) {
+        double result = 0;
+        String query = "select sum(amount) expenses_amount from expenses e\n" +
+                "join t_operation_type t on t.id = e.operation_type_id \n" +
+                "where e.id > ? and t.is_income = 0";
+
+        try(PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, startId);
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs.next()) {
+                result = rs.getDouble("expenses_amount");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return result;
+    }
+
+    @Override
+    public double getIncomeAmount(int startId) {
+        double result = 0;
+        String query = "select sum(amount) income_amount from expenses e " +
+                "join t_operation_type t on t.id = e.operation_type_id\n" +
+                " where e.id > ?  and t.is_income = 1";
+
+        try(PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, startId);
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs.next()) {
+                result = rs.getDouble("income_amount");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, Double> getCurrencies() {
+        String query = "select * from currency";
+        Map<String, Double> currencyMap = new HashMap<>();
+        try(PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            ResultSet rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+                String currencyName = rs.getString("description");
+                double price = rs.getDouble("price");
+                currencyMap.put(currencyName, price);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return currencyMap;
+    }
+
+    @Override
+    public double getFundAmount(int fundId, int currencyId) {
+        String query = "select sum(amount) amount from fund where id > ? and currency_id = ?";
+        try(PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, fundId);
+            preparedStatement.setInt(2, currencyId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            return resultSet.next() ? resultSet.getDouble("amount") : 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<Map<String, String>> getYearlyExpenses(int year) {
+        String query = "select expenses.id, month_id, year_id, is_income, t_operation_type.description, amount " +
+                "from expenses, t_operation_type \n" +
+                "where expenses.operation_type_id = t_operation_type.id\n" +
+                "and year_id = ?";
+        List<Map<String, String>> resultList = new ArrayList<>();
+        try(PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, year);
+            ResultSet rs = preparedStatement.executeQuery();
+            while(rs.next()) {
+                Map<String, String> map = new HashMap<>();
+                map.put("id", rs.getString("id"));
+                map.put("month_id", rs.getString("month_id"));
+                map.put("year_id", rs.getString("year_id"));
+                map.put("description", rs.getString("description"));
+                map.put("amount", rs.getString("amount"));
+                resultList.add(map);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return resultList;
+    }
+
+    @Override
+    public List<Map<String, String>> getFunds() {
+        String query = "select id, update_date, currency_id, amount, description, sale_price from fund order by id";
+        List<Map<String, String>> resultList = new ArrayList<>();
+        try(PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            ResultSet rs = preparedStatement.executeQuery();
+                while (rs.next()) {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("id", rs.getString("id"));
+                    map.put("update_date", rs.getString("update_date"));
+                    map.put("currency_id", rs.getString("currency_id"));
+                    map.put("amount", rs.getString("amount"));
+                    map.put("description", rs.getString("description"));
+                    map.put("sale_price", rs.getString("sale_price"));
+                    resultList.add(map);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        return resultList;
+    }
 
 }

@@ -1,11 +1,13 @@
 package smartbudget.client.impl;
 
-import org.mockito.Mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.testng.annotations.BeforeMethod;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import smartbudget.service.impl.mysql.CommonMySQLImpl;
@@ -17,7 +19,15 @@ import java.sql.SQLException;
 public class CommonMySQLImplTest {
 
     @Mock
-    Connection connection;
+    private Connection connection;
+
+    @InjectMocks
+    private CommonMySQLImpl impl;
+
+    @BeforeClass
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @Test(dataProvider = "currencyCostProvider")
     public void updateCurrencyCostTest(
@@ -25,7 +35,7 @@ public class CommonMySQLImplTest {
             int currency,
             double amount
     ) throws SQLException {
-        Connection connection = Mockito.mock(Connection.class);
+
         PreparedStatement statement = Mockito.mock(PreparedStatement.class);
         Mockito.doNothing().when(statement).setDouble(1, amount);
         Mockito.doNothing().when(statement).setInt(2, currency);
@@ -33,7 +43,6 @@ public class CommonMySQLImplTest {
 
         when(connection.prepareStatement(query)).thenReturn(statement);
 
-        CommonMySQLImpl impl = new CommonMySQLImpl(connection);
         impl.updateCurrencyCost(currency, amount);
         verify(connection).prepareStatement(query);
         verify(statement).setDouble(1, amount);

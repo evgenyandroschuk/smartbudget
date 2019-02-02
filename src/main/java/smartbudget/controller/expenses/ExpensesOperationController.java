@@ -267,7 +267,7 @@ public class ExpensesOperationController {
 
     @RequestMapping(value = "/fund", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public List<Map<String,String>> getFunds() {
-        return dbServiceFactory.getCommonService().getQueryRequest("select * from fund order by id");
+        return dbServiceFactory.getExpensesService().getFunds();
     }
 
     @RequestMapping(value = "/fund/save", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -306,27 +306,13 @@ public class ExpensesOperationController {
             @RequestParam (value = "month", required = false, defaultValue = "")Integer month
     ) {
         if (month != null) {
-            return dbServiceFactory.getCommonService().getQueryRequest(
-                    String.format(
-                            "select sum( amount) as amount from expenses, t_operation_type \n" +
-                                    "where expenses.operation_type_id = t_operation_type.id\n" +
-                                    "and is_income = 0 " +
-                                    "and year_id = %d " +
-                                    "and month_id = %d", year, month )
-            ).get(0);
+            return dbServiceFactory.getExpensesService().getStatisticByYearMonth(year, month);
         }
-        return dbServiceFactory.getCommonService().getQueryRequest(
-                String.format(
-                        "select sum( amount) as amount from expenses, t_operation_type \n" +
-                                "where expenses.operation_type_id = t_operation_type.id\n" +
-                                "and is_income = 0\n" +
-                                "and year_id = %d",  year)
-        ).get(0);
+        return dbServiceFactory.getExpensesService().getStatisticByYear(year);
     }
 
     @RequestMapping(value = "/statistic/current", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public Map<String, String> getCurrentStatistic() {
-
         LocalDate now = LocalDate.now();
 
         Map<String, String> result = getTotalExpensesByMonthYear(now.getYear(), now.getMonthValue());
@@ -336,30 +322,11 @@ public class ExpensesOperationController {
         int startId = Integer.parseInt(String.format("%.0f", startIdDouble));
 
         result.put("open_balance_amount", String.format("%.2f", startAmount));
-
         LocalDate balance_date = LocalDate.parse(startAmountDate,DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-
         result.put("open_balance_date", balance_date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
 
-
-        String query = String.format("select sum(amount) expens_amount from expenses e " +
-                "join t_operation_type t on t.id = e.operation_type_id" +
-                " where e.id > %d " +
-                " and t.is_income = 0",  startId);
-
-        System.out.println("startId: " + startId);
-        System.out.println("getCurrentStatistic.SqlQuery = " + query);
-
-        double expensesAmount = getDoubleOrZero(
-                dbServiceFactory.getCommonService().getQueryRequest(query).get(0).get("expens_amount")
-        );
-
-        double incomeAmount = getDoubleOrZero(dbServiceFactory.getCommonService().getQueryRequest(
-                String.format("select sum(amount) expens_amount from expenses e " +
-                        "join t_operation_type t on t.id = e.operation_type_id\n" +
-                        " where e.id > %d \n" +
-                        " and t.is_income = 1",  startId)).get(0).get("expens_amount")
-        );
+        double expensesAmount = dbServiceFactory.getExpensesService().getLastPeriodExpenses(startId);
+        double incomeAmount = dbServiceFactory.getExpensesService().getIncomeAmount(startId);
 
         double restAmount = startAmount - expensesAmount + incomeAmount;
         result.put("rest_amount", String.format("%.2f", restAmount));
@@ -371,26 +338,13 @@ public class ExpensesOperationController {
         double startEuroAmount = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.EURO_OPENING_BALANCE);
         double startRubAmount = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.RUB_OPENING_BALANCE);
 
-        double dollarPrice = getDoubleOrZero(
-                dbServiceFactory.getCommonService().getQueryRequest("select * from currency where id = 1").get(0).get("price")
-        );
+        Map<String, Double> currenciesMap = dbServiceFactory.getExpensesService().getCurrencies();
+        double dollarPrice = currenciesMap.get("Dollar");
+        double euroPrice = currenciesMap.get("Euro");
 
-        double euroPrice = getDoubleOrZero(
-                dbServiceFactory.getCommonService().getQueryRequest("select * from currency where id = 2").get(0).get("price")
-        );
-
-        double fundDollarAmount = getDoubleOrZero(
-                dbServiceFactory.getCommonService().getQueryRequest(
-                    String.format("select sum(amount) amount from fund where id > %d and currency_id = 1", fundId)
-                ).get(0).get("amount")
-        );
-        double fundEuroAmount = getDoubleOrZero(dbServiceFactory.getCommonService().getQueryRequest(
-                String.format("select sum(amount) amount from fund where id > %d and currency_id = 2", fundId)).get(0).get("amount")
-        );
-
-        double fundRubAmount = getDoubleOrZero(dbServiceFactory.getCommonService().getQueryRequest(
-                String.format("select sum(amount) amount from fund where id > %d and currency_id = 3", fundId)).get(0).get("amount")
-        );
+        double fundDollarAmount = dbServiceFactory.getExpensesService().getFundAmount(fundId, 1);
+        double fundEuroAmount = dbServiceFactory.getExpensesService().getFundAmount(fundId, 2);
+        double fundRubAmount = dbServiceFactory.getExpensesService().getFundAmount(fundId, 3);
 
         double restDollarAmount = (startDollarAmount + fundDollarAmount);
         double restEuroAmount = (startEuroAmount + fundEuroAmount);
@@ -416,24 +370,9 @@ public class ExpensesOperationController {
     /*  http://localhost:7004/budget/statistic/expenses/yearly?year=2017    */
     @RequestMapping(value = "/statistic/expenses/yearly", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public List<Map<String, String>> getYearlyExpenses(@RequestParam (value = "year")Integer year) {
-        return dbServiceFactory.getCommonService().getQueryRequest(
-                String.format(
-                        "select expenses.id, month_id, year_id, is_income, t_operation_type.description, amount " +
-                                "from expenses, t_operation_type \n" +
-                                "where expenses.operation_type_id = t_operation_type.id\n" +
-                                "and year_id = %d",  year)
-        );
+        return dbServiceFactory.getExpensesService().getYearlyExpenses(year);
 
     }
-
-
-    private double getDoubleOrZero(String string) {
-        if (string == null) {
-            return 0;
-        }
-        return Double.valueOf(string);
-    }
-
 
 
 }
