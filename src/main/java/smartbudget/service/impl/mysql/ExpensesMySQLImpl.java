@@ -5,7 +5,6 @@ import smartbudget.service.ExpensesService;
 import smartbudget.service.impl.AbstractService;
 
 import java.sql.*;
-import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -367,6 +366,33 @@ public class ExpensesMySQLImpl extends AbstractService implements ExpensesServic
                 throw new RuntimeException(e);
             }
         return resultList;
+    }
+
+    @Override
+    public void saveFund(int currency, String description, double price, double amount) {
+        String query = "insert into fund (id, update_date, currency_id, amount, description, sale_price)\n" +
+                "values(get_id(5), sysdate(), ?, ?, ?, ?)";
+        try(PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, currency);
+            preparedStatement.setDouble(2, amount);
+            preparedStatement.setString(3, description);
+            preparedStatement.setDouble(4, price);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    @Override
+    public void deleteFund(long id) {
+        String query = "delete from fund where id = ?";
+        try(PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setLong(1, id);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

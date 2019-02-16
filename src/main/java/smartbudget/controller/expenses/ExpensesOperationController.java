@@ -277,8 +277,7 @@ public class ExpensesOperationController {
             @RequestParam Double price,
             @RequestParam Double amount
     ){
-        String query = String.format("insert into fund values(get_id(5), sysdate(), %d, %.2f, '%s', %.2f)", currency, amount,  description, price);
-        dbServiceFactory.getCommonService().execute(query);
+        dbServiceFactory.getExpensesService().saveFund(currency, description, price, amount);
         return "Fund successfully saved";
     }
 
@@ -286,7 +285,7 @@ public class ExpensesOperationController {
     public String deleteFund(
             @RequestParam int id
     ) {
-        dbServiceFactory.getCommonService().execute("delete from fund where id = " + id);
+        dbServiceFactory.getExpensesService().deleteFund(id);
         return "Fund successfully deleted";
     }
 

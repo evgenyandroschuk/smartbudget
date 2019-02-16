@@ -45,5 +45,9 @@ public interface ExpensesService {
 
     List<Map<String,String>> getFunds();
 
+    void saveFund(int currency, String description, double price, double amount);
+
+    void deleteFund(long id);
+
 
 }

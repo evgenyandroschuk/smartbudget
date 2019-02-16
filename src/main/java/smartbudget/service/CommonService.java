@@ -13,8 +13,6 @@ public interface CommonService {
 
     long getMaxIdByNumerator(int id);
 
-    void execute(String query);
-
     void updateCurrencyCost(int currencyId, double amount);
 
 

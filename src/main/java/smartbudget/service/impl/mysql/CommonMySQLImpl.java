@@ -100,14 +100,4 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
         }
     }
 
-    @Override
-    public void execute(String query) {
-        Statement statement;
-        try {
-            statement = connection.createStatement();
-            statement.execute(query);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

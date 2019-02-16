@@ -362,12 +362,12 @@ public class ExpensesMySqlImplTest {
             int monthId,
             int yearId,
             int typeId,
-            String updateDate,
             double amount
     ) throws SQLException {
         when(preparedStatement.execute()).thenReturn(true);
         when(connection.prepareStatement(INSERT_EXPENSES_QUERY)).thenReturn(preparedStatement);
-        LocalDate updateLocalDate = LocalDate.parse(updateDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalDate updateLocalDate = LocalDate.now();
+        String updateDate = updateLocalDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         ExpensesData expensesData = ExpensesData.of(monthId, yearId, typeId, description, amount, updateLocalDate);
         expensesMySQLImpl.create(expensesData);
@@ -389,7 +389,6 @@ public class ExpensesMySqlImplTest {
                         2,
                         2019,
                         1,
-                        "2019-02-03",
                         100
                 }
         };
@@ -457,6 +456,48 @@ public class ExpensesMySqlImplTest {
         };
     }
 
+    @Test(dataProvider = "insertFundProvider")
+    public void testInsertFund(
+        int currencyId,
+        double amount,
+        String description,
+        double price
+    ) throws SQLException {
+        when(preparedStatement.execute()).thenReturn(true);
+        when(connection.prepareStatement(INSERT_FUND)).thenReturn(preparedStatement);
+
+        expensesMySQLImpl.saveFund(currencyId, description, price, amount);
+        verify(connection).prepareStatement(INSERT_FUND);
+        verify(preparedStatement).setInt(1, currencyId);
+        verify(preparedStatement).setDouble(2, amount);
+        verify(preparedStatement).setString(3, description);
+        verify(preparedStatement).setDouble(4, price);
+        verify(preparedStatement).execute();
+    }
+
+    @DataProvider
+    private static final Object[][] insertFundProvider() {
+        return new Object[][] {
+                {
+                    1, 1000, "Test description", 63.3
+                }
+        };
+    }
+
+    @Test
+    public void testDeleteFund() throws SQLException {
+        when(preparedStatement.execute()).thenReturn(true);
+        when(connection.prepareStatement(DELETE_FUND)).thenReturn(preparedStatement);
+
+        long fundId = 55;
+
+        expensesMySQLImpl.deleteFund(fundId);
+
+        verify(connection).prepareStatement(DELETE_FUND);
+        verify(preparedStatement).setLong(1, fundId);
+        verify(preparedStatement).execute();
+    }
+
 
     private static final String STATISTIC_BY_YEAR_QUERY =
             "select sum(amount) as amount from expenses, t_operation_type \n" +
@@ -503,6 +544,13 @@ public class ExpensesMySqlImplTest {
                     "update_date = ?,\n" +
                     "amount = ?\n" +
                     "where id = ?";
+
+    private static final String INSERT_FUND =
+            "insert into fund (id, update_date, currency_id, amount, description, sale_price)\n" +
+                    "values(get_id(5), sysdate(), ?, ?, ?, ?)";
+
+    private static final String DELETE_FUND =
+            "delete from fund where id = ?";
 
     private static final String DELETE_EXPENSES_QUERY = "delete from expenses where id = ?";
 
