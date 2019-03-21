@@ -1,4 +1,4 @@
-package smartbudget.client.impl;
+package smartbudget.client.service.impl;
 
 import com.google.common.collect.ImmutableMap;
 import org.mockito.InjectMocks;
@@ -21,7 +21,6 @@ import java.util.Map;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.expectThrows;
 
 public class ExpensesMySqlImplTest {
 

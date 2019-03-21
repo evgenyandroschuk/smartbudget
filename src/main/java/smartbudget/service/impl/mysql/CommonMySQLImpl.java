@@ -2,9 +2,13 @@ package smartbudget.service.impl.mysql;
 
 import smartbudget.service.CommonService;
 import smartbudget.service.impl.AbstractService;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.sql.*;
-import java.util.*;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class CommonMySQLImpl extends AbstractService implements CommonService {
 
@@ -57,6 +61,11 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
             throw new RuntimeException(e);
         }
         throw new RuntimeException(String.format("No such system_param with userId = %d and param_id = %d ", userId, paramId));
+    }
+
+    @Override
+    public BigDecimal getParamValue(int userId, int paramId) {
+        throw new NotImplementedException();
     }
 
     public String getUserParamUpdateDate(int userId, int paramId) {

@@ -1,4 +1,4 @@
-package smartbudget.client.impl;
+package smartbudget.client.service.impl;
 
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
