@@ -36,8 +36,11 @@ public class CommonServiceImpl extends AbstractDao implements CommonService {
              query,
              namedParameters,
              rs -> {
-                 BigDecimal bigDecimal = rs.getBigDecimal("system_value");
-                 return bigDecimal.setScale(2, BigDecimal.ROUND_CEILING);
+                 if(rs.next()) {
+                     return rs.getBigDecimal("system_value").setScale(2, BigDecimal.ROUND_CEILING);
+                 } else {
+                     throw new DataNotFoundException();
+                 }
              }
          );
     }
