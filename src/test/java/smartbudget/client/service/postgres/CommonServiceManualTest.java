@@ -11,6 +11,7 @@ import smartbudget.service.postres.DbConfig;
 import smartbudget.service.postres.PostgreSqlConfig;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @SpringBootTest(classes = {
     PostgreSqlConfig.class,
@@ -26,6 +27,14 @@ public class CommonServiceManualTest extends AbstractTestNGSpringContextTests {
     public void testParamValue() {
         BigDecimal result = commonService.getParamValue(1, 1);
         Assert.assertNotNull(result); // If no rows it throw DataNotFoundException
+    }
+
+    @Test
+    public void testInsertParam() {
+
+        BigDecimal bigDecimal = new BigDecimal(114.10).setScale(2, RoundingMode.HALF_EVEN);
+        commonService.createOrReplaceUserParams(1, 1, bigDecimal);
+
     }
 
 

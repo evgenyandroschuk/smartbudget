@@ -17,6 +17,11 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
     }
 
     @Override
+    public void createOrReplaceUserParams(int userId, int paramId, BigDecimal value) {
+        throw new NotImplementedException();
+    }
+
+    @Override
     public void createReplaceUserParams(int userId, int paramId, double value) {
         String query = "select * from t_user_system_params where userid = ? and system_param_id = ?";
         String execute;

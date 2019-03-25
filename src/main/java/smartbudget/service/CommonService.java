@@ -6,6 +6,8 @@ import java.util.Map;
 
 public interface CommonService {
 
+    void createOrReplaceUserParams(int userId, int paramId, BigDecimal value);
+
     void createReplaceUserParams(int userId, int paramId, double value);
 
     double getUserParamValue(int userId, int paramId);
