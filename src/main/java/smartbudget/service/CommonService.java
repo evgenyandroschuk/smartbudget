@@ -14,12 +14,12 @@ public interface CommonService {
 
     BigDecimal getParamValue(int userId, int paramId);
 
-    String getUserParamUpdateDate(int userId, int paramId);
+    String getUserParamUpdateDateString(int userId, int paramId);
 
     long getMaxIdByNumerator(int id);
 
     void updateCurrencyCost(int currencyId, double amount);
 
 
-
+    void updateCurrency(int currencyId, BigDecimal price);
 }

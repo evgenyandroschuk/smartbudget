@@ -73,7 +73,7 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
         throw new NotImplementedException();
     }
 
-    public String getUserParamUpdateDate(int userId, int paramId) {
+    public String getUserParamUpdateDateString(int userId, int paramId) {
         String query = "select * from  t_user_system_params where userid = ? and system_param_id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)){
              statement.setInt(1, userId);
@@ -112,6 +112,11 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void updateCurrency(int currencyId, BigDecimal price) {
+        throw new NotImplementedException();
     }
 
 }

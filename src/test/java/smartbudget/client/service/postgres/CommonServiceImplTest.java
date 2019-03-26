@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -22,6 +23,9 @@ import org.testng.annotations.Test;
 import smartbudget.service.postres.CommonServiceImpl;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Map;
 
 public class CommonServiceImplTest {
@@ -148,6 +152,63 @@ public class CommonServiceImplTest {
                 1, 12, BigDecimal.valueOf(100002, 3)
             }
         };
+    }
+
+    @Test(dataProvider = "userParamUpdateDateProvider")
+    public void testParamUpdateDate(
+        int userId,
+        int paramId,
+        Date mockDate,
+        String expectedDateString
+    ) {
+        String query = "select update_date from t_user_system_params " +
+            "where user_id = :userId and system_param_id = :paramId";
+
+        Map<String, Object> params = ImmutableMap.of(
+            "userId", userId,
+            "paramId", paramId
+        );
+        when(namedParameterJdbcTemplate.query(
+            eq(query), eq(params), (ResultSetExtractor<Date>) any(ResultSetExtractor.class))
+        ).thenReturn(mockDate);
+
+        String result = commonService.getUserParamUpdateDateString(userId, paramId);
+
+        Assert.assertEquals(result, expectedDateString);
+        verify(namedParameterJdbcTemplate).query(
+            eq(query), eq(params), (ResultSetExtractor<Date>) any(ResultSetExtractor.class)
+        );
+    }
+
+    @DataProvider
+    public Object[][] userParamUpdateDateProvider() {
+        return new Object[][] {
+            {
+                1, 5,
+                Date.valueOf(LocalDate.of(2019,3,15)),
+                "2019-03-15"
+            },
+            {
+                1, 4,
+                Date.valueOf(LocalDate.of(2019,3,22)),
+                "2019-03-22"
+            }
+        };
+    }
+
+    @Test
+    public void testUpdateCurrency() {
+        BigDecimal price = BigDecimal.valueOf(52.12);
+        int currencyId = 1;
+
+        String query = "update currency set price = :price where id = :currencyId";
+        Map<String, Object> params = ImmutableMap.of(
+            "price", price,
+            "currencyId", currencyId
+        );
+        when(namedParameterJdbcTemplate.execute(eq(query), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class))).thenReturn(true);
+        commonService.updateCurrency(currencyId, price);
+        verify(namedParameterJdbcTemplate).execute(eq(query), eq(params), any(PreparedStatementCallback.class));
     }
 
 }

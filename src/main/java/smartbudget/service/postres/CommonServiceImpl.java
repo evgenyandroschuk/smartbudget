@@ -6,7 +6,9 @@ import smartbudget.service.CommonService;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 public class CommonServiceImpl extends AbstractDao implements CommonService {
@@ -42,12 +44,12 @@ public class CommonServiceImpl extends AbstractDao implements CommonService {
 
     @Override
     public void createReplaceUserParams(int userId, int paramId, double value) {
-        throw new NotImplementedException();
+        throw new NotImplementedException(); // implemented in createOrReplaceUserParams
     }
 
     @Override
     public double getUserParamValue(int userId, int paramId) {
-        throw new NotImplementedException();
+        throw new NotImplementedException(); // implemented in getParamValue
     }
 
     @Override
@@ -72,17 +74,45 @@ public class CommonServiceImpl extends AbstractDao implements CommonService {
     }
 
     @Override
-    public String getUserParamUpdateDate(int userId, int paramId) {
-        throw new NotImplementedException();
+    public String getUserParamUpdateDateString(int userId, int paramId) {
+        String query = "select update_date from t_user_system_params " +
+            "where user_id = :userId and system_param_id = :paramId";
+
+        Map<String, Object> params = ImmutableMap.of(
+            "userId", userId,
+            "paramId", paramId
+        );
+        Date date = namedParameterJdbcTemplate.query(query, params, rs -> {
+            if(rs.next()) {
+                return rs.getDate("update_date");
+            } else {
+                throw new DataNotFoundException("Exception while getting updateDate of system params");
+            }
+        });
+        if (date == null) {
+            throw new DataNotFoundException("update_date");
+        }
+        return date.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
     @Override
     public long getMaxIdByNumerator(int id) {
+        // Possible not actual, cause in postgreSql will be used sequence
         throw new NotImplementedException();
     }
 
     @Override
     public void updateCurrencyCost(int currencyId, double amount) {
-        throw new NotImplementedException();
+        throw new NotImplementedException(); // implemented in updateCurrency()
+    }
+
+    @Override
+    public void updateCurrency(int currencyId, BigDecimal price) {
+        String query = "update currency set price = :price where id = :currencyId";
+        Map<String, Object> params = ImmutableMap.of(
+            "price", price,
+            "currencyId", currencyId
+        );
+        namedParameterJdbcTemplate.execute(query, params, PreparedStatement::execute);
     }
 }

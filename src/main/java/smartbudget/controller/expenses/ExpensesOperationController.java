@@ -316,7 +316,7 @@ public class ExpensesOperationController {
 
         Map<String, String> result = getTotalExpensesByMonthYear(now.getYear(), now.getMonthValue());
         double startAmount = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.EXPENSES_OPENING_BALANCE);
-        String startAmountDate = dbServiceFactory.getCommonService().getUserParamUpdateDate(1, SystemParams.EXPENSES_OPENING_BALANCE);
+        String startAmountDate = dbServiceFactory.getCommonService().getUserParamUpdateDateString(1, SystemParams.EXPENSES_OPENING_BALANCE);
         double startIdDouble = dbServiceFactory.getCommonService().getUserParamValue(1, SystemParams.EXPENSES_OPENING_ID);
         int startId = Integer.parseInt(String.format("%.0f", startIdDouble));
 
