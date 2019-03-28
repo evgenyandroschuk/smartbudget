@@ -13,4 +13,9 @@ public class PostgreSqlConfig {
         return new CommonServiceImpl(namedParameterJdbcTemplate);
     }
 
+    @Bean
+    VehicleServiceVersioned vehicleServiceVersioned(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+        return new VehicleServiceImpl(namedParameterJdbcTemplate);
+    }
+
 }

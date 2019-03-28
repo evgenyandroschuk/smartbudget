@@ -34,7 +34,12 @@ public class CommonServiceManualTest extends AbstractTestNGSpringContextTests {
 
         BigDecimal bigDecimal = new BigDecimal(114.10).setScale(2, RoundingMode.HALF_EVEN);
         commonService.createOrReplaceUserParams(1, 1, bigDecimal);
+    }
 
+    @Test
+    public void testUpdateCurrency() {
+        BigDecimal price = new BigDecimal(62.02).setScale(2, RoundingMode.HALF_EVEN);
+        commonService.updateCurrency(1, 1, price);
     }
 
 
