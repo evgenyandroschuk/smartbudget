@@ -115,7 +115,7 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
     }
 
     @Override
-    public void updateCurrency(int currencyId, BigDecimal price) {
+    public void updateCurrency(int userId, int currencyId, BigDecimal price) {
         throw new NotImplementedException();
     }
 

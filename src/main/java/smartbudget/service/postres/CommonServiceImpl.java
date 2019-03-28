@@ -107,9 +107,10 @@ public class CommonServiceImpl extends AbstractDao implements CommonService {
     }
 
     @Override
-    public void updateCurrency(int currencyId, BigDecimal price) {
-        String query = "update currency set price = :price where id = :currencyId";
+    public void updateCurrency(int userId, int currencyId, BigDecimal price) {
+        String query = "update t_currency set price = :price where user_id = :userId and currency_id = :currencyId";
         Map<String, Object> params = ImmutableMap.of(
+            "userId", userId,
             "price", price,
             "currencyId", currencyId
         );

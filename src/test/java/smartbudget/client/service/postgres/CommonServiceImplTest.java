@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -23,7 +22,6 @@ import org.testng.annotations.Test;
 import smartbudget.service.postres.CommonServiceImpl;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Map;
@@ -200,14 +198,16 @@ public class CommonServiceImplTest {
     public void testUpdateCurrency() {
         BigDecimal price = BigDecimal.valueOf(52.12);
         int currencyId = 1;
+        int userId = 1;
 
-        String query = "update currency set price = :price where id = :currencyId";
+        String query = "update t_currency set price = :price where user_id = :userId and currency_id = :currencyId";
         Map<String, Object> params = ImmutableMap.of(
+            "userId", userId,
             "price", price,
             "currencyId", currencyId
         );
         when(namedParameterJdbcTemplate.execute(eq(query), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class))).thenReturn(true);
-        commonService.updateCurrency(currencyId, price);
+        commonService.updateCurrency(userId, currencyId, price);
         verify(namedParameterJdbcTemplate).execute(eq(query), eq(params), any(PreparedStatementCallback.class));
     }
 

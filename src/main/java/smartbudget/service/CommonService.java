@@ -21,5 +21,5 @@ public interface CommonService {
     void updateCurrencyCost(int currencyId, double amount);
 
 
-    void updateCurrency(int currencyId, BigDecimal price);
+    void updateCurrency(int userId, int currencyId, BigDecimal price);
 }
