@@ -11,6 +11,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import smartbudget.model.vehicles.VersionedVehicle;
 import smartbudget.model.vehicles.VersionedVehicleServiceType;
 import smartbudget.service.postres.VehicleServiceImpl;
 
@@ -69,10 +70,8 @@ public class VehicleServiceImplTest {
 
     @Test
     public void testFindServiceTypeById() {
-        int userId = 1;
         String query = "select id, user_id, service_type_id, description\n" +
             "from t_vehicle_service_type where user_id = :userId";
-        Map<String, Object> params = ImmutableMap.of("userId", userId);
 
         List<VersionedVehicleServiceType> serviceTypeList = ImmutableList.of(
             new VersionedVehicleServiceType(1, 1, 1, "Страхова"),
@@ -80,16 +79,48 @@ public class VehicleServiceImplTest {
         );
 
         when(namedParameterJdbcTemplate.query(
-            eq(query), eq(params),
+            eq(query), eq(getUserIdMap()),
             (ResultSetExtractor<List<VersionedVehicleServiceType>>) any(ResultSetExtractor.class))
         ).thenReturn(serviceTypeList);
 
-        VersionedVehicleServiceType result = vehicleService.findServiceTypeById(userId, 2);
+        VersionedVehicleServiceType result = vehicleService.findServiceTypeById(USER_ID, 2);
         Assert.assertEquals(result.getDescription(), "Сервис");
-        verify(namedParameterJdbcTemplate).query(eq(query), eq(params),
+        verify(namedParameterJdbcTemplate).query(eq(query), eq(getUserIdMap()),
             (ResultSetExtractor<List<VersionedVehicleServiceType>>) any(ResultSetExtractor.class));
+    }
+
+    @Test
+    public void testFindVehicle() {
+        String query = "select id, user_id, vehicle_id, description, license_plate, vin, sts " +
+            "from t_vehicle where user_id = :userId";
+
+        List<VersionedVehicle> vehicles = ImmutableList.of(
+            new VersionedVehicle(1,1,1, "Tiguan", "license1", "vin", "sts"),
+            new VersionedVehicle(2,1,2, "Nissan", "license2", "vin", "sts")
+        );
+
+        when(namedParameterJdbcTemplate.query(
+            eq(query),
+            eq(getUserIdMap()),
+            (ResultSetExtractor<List<VersionedVehicle>>) any(ResultSetExtractor.class))
+        ).thenReturn(vehicles);
+
+        VersionedVehicle result = vehicleService.findVehicleById(USER_ID, 2);
+        Assert.assertEquals(result.getDescription(), "Nissan");
+
+        verify(namedParameterJdbcTemplate).query(
+            eq(query),
+            eq(getUserIdMap()),
+            (ResultSetExtractor<List<VersionedVehicle>>) any(ResultSetExtractor.class)
+        );
 
     }
+
+    public static Map<String, Object> getUserIdMap() {
+        return ImmutableMap.of("userId", USER_ID);
+    }
+
+    public static final int USER_ID = 1;
 
 
 

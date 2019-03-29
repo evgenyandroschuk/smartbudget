@@ -15,7 +15,7 @@ public interface VehicleServiceVersioned {
     List<VersionedVehicleData> findLastVehicleData(int userId, int vehicleId, int size);
 
     List<VersionedVehicle> getVehicles(int userId);
-    VersionedVehicle findVehicleById(int vehicleId);
+    VersionedVehicle findVehicleById(int userId, int vehicleId);
 
     List<VersionedVehicleServiceType> getVehicleServiceTypes(int userId);
     VersionedVehicleServiceType findServiceTypeById(int userId, int serviceTypeId);

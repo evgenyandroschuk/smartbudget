@@ -44,12 +44,39 @@ public class VehicleServiceImpl extends AbstractDao implements VehicleServiceVer
 
     @Override
     public List<VersionedVehicle> getVehicles(int userId) {
-        throw new NotImplementedException();
+        return getAllVehicles(userId);
     }
 
     @Override
-    public VersionedVehicle findVehicleById(int vehicleId) {
-        throw new NotImplementedException();
+    public VersionedVehicle findVehicleById(int userId, int vehicleId) {
+        return getAllVehicles(userId).stream()
+            .filter(t -> (t.getVehicleId() == vehicleId))
+            .findFirst()
+            .orElseThrow(() -> new DataNotFoundException("Vehicle not found by vehicleId:" + vehicleId + " and " +
+                "userId:" + userId));
+    }
+
+    private List<VersionedVehicle> getAllVehicles(int userId) {
+        String query = "select id, user_id, vehicle_id, description, license_plate, vin, sts " +
+            "from t_vehicle where user_id = :userId";
+        Map<String, Object> params = ImmutableMap.of("userId", userId);
+
+        return namedParameterJdbcTemplate.query(query,params, rs -> {
+            List<VersionedVehicle> result = new LinkedList<>();
+            while (rs.next()) {
+                VersionedVehicle vehicle = new VersionedVehicle(
+                    rs.getInt("id"),
+                    rs.getInt("user_id"),
+                    rs.getInt("vehicle_id"),
+                    rs.getString("description"),
+                    rs.getString("license_plate"),
+                    rs.getString("vin"),
+                    rs.getString("sts")
+                );
+                result.add(vehicle);
+            }
+            return result;
+        });
     }
 
     @Override
@@ -59,13 +86,12 @@ public class VehicleServiceImpl extends AbstractDao implements VehicleServiceVer
 
     @Override
     public VersionedVehicleServiceType findServiceTypeById(int userId, int serviceTypeId) throws DataNotFoundException {
-        VersionedVehicleServiceType result = getAllServiceTypes(userId).stream()
-            .filter(t -> (t.getUserId() == userId && t.getServiceTypeId() == serviceTypeId))
+        return getAllServiceTypes(userId).stream()
+            .filter(t -> (t.getServiceTypeId() == serviceTypeId))
             .findFirst()
             .orElseThrow(() -> new DataNotFoundException(
                 "VehicleServiceTypes not found by user: " + userId + " and serviceTypeId: " + serviceTypeId
             ));
-        return result;
     }
 
     private List<VersionedVehicleServiceType> getAllServiceTypes(int userId) {

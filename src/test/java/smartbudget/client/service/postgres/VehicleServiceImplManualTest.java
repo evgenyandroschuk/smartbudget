@@ -5,6 +5,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import smartbudget.model.vehicles.VersionedVehicle;
 import smartbudget.model.vehicles.VersionedVehicleServiceType;
 import smartbudget.service.postres.DbConfig;
 import smartbudget.service.postres.PostgreSqlConfig;
@@ -21,8 +22,16 @@ public class VehicleServiceImplManualTest extends AbstractTestNGSpringContextTes
     private VehicleServiceVersioned vehicleServiceVersioned;
 
     public void testFindServiceTypeById() {
-        VersionedVehicleServiceType result = vehicleServiceVersioned.findServiceTypeById(1, 2);
+        VersionedVehicleServiceType result = vehicleServiceVersioned.findServiceTypeById(USER_ID, 2);
         Assert.assertEquals(result.getDescription(), "Сервис");
     }
+
+    public void testFindVehicle() {
+        VersionedVehicle vehicle = vehicleServiceVersioned.findVehicleById(USER_ID, 2);
+        Assert.assertEquals(vehicle.getDescription(), "BMW G310R");
+    }
+
+
+    private static final int USER_ID = 1;
 
 }
