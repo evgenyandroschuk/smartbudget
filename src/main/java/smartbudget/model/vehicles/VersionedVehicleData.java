@@ -7,8 +7,8 @@ public class VersionedVehicleData  {
 
     private final Long id;
     private final int userId;
-    private final int vehicleServiceType;
     private final int vehicleId;
+    private final int vehicleServiceType;
     private final String description;
     private final int mileAge;
     private final BigDecimal price;
@@ -17,8 +17,8 @@ public class VersionedVehicleData  {
     public VersionedVehicleData(
         Long id,
         int userId,
-        int vehicleServiceType,
         int vehicleId,
+        int vehicleServiceType,
         String description,
         int mileAge,
         BigDecimal price,
@@ -26,8 +26,8 @@ public class VersionedVehicleData  {
     ) {
         this.id = id;
         this.userId = userId;
-        this.vehicleServiceType = vehicleServiceType;
         this.vehicleId = vehicleId;
+        this.vehicleServiceType = vehicleServiceType;
         this.description = description;
         this.mileAge = mileAge;
         this.price = price;

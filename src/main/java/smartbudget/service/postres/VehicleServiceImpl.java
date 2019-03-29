@@ -7,6 +7,8 @@ import smartbudget.model.vehicles.VersionedVehicleData;
 import smartbudget.model.vehicles.VersionedVehicleServiceType;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -29,17 +31,64 @@ public class VehicleServiceImpl extends AbstractDao implements VehicleServiceVer
 
     @Override
     public VersionedVehicleData findVehicleDataById(Long id) {
-        throw new NotImplementedException();
+        String query =
+            "select id, user_id, vehicle_id, vehicle_service_type_id, description, mile_age, price, update_date " +
+                "from vehicle_data\n" +
+                "where id = :id";
+        Map<String, Object> params = ImmutableMap.of("id", id);
+
+        return namedParameterJdbcTemplate.query(
+            query,
+            params,
+            rs -> {
+                VersionedVehicleData result = null;
+                while(rs.next()) {
+                    return new VersionedVehicleData(
+                        id,
+                        rs.getInt("user_id"),
+                        rs.getInt("vehicle_id"),
+                        rs.getInt("vehicle_service_type_id"),
+                        rs.getString("description"),
+                        rs.getInt("mile_age"),
+                        rs.getBigDecimal("price"),
+                        rs.getDate("update_date").toLocalDate()
+                    );
+                }
+               return result;
+            }
+        );
     }
 
     @Override
-    public List<VersionedVehicleData> findVehicleDataByYear(int userId, int year) {
-        throw new NotImplementedException();
-    }
+    public List<VersionedVehicleData> findVehicleDataByPeriod(int userId, LocalDate startDate, LocalDate endDate) {
+        String query =
+            "select id, user_id, vehicle_id, vehicle_service_type_id, description, mile_age, price, update_date " +
+                "from vehicle_data\n" +
+                "where user_id = :userId and update_date >= :startDate and update_date <= :endDate";
+        Map<String, Object> params = ImmutableMap.of(
+            "userId", userId,
+            "startDate", Date.valueOf(startDate),
+            "endDate", Date.valueOf(endDate)
+        );
 
-    @Override
-    public List<VersionedVehicleData> findLastVehicleData(int userId, int vehicleId, int size) {
-        throw new NotImplementedException();
+        return namedParameterJdbcTemplate.query(query, params,
+            rs -> {
+                List<VersionedVehicleData> result = new LinkedList<>();
+                while(rs.next()) {
+                    VersionedVehicleData data = new VersionedVehicleData(
+                        rs.getLong("id"),
+                        rs.getInt("user_id"),
+                        rs.getInt("vehicle_id"),
+                        rs.getInt("vehicle_service_type_id"),
+                        rs.getString("description"),
+                        rs.getInt("mile_age"),
+                        rs.getBigDecimal("price"),
+                        rs.getDate("update_date").toLocalDate()
+                    );
+                    result.add(data);
+                }
+                return result;
+            });
     }
 
     @Override

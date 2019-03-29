@@ -12,10 +12,14 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import smartbudget.model.vehicles.VersionedVehicle;
+import smartbudget.model.vehicles.VersionedVehicleData;
 import smartbudget.model.vehicles.VersionedVehicleServiceType;
 import smartbudget.service.postres.VehicleServiceImpl;
 
-import java.sql.ResultSet;
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -116,11 +120,82 @@ public class VehicleServiceImplTest {
 
     }
 
-    public static Map<String, Object> getUserIdMap() {
+
+    @Test
+    public void testFindDataByPeriod() {
+        String query =
+            "select id, user_id, vehicle_id, vehicle_service_type_id, description, mile_age, price, update_date " +
+                "from vehicle_data\n" +
+                "where user_id = :userId and update_date >= :startDate and update_date <= :endDate";
+
+        LocalDate startDate = LocalDate.parse("2019-01-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalDate endDate = LocalDate.parse("2019-05-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        List<VersionedVehicleData> vehicleDataList = ImmutableList.of(
+            getVehicleData(33000.0, "description 1", "2019-02-21"),
+            getVehicleData(9000.0, "description 2", "2019-04-02")
+        );
+
+        Map<String, Object> params = ImmutableMap.of(
+            "userId", USER_ID,
+            "startDate", Date.valueOf(startDate),
+            "endDate", Date.valueOf(endDate)
+        );
+
+        when(namedParameterJdbcTemplate.query(
+            eq(query),
+            eq(params),
+            (ResultSetExtractor<List<VersionedVehicleData>>) any(ResultSetExtractor.class))
+        ).thenReturn(vehicleDataList);
+
+        List<VersionedVehicleData> result = vehicleService.findVehicleDataByPeriod(USER_ID, startDate, endDate);
+        Assert.assertEquals(result.get(1).getDescription(), "description 2");
+
+        verify(namedParameterJdbcTemplate).query(
+            eq(query),
+            eq(params),
+            (ResultSetExtractor<List<VersionedVehicleData>>) any(ResultSetExtractor.class)
+        );
+    }
+
+    @Test
+    public void testFindDataById() {
+        String query =
+            "select id, user_id, vehicle_id, vehicle_service_type_id, description, mile_age, price, update_date " +
+                "from vehicle_data\n" +
+                "where id = :id";
+        Map<String, Object> params = ImmutableMap.of("id", 1L);
+        when(namedParameterJdbcTemplate.query(
+            eq(query),
+            eq(params),
+            (ResultSetExtractor<VersionedVehicleData>) any(ResultSetExtractor.class)
+            )
+        ).thenReturn(getVehicleData(30001, "description test", "2019-03-04"));
+
+        VersionedVehicleData result = vehicleService.findVehicleDataById(1L);
+
+        Assert.assertEquals(result.getDescription(), "description test");
+        verify(namedParameterJdbcTemplate).query(
+            eq(query),
+            eq(params),
+            (ResultSetExtractor<VersionedVehicleData>) any(ResultSetExtractor.class)
+        );
+    }
+
+
+    private static VersionedVehicleData getVehicleData(double price, String description,  String dateString) {
+        return new VersionedVehicleData(
+            1L, 1, 1, 1, description, 43000, BigDecimal.valueOf(price),
+            LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        );
+
+    }
+
+
+    private static Map<String, Object> getUserIdMap() {
         return ImmutableMap.of("userId", USER_ID);
     }
 
-    public static final int USER_ID = 1;
+    private static final int USER_ID = 1;
 
 
 
