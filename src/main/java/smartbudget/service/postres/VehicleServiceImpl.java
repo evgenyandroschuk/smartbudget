@@ -8,7 +8,9 @@ import smartbudget.model.vehicles.VersionedVehicleServiceType;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,12 +23,46 @@ public class VehicleServiceImpl extends AbstractDao implements VehicleServiceVer
 
     @Override
     public void createVehicleData(VersionedVehicleData vehicleData) {
-        throw new NotImplementedException();
+        String query =
+                "insert into vehicle_data(\n" +
+                        "  id,\n" +
+                        "  user_id,\n" +
+                        "  vehicle_id,\n" +
+                        "  vehicle_service_type_id,\n" +
+                        "  description,\n" +
+                        "  mile_age,\n" +
+                        "  price,\n" +
+                        "  update_date\n" +
+                        ")\n" +
+                        "values (\n" +
+                        "  nextval('vehicle_seq'),\n" +
+                        "  :userId,\n" +
+                        "  :vehicleId,\n" +
+                        "  :serviceTypId,\n" +
+                        "  :description,\n" +
+                        "  :mileAge,\n" +
+                        "  :price,\n" +
+                        "  :updateDate\n" +
+                        ")";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", vehicleData.getUserId());
+        params.put("vehicleId", vehicleData.getVehicleId());
+        params.put("serviceTypId", vehicleData.getVehicleServiceType());
+        params.put("description", vehicleData.getDescription());
+        params.put("mileAge", vehicleData.getPrice());
+        params.put("price", vehicleData.getPrice());
+        params.put("updateDate", Date.valueOf(vehicleData.getDate()));
+
+        namedParameterJdbcTemplate.execute(query, params, PreparedStatement::execute);
     }
 
     @Override
     public void deleteVehicleData(Long id) {
-        throw new NotImplementedException();
+        String query = "delete from vehicle_data where id = :id";
+        Map<String, Object> params = ImmutableMap.of("id", id);
+
+        namedParameterJdbcTemplate.execute(query, params, PreparedStatement::execute);
     }
 
     @Override

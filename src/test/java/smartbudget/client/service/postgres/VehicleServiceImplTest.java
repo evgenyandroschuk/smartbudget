@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.testng.Assert;
@@ -18,8 +19,10 @@ import smartbudget.service.postres.VehicleServiceImpl;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -179,6 +182,71 @@ public class VehicleServiceImplTest {
             eq(params),
             (ResultSetExtractor<VersionedVehicleData>) any(ResultSetExtractor.class)
         );
+    }
+
+    @Test
+    public void testCreateVehicleData() {
+        String query =
+                "insert into vehicle_data(\n" +
+                        "  id,\n" +
+                        "  user_id,\n" +
+                        "  vehicle_id,\n" +
+                        "  vehicle_service_type_id,\n" +
+                        "  description,\n" +
+                        "  mile_age,\n" +
+                        "  price,\n" +
+                        "  update_date\n" +
+                        ")\n" +
+                        "values (\n" +
+                        "  nextval('vehicle_seq'),\n" +
+                        "  :userId,\n" +
+                        "  :vehicleId,\n" +
+                        "  :serviceTypId,\n" +
+                        "  :description,\n" +
+                        "  :mileAge,\n" +
+                        "  :price,\n" +
+                        "  :updateDate\n" +
+                        ")";
+
+
+        VersionedVehicleData vehicleData = new VersionedVehicleData(
+                1, 1, 1, "test desc",
+                31002, BigDecimal.valueOf(12000.10), LocalDate.of(2019,1,20)
+        );
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", vehicleData.getUserId());
+        params.put("vehicleId", vehicleData.getVehicleId());
+        params.put("serviceTypId", vehicleData.getVehicleServiceType());
+        params.put("description", vehicleData.getDescription());
+        params.put("mileAge", vehicleData.getPrice());
+        params.put("price", vehicleData.getPrice());
+        params.put("updateDate", Date.valueOf(vehicleData.getDate()));
+
+        when(namedParameterJdbcTemplate.execute(
+                eq(query), eq(params),
+                (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class))).thenReturn(true);
+
+        vehicleService.createVehicleData(vehicleData);
+
+        verify(namedParameterJdbcTemplate).execute(
+                eq(query), eq(params),
+                (PreparedStatementCallback<PreparedStatement>) any(PreparedStatementCallback.class));
+    }
+
+    @Test
+    public void testDeleteVehicleData() {
+        String query = "delete from vehicle_data where id = :id";
+        Map<String, Object> params = ImmutableMap.of("id", 2L);
+
+        when(namedParameterJdbcTemplate.execute(eq(query), eq(params),
+                (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class))).thenReturn(true);
+
+        vehicleService.deleteVehicleData(2L);
+
+        verify(namedParameterJdbcTemplate).execute(eq(query), eq(params),
+                (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class));
+
     }
 
 

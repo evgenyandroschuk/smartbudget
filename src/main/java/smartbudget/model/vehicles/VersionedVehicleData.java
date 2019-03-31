@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 public class VersionedVehicleData  {
 
-    private final Long id;
+    private Long id;
     private final int userId;
     private final int vehicleId;
     private final int vehicleServiceType;
@@ -25,6 +25,24 @@ public class VersionedVehicleData  {
         LocalDate date
     ) {
         this.id = id;
+        this.userId = userId;
+        this.vehicleId = vehicleId;
+        this.vehicleServiceType = vehicleServiceType;
+        this.description = description;
+        this.mileAge = mileAge;
+        this.price = price;
+        this.date = date;
+    }
+
+    public VersionedVehicleData(
+            int userId,
+            int vehicleId,
+            int vehicleServiceType,
+            String description,
+            int mileAge,
+            BigDecimal price,
+            LocalDate date
+    ) {
         this.userId = userId;
         this.vehicleId = vehicleId;
         this.vehicleServiceType = vehicleServiceType;

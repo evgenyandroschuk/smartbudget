@@ -12,6 +12,7 @@ import smartbudget.service.postres.DbConfig;
 import smartbudget.service.postres.PostgreSqlConfig;
 import smartbudget.service.postres.VehicleServiceVersioned;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -46,6 +47,18 @@ public class VehicleServiceImplManualTest extends AbstractTestNGSpringContextTes
     public void testFindDataById() {
         VersionedVehicleData data = vehicleServiceVersioned.findVehicleDataById(8L);
         Assert.assertNotNull(data);
+    }
+
+    public void testCreateVehicleData() {
+        VersionedVehicleData vehicleData = new VersionedVehicleData(
+                1, 1, 1, "test desc",
+                31002, BigDecimal.valueOf(12000.10), LocalDate.now()
+        );
+        vehicleServiceVersioned.createVehicleData(vehicleData);
+    }
+
+    public void testDeleteVehicleData() {
+        vehicleServiceVersioned.deleteVehicleData(2L);
     }
 
 
