@@ -91,3 +91,16 @@ create table vehicle_data (
 
 insert into vehicle_data(id, user_id, vehicle_id, vehicle_service_type_id, description, mile_age, price, update_date)
     values (nextval('vehicle_seq'), 1, 1, 1, 'description', 43000, 30000.00, now());
+
+
+create table t_property (
+  id SERIAL primary key,
+  user_id int references t_user(id),
+  property_id int not null,
+  description varchar(200),
+  unique (user_id, property_id)
+);
+
+insert into t_property(user_id, property_id, description)
+values(1, 1, 'Property 1')
+;

@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import smartbudget.model.vehicles.VersionedVehicle;
 import smartbudget.model.vehicles.VersionedVehicleData;
 import smartbudget.model.vehicles.VersionedVehicleServiceType;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;

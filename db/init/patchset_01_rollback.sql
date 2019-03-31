@@ -1,3 +1,5 @@
+drop table t_property;
+
 drop table t_user_system_params;
 
 drop table vehicle_data;
