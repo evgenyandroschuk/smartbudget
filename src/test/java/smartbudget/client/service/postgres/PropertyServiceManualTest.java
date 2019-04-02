@@ -6,6 +6,7 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import smartbudget.model.services.VersionedProperty;
+import smartbudget.model.services.VersionedPropertyServiceType;
 import smartbudget.service.postres.DbConfig;
 import smartbudget.service.postres.PostgreSqlConfig;
 import smartbudget.service.postres.property.PropertyService;
@@ -26,10 +27,20 @@ public class PropertyServiceManualTest extends AbstractTestNGSpringContextTests 
     private PropertyService propertyService;
 
     public void testGetProperties() {
-
         List<VersionedProperty> result = propertyService.getProperties();
         System.out.println(result);
         Assert.assertTrue(!result.isEmpty());
+    }
+
+    public void testGetServiceTypes() {
+        List<VersionedPropertyServiceType> serviceTypes = propertyService.getServiceTypes();
+        System.out.println(serviceTypes);
+        Assert.assertEquals(
+            serviceTypes.stream()
+                .filter(t -> t.getUserId() == 1 && t.getServiceTypeId() == 1)
+                .findFirst().get().getDescription(),
+            "Фильтры питьевой воды"
+        );
 
     }
 

@@ -93,6 +93,8 @@ insert into vehicle_data(id, user_id, vehicle_id, vehicle_service_type_id, descr
     values (nextval('vehicle_seq'), 1, 1, 1, 'description', 43000, 30000.00, now());
 
 
+---------------Property-----------------------
+
 create table t_property (
   id SERIAL primary key,
   user_id int references t_user(id),
@@ -104,3 +106,40 @@ create table t_property (
 insert into t_property(user_id, property_id, description)
 values(1, 1, 'Property 1')
 ;
+
+create table t_property_service_type (
+  id SERIAL primary key,
+  user_id int references t_user(id),
+  service_type_id int not null,
+  description varchar(200),
+  unique (user_id, service_type_id)
+)
+;
+
+
+insert into t_property_service_type (user_id, service_type_id, description)
+values (1, 1, 'Фильтры питьевой воды');
+
+insert into t_property_service_type (user_id, service_type_id, description)
+values (1, 2, 'Счетчики - электричество');
+
+insert into t_property_service_type (user_id, service_type_id, description)
+values (1, 3, 'Счетчики - водоснабжение');
+
+insert into t_property_service_type (user_id, service_type_id, description)
+values (1, 4, 'Работы по электросети');
+
+insert into t_property_service_type (user_id, service_type_id, description)
+values (1, 5, 'Работы по электросети');
+
+insert into t_property_service_type (user_id, service_type_id, description)
+values (1, 6, 'Работы по водоснабжению');
+
+insert into t_property_service_type (user_id, service_type_id, description)
+values (1, 7, 'Работы по канализации');
+
+insert into t_property_service_type (user_id, service_type_id, description)
+values (1, 8, 'Бытовой газ');
+
+insert into t_property_service_type (user_id, service_type_id, description)
+values (1, 9, 'Прочее');

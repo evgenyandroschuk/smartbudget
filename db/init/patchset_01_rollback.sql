@@ -1,3 +1,5 @@
+drop table t_property_service_type;
+
 drop table t_property;
 
 drop table t_user_system_params;

@@ -11,6 +11,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import smartbudget.model.services.VersionedProperty;
+import smartbudget.model.services.VersionedPropertyServiceType;
 import smartbudget.service.postres.property.PropertyServiceImpl;
 
 import java.util.List;
@@ -56,6 +57,24 @@ public class PropertyServiceTest {
 
         verify(namedParameterJdbcTemplate)
                 .query(eq(query), (ResultSetExtractor<List<VersionedProperty>>) any(ResultSetExtractor.class));
+    }
+
+    @Test
+    public void testGetServiceType() {
+        String query = "select id, user_id, service_type_id, description from t_property_service_type";
+        List<VersionedPropertyServiceType> serviceTypes = ImmutableList.of(
+            new VersionedPropertyServiceType(1,1,1,"Service 01"),
+            new VersionedPropertyServiceType(1,1,2,"Service 02")
+        );
+        when(namedParameterJdbcTemplate.query(
+            eq(query), (ResultSetExtractor<List<VersionedPropertyServiceType>>) any(ResultSetExtractor.class)
+        )).thenReturn(serviceTypes);
+
+        List<VersionedPropertyServiceType> result = propertyService.getServiceTypes();
+        Assert.assertEquals(
+            result.stream().filter(t -> t.getServiceTypeId() == 2).findFirst().get().getDescription(),
+            "Service 02"
+        );
     }
 
 }
