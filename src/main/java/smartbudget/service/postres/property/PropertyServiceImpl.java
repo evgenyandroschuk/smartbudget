@@ -8,6 +8,7 @@ import smartbudget.model.services.VersionedPropertyServiceType;
 import smartbudget.service.postres.AbstractDao;
 
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
@@ -83,5 +84,35 @@ public class PropertyServiceImpl extends AbstractDao implements PropertyService 
             }
             return serviceTypes;
         });
+    }
+
+    @Override
+    public void savePropertyData(VersionedPropertyData propertyData) {
+        if (propertyData.getPrice().scale() > 2) {
+            throw new IllegalArgumentException("Scale of price value must not over 2 !!!");
+        }
+        String sql = "insert into property_data\n" +
+                "(id, user_id, property_id, service_type_id, description, master, price, update_date)\n" +
+                "values (nextval('property_seq'), :userId, :propertyId, :serviceTypeId, " +
+                ":description, :master, :price, :updateDate)";
+
+        Map<String, Object> params = ImmutableMap.<String, Object>builder()
+                .put("userId", propertyData.getUserId())
+                .put("propertyId", propertyData.getPropertyId())
+                .put("serviceTypeId", propertyData.getServiceTypeId())
+                .put("description", propertyData.getDescription())
+                .put("master", propertyData.getMaster())
+                .put("price", propertyData.getPrice())
+                .put("updateDate", Date.valueOf(propertyData.getUpdateDate()))
+                .build();
+
+        namedParameterJdbcTemplate.execute(sql, params, PreparedStatement::execute);
+    }
+
+    @Override
+    public void deletePropertyData(Long id) {
+        String sql = "delete from property_data where id = :id";
+        Map<String, Object> params = ImmutableMap.of("id", id);
+        namedParameterJdbcTemplate.execute(sql, params, PreparedStatement::execute);
     }
 }

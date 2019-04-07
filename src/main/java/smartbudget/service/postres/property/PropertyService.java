@@ -13,4 +13,7 @@ public interface PropertyService {
     List<VersionedProperty> getProperties();
     List<VersionedPropertyServiceType> getServiceTypes();
 
+    void savePropertyData(VersionedPropertyData propertyData);
+
+    void deletePropertyData(Long id);
 }

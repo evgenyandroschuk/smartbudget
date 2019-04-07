@@ -13,6 +13,7 @@ import smartbudget.service.postres.PostgreSqlConfig;
 import smartbudget.service.postres.property.PropertyService;
 import smartbudget.service.postres.property.PropertyServiceConfiguration;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -51,5 +52,20 @@ public class PropertyServiceManualTest extends AbstractTestNGSpringContextTests 
         List<VersionedPropertyData> propertyData = propertyService.getPropertyData(1,startDate, endDate);
         System.out.println(propertyData);
     }
+
+    public void testSavePropertyData() {
+        VersionedPropertyData propertyData = new VersionedPropertyData(
+                USER_ID, PROPERTY_ID, 1, "Test desc", "Test master",
+                BigDecimal.valueOf(100.00), LocalDate.of(2019, 4, 5)
+        );
+        propertyService.savePropertyData(propertyData);
+    }
+
+    public void testDeletePropertyData() {
+        propertyService.deletePropertyData(4L);
+    }
+
+    private static final int USER_ID = 1;
+    private static final int PROPERTY_ID = 1;
 
 }

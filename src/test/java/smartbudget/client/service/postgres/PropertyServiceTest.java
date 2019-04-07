@@ -5,11 +5,13 @@ import com.google.common.collect.ImmutableMap;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import smartbudget.model.services.VersionedProperty;
 import smartbudget.model.services.VersionedPropertyData;
@@ -123,7 +125,106 @@ public class PropertyServiceTest {
         );
     }
 
-    private static final int USER_ID = 1;
+    @Test
+    public void testSavePropertyData() {
+        VersionedPropertyData propertyData = new VersionedPropertyData(
+                USER_ID, PROPERTY_ID, 1, "Test desc", "Test master",
+                BigDecimal.valueOf(10.02), LocalDate.of(2019, 4, 5)
+        );
+
+        Map<String, Object> params = ImmutableMap.<String, Object>builder()
+                .put("userId", propertyData.getUserId())
+                .put("propertyId", propertyData.getPropertyId())
+                .put("serviceTypeId", propertyData.getServiceTypeId())
+                .put("description", propertyData.getDescription())
+                .put("master", propertyData.getMaster())
+                .put("price", propertyData.getPrice())
+                .put("updateDate", Date.valueOf(propertyData.getUpdateDate()))
+                .build();
+
+        when(namedParameterJdbcTemplate.execute(
+                eq(INSERT_PROPETY),
+                eq(params),
+                (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class)
+        )).thenReturn(true);
+
+        propertyService.savePropertyData(propertyData);
+
+        verify(namedParameterJdbcTemplate).execute(
+                eq(INSERT_PROPETY),
+                eq(params),
+                (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class));
+    }
+
+    @Test(
+            dataProvider = "savePropertyDataFailed",
+            expectedExceptions = IllegalArgumentException.class,
+            expectedExceptionsMessageRegExp = "Scale of price value must not over 2 !!!"
+    )
+    public void testSavePropertyDataFailed(BigDecimal price) {
+        VersionedPropertyData propertyData = new VersionedPropertyData(
+                USER_ID, PROPERTY_ID, 1, "Test desc", "Test master",
+                price, LocalDate.of(2019, 4, 5)
+        );
+
+        Map<String, Object> params = ImmutableMap.<String, Object>builder()
+                .put("userId", propertyData.getUserId())
+                .put("propertyId", propertyData.getPropertyId())
+                .put("serviceTypeId", propertyData.getServiceTypeId())
+                .put("description", propertyData.getDescription())
+                .put("master", propertyData.getMaster())
+                .put("price", propertyData.getPrice())
+                .put("updateDate", Date.valueOf(propertyData.getUpdateDate()))
+                .build();
+
+        when(namedParameterJdbcTemplate.execute(
+                eq(INSERT_PROPETY),
+                eq(params),
+                (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class)
+        )).thenReturn(true);
+
+        propertyService.savePropertyData(propertyData);
+
+        verify(namedParameterJdbcTemplate).execute(
+                eq(INSERT_PROPETY),
+                eq(params),
+                (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class));
+    }
+
+    @DataProvider
+    private static Object[][] savePropertyDataFailed() {
+        return new Object[][] {
+                {
+                    BigDecimal.valueOf(100.002)
+                },
+                {
+                    BigDecimal.valueOf(100.1002),
+                }
+        };
+    }
+
+    @Test
+    public void deletePropertyData() {
+        String sql = "delete from property_data where id = :id";
+        Map<String, Object> params = ImmutableMap.of("id", 2L);
+        when(namedParameterJdbcTemplate.execute(
+                eq(sql), eq(params), (PreparedStatementCallback<Boolean>)any(PreparedStatementCallback.class))
+        ).thenReturn(true);
+        propertyService.deletePropertyData(2L);
+
+        verify(namedParameterJdbcTemplate).execute(
+                eq(sql), eq(params), (PreparedStatementCallback<Boolean>)any(PreparedStatementCallback.class));
+
+    }
+
+    private static final String INSERT_PROPETY = "insert into property_data\n" +
+            "(id, user_id, property_id, service_type_id, description, master, price, update_date)\n" +
+            "values (nextval('property_seq'), :userId, :propertyId, :serviceTypeId, " +
+            ":description, :master, :price, :updateDate)";
+
+
+
     private static final int PROPERTY_ID = 1;
+    private static final int USER_ID = 1;
 
 }
