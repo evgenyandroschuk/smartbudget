@@ -143,3 +143,24 @@ values (1, 8, 'Бытовой газ');
 
 insert into t_property_service_type (user_id, service_type_id, description)
 values (1, 9, 'Прочее');
+
+
+
+create sequence property_seq maxvalue 999999999 start 1;
+
+create table property_data(
+  id bigint primary key,
+  user_id int references t_user(id),
+  property_id int references t_property(id),
+  service_type_id int references t_property_service_type(id),
+  description varchar(1000),
+  master varchar(400),
+  price numeric(10,2),
+  update_date date
+)
+;
+
+insert into property_data
+(id, user_id, property_id, service_type_id, description, master, price, update_date)
+values (nextval('property_seq'), 1, 1, 1, 'description', 'test master', 1000.01, now())
+;

@@ -1,17 +1,51 @@
 package smartbudget.service.postres.property;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import smartbudget.model.services.VersionedProperty;
+import smartbudget.model.services.VersionedPropertyData;
 import smartbudget.model.services.VersionedPropertyServiceType;
 import smartbudget.service.postres.AbstractDao;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class PropertyServiceImpl extends AbstractDao implements PropertyService {
 
     protected PropertyServiceImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         super(namedParameterJdbcTemplate);
+    }
+
+    @Override
+    public List<VersionedPropertyData> getPropertyData(int userId, LocalDate startDate, LocalDate endDate) {
+        String query = "select id, user_id, property_id, service_type_id, description, master, price, update_date " +
+                "from property_data where user_id = :userId and update_date >= :startDate and update_date < :endDate";
+        Map<String, Object> params = ImmutableMap.of(
+                "userId", userId,
+                "startDate", Date.valueOf(startDate),
+                "endDate", Date.valueOf(endDate)
+                );
+
+        return namedParameterJdbcTemplate.query(query, params, rs -> {
+            List<VersionedPropertyData> data = new LinkedList<>();
+            while(rs.next()) {
+                VersionedPropertyData propertyData = new VersionedPropertyData(
+                  rs.getLong("id"),
+                  rs.getInt("user_id"),
+                  rs.getInt("property_id"),
+                  rs.getInt("service_type_id"),
+                  rs.getString("description"),
+                  rs.getString("master"),
+                  rs.getBigDecimal("price"),
+                  rs.getDate("update_date").toLocalDate()
+                );
+                data.add(propertyData);
+            }
+            return data;
+        });
     }
 
     @Override

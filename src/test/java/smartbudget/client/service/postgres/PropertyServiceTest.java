@@ -1,6 +1,7 @@
 package smartbudget.client.service.postgres;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -11,10 +12,15 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import smartbudget.model.services.VersionedProperty;
+import smartbudget.model.services.VersionedPropertyData;
 import smartbudget.model.services.VersionedPropertyServiceType;
 import smartbudget.service.postres.property.PropertyServiceImpl;
 
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -76,5 +82,48 @@ public class PropertyServiceTest {
             "Service 02"
         );
     }
+
+    @Test
+    public void getPropertyDataTest() {
+        LocalDate startDate = LocalDate.of(2019, 04,05);
+        LocalDate endDate = startDate.plusDays(3);
+
+        String query = "select id, user_id, property_id, service_type_id, description, master, price, update_date " +
+                "from property_data where user_id = :userId and update_date >= :startDate and update_date < :endDate";
+        Map<String, Object> params = ImmutableMap.of(
+                "userId", USER_ID,
+                "startDate", Date.valueOf(startDate),
+                "endDate", Date.valueOf(endDate)
+        );
+
+        List<VersionedPropertyData> propertyData = ImmutableList.of(
+                new VersionedPropertyData(
+                        1L, USER_ID, PROPERTY_ID, 1, "desc 01",
+                        "master 01", BigDecimal.valueOf(100.02), startDate
+                ),
+                new VersionedPropertyData(
+                        2L, USER_ID, PROPERTY_ID, 1, "desc 02",
+                        "master 01", BigDecimal.valueOf(110.02), startDate
+                )
+        );
+
+        when(namedParameterJdbcTemplate.query(
+                eq(query),
+                eq(params),
+                (ResultSetExtractor<List<VersionedPropertyData>>) any(ResultSetExtractor.class))
+        ).thenReturn(propertyData);
+
+        List<VersionedPropertyData> result = propertyService.getPropertyData(1, startDate, endDate);
+
+        Assert.assertEquals(result.get(1).getDescription(), "desc 02");
+        verify(namedParameterJdbcTemplate).query(
+                eq(query),
+                eq(params),
+                (ResultSetExtractor<List<VersionedPropertyData>>) any(ResultSetExtractor.class)
+        );
+    }
+
+    private static final int USER_ID = 1;
+    private static final int PROPERTY_ID = 1;
 
 }

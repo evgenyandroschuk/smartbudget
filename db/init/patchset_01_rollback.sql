@@ -1,3 +1,6 @@
+drop table property_data;
+drop sequence property_seq;
+
 drop table t_property_service_type;
 
 drop table t_property;
