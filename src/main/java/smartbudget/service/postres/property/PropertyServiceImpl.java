@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class PropertyServiceImpl extends AbstractDao implements PropertyService {
 
-    protected PropertyServiceImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    public PropertyServiceImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         super(namedParameterJdbcTemplate);
     }
 

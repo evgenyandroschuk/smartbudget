@@ -4,6 +4,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import smartbudget.service.CommonService;
+import smartbudget.service.postres.expenses.ExpensesService;
+import smartbudget.service.postres.expenses.ExpensesServiceImpl;
+import smartbudget.service.postres.property.PropertyService;
+import smartbudget.service.postres.property.PropertyServiceImpl;
 
 @Configuration
 public class PostgreSqlConfig {
@@ -16,6 +20,16 @@ public class PostgreSqlConfig {
     @Bean
     VehicleServiceVersioned vehicleServiceVersioned(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         return new VehicleServiceImpl(namedParameterJdbcTemplate);
+    }
+
+    @Bean
+    PropertyService propertyService(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+        return new PropertyServiceImpl(namedParameterJdbcTemplate);
+    }
+
+    @Bean
+    public ExpensesService expensesService(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+        return new ExpensesServiceImpl(namedParameterJdbcTemplate);
     }
 
 }

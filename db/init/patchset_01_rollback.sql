@@ -1,3 +1,5 @@
+drop table t_expenses_type;
+
 drop table property_data;
 drop sequence property_seq;
 

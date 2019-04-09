@@ -11,7 +11,6 @@ import smartbudget.model.services.VersionedPropertyServiceType;
 import smartbudget.service.postres.DbConfig;
 import smartbudget.service.postres.PostgreSqlConfig;
 import smartbudget.service.postres.property.PropertyService;
-import smartbudget.service.postres.property.PropertyServiceConfiguration;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,7 +19,7 @@ import java.util.List;
 @SpringBootTest(classes = {
         PostgreSqlConfig.class,
         DbConfig.class,
-        PropertyServiceConfiguration.class
+        PostgreSqlConfig.class
 })
 @Test(groups = "manual")
 public class PropertyServiceManualTest extends AbstractTestNGSpringContextTests {

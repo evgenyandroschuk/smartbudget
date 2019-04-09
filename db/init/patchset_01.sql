@@ -164,3 +164,29 @@ insert into property_data
 (id, user_id, property_id, service_type_id, description, master, price, update_date)
 values (nextval('property_seq'), 1, 1, 1, 'description', 'test master', 1000.01, now())
 ;
+
+
+-----------------EXPENSES------------------------
+
+create table t_expenses_type (
+  id SERIAL primary key,
+  user_id int references t_user(id),
+  expenses_type_id int not null,
+  description varchar(200),
+  is_income boolean,
+  unique (user_id, expenses_type_id)
+)
+;
+
+insert into t_expenses_type (user_id, expenses_type_id, description, is_income) values(1, 1, 'Others', false);
+insert into t_expenses_type (user_id, expenses_type_id, description, is_income) values(1, 2, 'Healths', false);
+insert into t_expenses_type (user_id, expenses_type_id, description, is_income) values(1, 3, 'Products', false);
+insert into t_expenses_type (user_id, expenses_type_id, description, is_income) values(1, 4, 'For house', false);
+insert into t_expenses_type (user_id, expenses_type_id, description, is_income) values(1, 5, 'Communication', false);
+insert into t_expenses_type (user_id, expenses_type_id, description, is_income) values(1, 6, 'Car', false);
+insert into t_expenses_type (user_id, expenses_type_id, description, is_income) values(1, 7, 'Travel', false);
+insert into t_expenses_type (user_id, expenses_type_id, description, is_income) values(1, 8, 'Lunch', false);
+insert into t_expenses_type (user_id, expenses_type_id, description, is_income) values(1, 9, 'Clothes and goods', false);
+insert into t_expenses_type (user_id, expenses_type_id, description, is_income) values(1, 10, 'Credit', false);
+insert into t_expenses_type (user_id, expenses_type_id, description, is_income) values(1, 11, 'Income', true);
+insert into t_expenses_type (user_id, expenses_type_id, description, is_income) values(1, 12, 'Fund', false);
