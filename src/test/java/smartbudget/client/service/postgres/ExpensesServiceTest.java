@@ -11,15 +11,20 @@ import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import smartbudget.model.expenses.ExpensesData;
 import smartbudget.model.expenses.ExpensesType;
 import smartbudget.service.postres.expenses.ExpensesServiceImpl;
 
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -61,6 +66,84 @@ public class ExpensesServiceTest {
         Assert.assertEquals(result.get(1).getDescription(), "Health");
     }
 
+    @Test
+    public void testGetExpensesByYear() {
+        String query = "select id, user_id, month, year, expenses_type_id, description, amount, update_date\n" +
+            "from expenses_data where user_id = :userId and year = :year";
+        Map<String, Object> params = ImmutableMap.of("userId", USER_ID, "year", YEAR);
+
+        when(namedParameterJdbcTemplate.query(
+            eq(query),
+            eq(params),
+            (ResultSetExtractor<List<ExpensesData>>) any(ResultSetExtractor.class)
+        )).thenReturn(getDefaultExpensesDataList());
+
+        List<ExpensesData> result = expensesService.getExpensesByYear(USER_ID, YEAR);
+        verify(namedParameterJdbcTemplate).query(
+            eq(query),
+            eq(params),
+            (ResultSetExtractor<List<ExpensesData>>) any(ResultSetExtractor.class));
+        Assert.assertEquals(result.get(1).getDescription(), "TestDescription 02");
+    }
+
+    @Test
+    public void testGetExpensesByYearMonth() {
+        String query = "select id, user_id, month, year, expenses_type_id, description, amount, update_date\n" +
+            "from expenses_data where user_id = :userId and year = :year and month = :month";
+        Map<String, Object> params = ImmutableMap.of("userId", USER_ID, "year", YEAR, "month", MONTH);
+
+        when(namedParameterJdbcTemplate.query(
+            eq(query),
+            eq(params),
+            (ResultSetExtractor<List<ExpensesData>>) any(ResultSetExtractor.class)
+        )).thenReturn(getDefaultExpensesDataList());
+
+        List<ExpensesData> result = expensesService.getExpensesByYearMonth(USER_ID, YEAR, MONTH);
+
+        verify(namedParameterJdbcTemplate).query(
+            eq(query),
+            eq(params),
+            (ResultSetExtractor<List<ExpensesData>>) any(ResultSetExtractor.class));
+        Assert.assertEquals(result.get(1).getDescription(), "TestDescription 02");
+    }
+
+    @Test
+    public void testGetExpensesByPeriod() {
+        LocalDate startDate = LocalDate.of(YEAR, MONTH, 1);
+        LocalDate endDate = LocalDate.of(YEAR, MONTH, 30);
+        String query = "select id, user_id, month, year, expenses_type_id, description, amount, update_date\n" +
+            "from expenses_data where user_id = :userId and update_date >= :startDate and update_date < :endDate";
+        Map<String, Object> params = ImmutableMap.of(
+            "userId", USER_ID, "startDate", Date.valueOf(startDate), "endDate", Date.valueOf(endDate)
+        );
+
+        when(namedParameterJdbcTemplate.query(
+            eq(query),
+            eq(params),
+            (ResultSetExtractor<List<ExpensesData>>) any(ResultSetExtractor.class)
+        )).thenReturn(getDefaultExpensesDataList());
+
+        List<ExpensesData> result = expensesService.getExpensesByPeriod(USER_ID, startDate, endDate);
+
+        Assert.assertEquals(result.get(1).getDescription(), "TestDescription 02");
+        verify(namedParameterJdbcTemplate).query(
+            eq(query),
+            eq(params),
+            (ResultSetExtractor<List<ExpensesData>>) any(ResultSetExtractor.class)
+        );
+    }
+
+    private List<ExpensesData> getDefaultExpensesDataList() {
+        return ImmutableList.of(
+            new ExpensesData(1L, USER_ID, MONTH, YEAR, 1, "TestDescription 01",
+                BigDecimal.valueOf(100.00), LocalDate.of(YEAR, MONTH, 1)),
+            new ExpensesData(2L, USER_ID, MONTH, YEAR, 1, "TestDescription 02",
+                BigDecimal.valueOf(110.00), LocalDate.of(YEAR, MONTH, 1))
+        );
+    }
+
     private static final int USER_ID = 1;
+    private static final int YEAR = 2019;
+    private static final int MONTH = 1;
 
 }

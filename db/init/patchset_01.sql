@@ -190,3 +190,23 @@ insert into t_expenses_type (user_id, expenses_type_id, description, is_income) 
 insert into t_expenses_type (user_id, expenses_type_id, description, is_income) values(1, 10, 'Credit', false);
 insert into t_expenses_type (user_id, expenses_type_id, description, is_income) values(1, 11, 'Income', true);
 insert into t_expenses_type (user_id, expenses_type_id, description, is_income) values(1, 12, 'Fund', false);
+
+
+create sequence expenses_seq maxvalue 999999999 start 1;
+
+create table expenses_data(
+  id bigint primary key,
+  user_id int references t_user(id),
+  month int,
+  year int,
+  expenses_type_id int references t_expenses_type(id),
+  description varchar(1000),
+  amount numeric(10,2),
+  update_date date
+);
+
+insert  into expenses_data(id, user_id, month, year, expenses_type_id, description, amount, update_date )
+values(nextval('expenses_seq'), 1, 1, 2019, 1, 'Test expenses description', 0, now());
+
+
+select id, user_id, month, year, expenses_type_id, description, amount, update_date from expenses_data;
