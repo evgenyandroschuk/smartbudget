@@ -1,6 +1,7 @@
 package smartbudget.client.service.postgres;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -14,6 +15,7 @@ import smartbudget.model.expenses.ExpensesType;
 import smartbudget.service.postres.expenses.ExpensesServiceImpl;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -40,20 +42,25 @@ public class ExpensesServiceTest {
 
     @Test
     public void testGetExpensesTypes() {
-        String query = "select id, user_id, expenses_type_id, description, is_income from t_expenses_type";
+        String query = "select id, user_id, expenses_type_id, description, is_income " +
+            "from t_expenses_type where user_id = :userId";
+
+        Map<String, Object> params = ImmutableMap.of("userId", USER_ID);
 
         List<ExpensesType> expensesTypes = ImmutableList.of(
             new ExpensesType(1,1,1, "Others", false),
             new ExpensesType(1,2,1, "Health", false)
         );
         when(namedParameterJdbcTemplate.query(
-            eq(query), (ResultSetExtractor<List<ExpensesType>>) any(ResultSetExtractor.class))
+            eq(query),
+            eq(params),
+            (ResultSetExtractor<List<ExpensesType>>) any(ResultSetExtractor.class))
         ).thenReturn(expensesTypes);
 
-        List<ExpensesType> result = expensesService.getExpensesTypes();
+        List<ExpensesType> result = expensesService.getExpensesTypes(USER_ID);
         Assert.assertEquals(result.get(1).getDescription(), "Health");
-
-
     }
+
+    private static final int USER_ID = 1;
 
 }

@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface ExpensesService {
 
-    List<ExpensesType> getExpensesTypes();
+    List<ExpensesType> getExpensesTypes(int userId);
 
 }

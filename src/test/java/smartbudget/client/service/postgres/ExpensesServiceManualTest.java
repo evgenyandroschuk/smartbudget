@@ -24,7 +24,7 @@ public class ExpensesServiceManualTest extends AbstractTestNGSpringContextTests 
     ExpensesService expensesService;
 
     public void testExpensesServiceTypes() {
-        List<ExpensesType> result = expensesService.getExpensesTypes();
+        List<ExpensesType> result = expensesService.getExpensesTypes(1);
         System.out.println(result);
         Assert.assertEquals(result.get(0).getDescription(), "Others");
     }
