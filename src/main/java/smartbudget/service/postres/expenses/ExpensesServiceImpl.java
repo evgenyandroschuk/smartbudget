@@ -7,8 +7,10 @@ import smartbudget.model.expenses.ExpensesData;
 import smartbudget.model.expenses.ExpensesType;
 import smartbudget.service.postres.AbstractDao;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +66,24 @@ public class ExpensesServiceImpl extends AbstractDao implements ExpensesService 
             "userId", userId, "startDate", Date.valueOf(startDate), "endDate", Date.valueOf(endDate)
         );
         return namedParameterJdbcTemplate.query(query, params, getExpensesResultSetExtractor());
+    }
+
+    @Override
+    public Map<Integer, BigDecimal> getFundState(int userId, int startId) {
+        String query = "select currency_id, sum(amount) amount " +
+            "from funds where id > :startId and user_id = :userId group by currency_id";
+        Map<String, Object> params = ImmutableMap.of("startId", startId, "userId",  userId);
+
+        return namedParameterJdbcTemplate.query(
+            query, params,
+            rs -> {
+                Map<Integer, BigDecimal> fundMap = new HashMap<>();
+                while(rs.next()) {
+                    fundMap.put(rs.getInt("currency_id"), rs.getBigDecimal("amount"));
+                }
+                return fundMap;
+            }
+        );
     }
 
     private ResultSetExtractor<List<ExpensesData>> getExpensesResultSetExtractor() {

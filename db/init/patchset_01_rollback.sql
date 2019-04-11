@@ -1,3 +1,5 @@
+drop table funds;
+
 drop table expenses_data;
 drop sequence expenses_seq;
 

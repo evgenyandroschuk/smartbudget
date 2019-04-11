@@ -133,6 +133,31 @@ public class ExpensesServiceTest {
         );
     }
 
+    @Test
+    public void testFundState() {
+        String query = "select currency_id, sum(amount) amount " +
+            "from funds where id > :startId and user_id = :userId group by currency_id";
+        Map<String, Object> params = ImmutableMap.of("startId", 0, "userId",  USER_ID);
+
+        Map<Integer, BigDecimal> fundMap = ImmutableMap.of(
+            1, BigDecimal.valueOf(100.00),
+            2, BigDecimal.valueOf(130.10)
+        );
+
+        when(namedParameterJdbcTemplate.query(
+            eq(query), eq(params),
+            (ResultSetExtractor<Map<Integer, BigDecimal>>) any(ResultSetExtractor.class))
+        ).thenReturn(fundMap);
+
+        Map<Integer, BigDecimal> result = expensesService.getFundState(USER_ID, 0);
+
+        Assert.assertEquals(result, fundMap);
+        verify(namedParameterJdbcTemplate).query(
+            eq(query), eq(params),
+            (ResultSetExtractor<Map<Integer, BigDecimal>>) any(ResultSetExtractor.class));
+
+    }
+
     private List<ExpensesData> getDefaultExpensesDataList() {
         return ImmutableList.of(
             new ExpensesData(1L, USER_ID, MONTH, YEAR, 1, "TestDescription 01",

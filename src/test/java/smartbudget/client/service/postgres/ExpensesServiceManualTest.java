@@ -11,8 +11,10 @@ import smartbudget.service.postres.DbConfig;
 import smartbudget.service.postres.PostgreSqlConfig;
 import smartbudget.service.postres.expenses.ExpensesService;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @SpringBootTest(classes = {
     PostgreSqlConfig.class,
@@ -62,6 +64,12 @@ public class ExpensesServiceManualTest extends AbstractTestNGSpringContextTests 
             result.stream().filter(t -> t.getId() == 1L).findFirst().get().getDescription(),
             "Test expenses description"
         );
+    }
+
+    public void testFundState() {
+        Map<Integer, BigDecimal> result = expensesService.getFundState(1, 0);
+        System.out.println("FundState: " + result);
+        Assert.assertTrue(!result.isEmpty());
     }
 
 

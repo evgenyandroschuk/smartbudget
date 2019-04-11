@@ -210,3 +210,27 @@ values(nextval('expenses_seq'), 1, 1, 2019, 1, 'Test expenses description', 0, n
 
 
 select id, user_id, month, year, expenses_type_id, description, amount, update_date from expenses_data;
+
+
+----------FUNDS ---------------------------------
+create sequence funds_seq maxvalue 999999999 start 1;
+
+create table funds(
+  id bigint primary key,
+  user_id int references t_user(id),
+  currency_id int references t_currency(id),
+  amount numeric(10,2),
+  price numeric(10,2),
+  description varchar(200),
+  update_date date
+);
+
+
+
+insert into funds (id, user_id, currency_id, amount, price, description, update_date)
+values(nextval('funds_seq'), 1, 1, 100, 62.05, 'test funds', now());
+
+insert into funds (id, user_id, currency_id, amount, price, description, update_date)
+values(nextval('funds_seq'), 1, 2, 130, 73.05, 'test funds 2', now());
+
+select * from funds;
