@@ -10,7 +10,7 @@ import smartbudget.model.services.VersionedPropertyData;
 import smartbudget.model.services.VersionedPropertyServiceType;
 import smartbudget.service.postres.DbConfig;
 import smartbudget.service.postres.PostgreSqlConfig;
-import smartbudget.service.postres.property.PropertyService;
+import smartbudget.service.postres.property.PropertyRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,20 +22,20 @@ import java.util.List;
         PostgreSqlConfig.class
 })
 @Test(groups = "manual")
-public class PropertyServiceManualTest extends AbstractTestNGSpringContextTests {
+public class PropertyRepositoryManualTest extends AbstractTestNGSpringContextTests {
 
 
     @Autowired
-    private PropertyService propertyService;
+    private PropertyRepository propertyRepository;
 
     public void testGetProperties() {
-        List<VersionedProperty> result = propertyService.getProperties();
+        List<VersionedProperty> result = propertyRepository.getProperties();
         System.out.println(result);
         Assert.assertTrue(!result.isEmpty());
     }
 
     public void testGetServiceTypes() {
-        List<VersionedPropertyServiceType> serviceTypes = propertyService.getServiceTypes();
+        List<VersionedPropertyServiceType> serviceTypes = propertyRepository.getServiceTypes();
         System.out.println(serviceTypes);
         Assert.assertEquals(
             serviceTypes.stream()
@@ -48,7 +48,7 @@ public class PropertyServiceManualTest extends AbstractTestNGSpringContextTests 
     public void testGetPropertyData() {
         LocalDate startDate = LocalDate.of(2019, 4,6);
         LocalDate endDate = startDate.plusDays(2);
-        List<VersionedPropertyData> propertyData = propertyService.getPropertyData(1,startDate, endDate);
+        List<VersionedPropertyData> propertyData = propertyRepository.getPropertyData(1,startDate, endDate);
         System.out.println(propertyData);
     }
 
@@ -57,11 +57,11 @@ public class PropertyServiceManualTest extends AbstractTestNGSpringContextTests 
                 USER_ID, PROPERTY_ID, 1, "Test desc", "Test master",
                 BigDecimal.valueOf(100.00), LocalDate.of(2019, 4, 5)
         );
-        propertyService.savePropertyData(propertyData);
+        propertyRepository.savePropertyData(propertyData);
     }
 
     public void testDeletePropertyData() {
-        propertyService.deletePropertyData(4L);
+        propertyRepository.deletePropertyData(4L);
     }
 
     private static final int USER_ID = 1;

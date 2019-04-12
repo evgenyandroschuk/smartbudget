@@ -14,9 +14,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class PropertyServiceImpl extends AbstractDao implements PropertyService {
+public class PropertyRepositoryImpl extends AbstractDao implements PropertyRepository {
 
-    public PropertyServiceImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    public PropertyRepositoryImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         super(namedParameterJdbcTemplate);
     }
 

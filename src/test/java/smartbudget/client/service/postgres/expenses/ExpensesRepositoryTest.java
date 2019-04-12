@@ -1,4 +1,4 @@
-package smartbudget.client.service.postgres;
+package smartbudget.client.service.postgres.expenses;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -7,13 +7,15 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.util.ObjectUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import smartbudget.model.expenses.ExpensesData;
 import smartbudget.model.expenses.ExpensesType;
-import smartbudget.service.postres.expenses.ExpensesServiceImpl;
+import smartbudget.service.postres.expenses.ExpensesRepositoryImpl;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -28,21 +30,21 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-public class ExpensesServiceTest {
+public class ExpensesRepositoryTest {
 
     @Mock
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     @InjectMocks
-    private ExpensesServiceImpl expensesService;
+    private ExpensesRepositoryImpl expensesService;
 
-    @BeforeClass
+    @BeforeMethod
     public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
 
     @AfterMethod
     public void resetMocks() {
-        reset(namedParameterJdbcTemplate);
+        expensesService = null;
     }
 
     @Test
@@ -134,6 +136,28 @@ public class ExpensesServiceTest {
     }
 
     @Test
+    public void testGetExpensesSinceId() {
+        String query = "select id, user_id, month, year, expenses_type_id, description, amount, update_date\n" +
+            "from expenses_data where user_id = :userId and id > :startId";
+        Map<String, Object> params = ImmutableMap.of("userId", USER_ID, "startId", 1);
+
+        when(namedParameterJdbcTemplate.query(
+            eq(query),
+            eq(params),
+            (ResultSetExtractor<List<ExpensesData>>) any(ResultSetExtractor.class)
+        )).thenReturn(getDefaultExpensesDataList());
+
+        List<ExpensesData> result = expensesService.getExpensesSinceId(USER_ID, 1);
+
+        Assert.assertEquals(result.get(1).getDescription(), "TestDescription 02");
+        verify(namedParameterJdbcTemplate).query(
+            eq(query),
+            eq(params),
+            (ResultSetExtractor<List<ExpensesData>>) any(ResultSetExtractor.class)
+        );
+    }
+
+    @Test
     public void testFundState() {
         String query = "select currency_id, sum(amount) amount " +
             "from funds where id > :startId and user_id = :userId group by currency_id";
@@ -155,14 +179,37 @@ public class ExpensesServiceTest {
         verify(namedParameterJdbcTemplate).query(
             eq(query), eq(params),
             (ResultSetExtractor<Map<Integer, BigDecimal>>) any(ResultSetExtractor.class));
+    }
 
+    @Test
+    public void testGetCurrencyPrice() {
+        String query = "select id, price from t_currency";
+        Map<Integer, BigDecimal> currencies =   ImmutableMap.of(
+            1, BigDecimal.valueOf(65.02),
+            2, BigDecimal.valueOf(73.05),
+            3, BigDecimal.valueOf(1)
+        );
+
+        when(namedParameterJdbcTemplate.query(
+            eq(query),
+            (ResultSetExtractor<Map<Integer, BigDecimal>>) any(ResultSetExtractor.class)
+            )).thenReturn(currencies);
+
+        Map<Integer, BigDecimal> result = expensesService.getCurrencyPrice();
+
+        Assert.assertEquals(result.get(1), currencies.get(1));
+        verify(namedParameterJdbcTemplate).query(
+            eq(query),
+            (ResultSetExtractor<Map<Integer, BigDecimal>>) any(ResultSetExtractor.class)
+        );
     }
 
     private List<ExpensesData> getDefaultExpensesDataList() {
+        ExpensesType expensesType = new ExpensesType(1, USER_ID,1, "Others", false);
         return ImmutableList.of(
-            new ExpensesData(1L, USER_ID, MONTH, YEAR, 1, "TestDescription 01",
+            new ExpensesData(1L, USER_ID, MONTH, YEAR, expensesType, "TestDescription 01",
                 BigDecimal.valueOf(100.00), LocalDate.of(YEAR, MONTH, 1)),
-            new ExpensesData(2L, USER_ID, MONTH, YEAR, 1, "TestDescription 02",
+            new ExpensesData(2L, USER_ID, MONTH, YEAR, expensesType, "TestDescription 02",
                 BigDecimal.valueOf(110.00), LocalDate.of(YEAR, MONTH, 1))
         );
     }

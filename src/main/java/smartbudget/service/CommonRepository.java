@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-public interface CommonService {
+public interface CommonRepository {
 
     void createOrReplaceUserParams(int userId, int paramId, BigDecimal value);
 
@@ -21,5 +21,5 @@ public interface CommonService {
     void updateCurrencyCost(int currencyId, double amount);
 
 
-    void updateCurrency(int userId, int currencyId, BigDecimal price);
+    void updateCurrency(int currencyId, BigDecimal price);
 }

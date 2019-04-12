@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import smartbudget.service.CommonService;
+import smartbudget.service.CommonRepository;
 import smartbudget.service.postres.DbConfig;
 import smartbudget.service.postres.PostgreSqlConfig;
 
@@ -18,14 +18,14 @@ import java.math.RoundingMode;
     DbConfig.class
 })
 @Test(groups = "manual")
-public class CommonServiceManualTest extends AbstractTestNGSpringContextTests {
+public class CommonRepositoryManualTest extends AbstractTestNGSpringContextTests {
 
     @Autowired
-    private CommonService commonService;
+    private CommonRepository commonRepository;
 
     @Test
     public void testParamValue() {
-        BigDecimal result = commonService.getParamValue(1, 1);
+        BigDecimal result = commonRepository.getParamValue(1, 1);
         Assert.assertNotNull(result); // If no rows it throw DataNotFoundException
     }
 
@@ -33,13 +33,13 @@ public class CommonServiceManualTest extends AbstractTestNGSpringContextTests {
     public void testInsertParam() {
 
         BigDecimal bigDecimal = new BigDecimal(114.10).setScale(2, RoundingMode.HALF_EVEN);
-        commonService.createOrReplaceUserParams(1, 1, bigDecimal);
+        commonRepository.createOrReplaceUserParams(1, 1, bigDecimal);
     }
 
     @Test
     public void testUpdateCurrency() {
         BigDecimal price = new BigDecimal(62.02).setScale(2, RoundingMode.HALF_EVEN);
-        commonService.updateCurrency(1, 1, price);
+        commonRepository.updateCurrency(1, price);
     }
 
 

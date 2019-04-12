@@ -1,6 +1,6 @@
 package smartbudget.service.impl.mysql;
 
-import smartbudget.service.CommonService;
+import smartbudget.service.CommonRepository;
 import smartbudget.service.impl.AbstractService;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -10,7 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class CommonMySQLImpl extends AbstractService implements CommonService {
+public class CommonMySQLImpl extends AbstractService implements CommonRepository {
 
     public CommonMySQLImpl(Connection connection) {
         super(connection);
@@ -115,7 +115,7 @@ public class CommonMySQLImpl extends AbstractService implements CommonService {
     }
 
     @Override
-    public void updateCurrency(int userId, int currencyId, BigDecimal price) {
+    public void updateCurrency(int currencyId, BigDecimal price) {
         throw new NotImplementedException();
     }
 

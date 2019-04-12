@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import smartbudget.model.expenses.ExpensesData;
 import smartbudget.model.expenses.ExpensesType;
 import smartbudget.service.postres.AbstractDao;
+import smartbudget.service.postres.DataNotFoundException;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -15,9 +16,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class ExpensesServiceImpl extends AbstractDao implements ExpensesService {
+public class ExpensesRepositoryImpl extends AbstractDao implements ExpensesRepository {
 
-    public ExpensesServiceImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    public ExpensesRepositoryImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         super(namedParameterJdbcTemplate);
     }
 
@@ -47,7 +48,7 @@ public class ExpensesServiceImpl extends AbstractDao implements ExpensesService 
         String query = "select id, user_id, month, year, expenses_type_id, description, amount, update_date\n" +
             "from expenses_data where user_id = :userId and year = :year";
         Map<String, Object> params = ImmutableMap.of("userId", userId, "year", year);
-        return namedParameterJdbcTemplate.query(query, params, getExpensesResultSetExtractor());
+        return namedParameterJdbcTemplate.query(query, params, getExpensesResultSetExtractor(userId));
     }
 
     @Override
@@ -55,7 +56,7 @@ public class ExpensesServiceImpl extends AbstractDao implements ExpensesService 
         String query = "select id, user_id, month, year, expenses_type_id, description, amount, update_date\n" +
             "from expenses_data where user_id = :userId and year = :year and month = :month";
         Map<String, Object> params = ImmutableMap.of("userId", userId, "year", year, "month", month);
-        return namedParameterJdbcTemplate.query(query, params, getExpensesResultSetExtractor());
+        return namedParameterJdbcTemplate.query(query, params, getExpensesResultSetExtractor(userId));
     }
 
     @Override
@@ -65,7 +66,15 @@ public class ExpensesServiceImpl extends AbstractDao implements ExpensesService 
         Map<String, Object> params = ImmutableMap.of(
             "userId", userId, "startDate", Date.valueOf(startDate), "endDate", Date.valueOf(endDate)
         );
-        return namedParameterJdbcTemplate.query(query, params, getExpensesResultSetExtractor());
+        return namedParameterJdbcTemplate.query(query, params, getExpensesResultSetExtractor(userId));
+    }
+
+    @Override
+    public List<ExpensesData> getExpensesSinceId(int userId, int startId) {
+        String query = "select id, user_id, month, year, expenses_type_id, description, amount, update_date\n" +
+            "from expenses_data where user_id = :userId and id > :startId";
+        Map<String, Object> params = ImmutableMap.of("userId", userId, "startId", startId);
+        return namedParameterJdbcTemplate.query(query, params, getExpensesResultSetExtractor(userId));
     }
 
     @Override
@@ -86,16 +95,32 @@ public class ExpensesServiceImpl extends AbstractDao implements ExpensesService 
         );
     }
 
-    private ResultSetExtractor<List<ExpensesData>> getExpensesResultSetExtractor() {
+    @Override
+    public Map<Integer, BigDecimal> getCurrencyPrice() {
+        String query = "select id, price from t_currency";
+        return namedParameterJdbcTemplate.query(query, rs -> {
+            Map<Integer, BigDecimal> result = new HashMap<>();
+            while (rs.next()) {
+                result.put(rs.getInt("id"), rs.getBigDecimal("price"));
+            }
+            return result;
+        });
+    }
+
+    private ResultSetExtractor<List<ExpensesData>> getExpensesResultSetExtractor(int userId) {
+        List<ExpensesType> expensesTypes = getExpensesTypes(userId);
         return rs -> {
             List<ExpensesData> expensesDataList = new LinkedList<>();
             while(rs.next()) {
+                int typeId = rs.getInt("expenses_type_id");
+                ExpensesType expensesType = expensesTypes.stream().filter(t -> t.getId() == typeId).findFirst()
+                    .orElseThrow( () -> new DataNotFoundException("expensesType not found by id = " + typeId));
                 ExpensesData data = new ExpensesData(
                     rs.getLong("id"),
                     rs.getInt("year"),
                     rs.getInt("month"),
                     rs.getInt("year"),
-                    rs.getInt("expenses_type_id"),
+                    expensesType,
                     rs.getString("description"),
                     rs.getBigDecimal("amount"),
                     rs.getDate("update_date").toLocalDate()

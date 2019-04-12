@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 import smartbudget.model.vehicles.VersionedVehicle;
 import smartbudget.model.vehicles.VersionedVehicleData;
 import smartbudget.model.vehicles.VersionedVehicleServiceType;
-import smartbudget.service.postres.VehicleServiceImpl;
+import smartbudget.service.postres.VehicleRepositoryImpl;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -32,13 +32,13 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class VehicleServiceImplTest {
+public class VehicleRepositoryImplTest {
 
     @Mock
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @InjectMocks
-    private VehicleServiceImpl vehicleService;
+    private VehicleRepositoryImpl vehicleService;
 
     @BeforeClass
     public void setUp() {

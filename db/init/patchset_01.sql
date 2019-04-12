@@ -8,12 +8,18 @@ create table t_user(
 
 insert  into t_user(id, description) values (1, 'First user');
 
+create table t_system_params(
+  id int primary key ,
+  description varchar(200)
+);
+
+INSERT INTO t_system_params VALUES (1,'Expenses. Openning balance'),(2,'Expenses. Opening Id'),(3,'Fund. Opening id'),(4,'Fund. Dollars. Opening balance'),(5,'Fund. Euro. Opening balance'),(6,'Fund. Rub. Opening balance');
 
 -- t_user_system_params
 create table t_user_system_params (
   id SERIAL primary key,
   user_id int references t_user(id),
-  system_param_id int not null ,
+  system_param_id int references t_system_params(id),
   system_value numeric(10,2) not null,
   description varchar(200),
   update_date date not null ,
@@ -26,20 +32,20 @@ values(1, 1, 20000.00, 'Expenses. Opening balance', now());
 
 --currency
 create table t_currency (
-    id SERIAL primary key,
-    user_id int references t_user(id),
-    currency_id int not null,
-    description varchar(100) not null,
-    update_date date not null,
-    price numeric(10,2) not null,
-    unique(user_id, currency_id)
+  id int primary key,
+  description varchar(100) not null,
+  update_date date not null,
+  price numeric(10,2) not null
 );
 
-insert into t_currency(user_id, currency_id, description, update_date, price)
-values (1, 1, 'Dollar', now(), 65.03);
+insert into t_currency(id, description, update_date, price)
+values (1, 'Dollar', now(), 65.03);
 
-insert into t_currency(user_id, currency_id, description, update_date, price)
-values (1, 2, 'Euro', now(), 75.03);
+insert into t_currency(id, description, update_date, price)
+values (2, 'Euro', now(), 75.03);
+
+insert into t_currency(id, description, update_date, price)
+values (3, 'Rub', now(), 1);
 
 
 
@@ -70,7 +76,7 @@ create table t_vehicle (
 );
 
 insert into t_vehicle(user_id, vehicle_id, description, license_plate, vin, sts)
-    values (1, 1, 'VW Tiguan', 'Е222ЕЕ777', 'vin nr', 'sts nr');
+values (1, 1, 'VW Tiguan', 'Е222ЕЕ777', 'vin nr', 'sts nr');
 
 insert into t_vehicle(user_id, vehicle_id, description, license_plate, vin, sts)
 values (1, 2, 'BMW G310R', '2525ВМ77', 'vin nr', 'sts nr');
@@ -90,7 +96,7 @@ create table vehicle_data (
 );
 
 insert into vehicle_data(id, user_id, vehicle_id, vehicle_service_type_id, description, mile_age, price, update_date)
-    values (nextval('vehicle_seq'), 1, 1, 1, 'description', 43000, 30000.00, now());
+values (nextval('vehicle_seq'), 1, 1, 1, 'description', 43000, 30000.00, now());
 
 
 ---------------Property-----------------------
@@ -209,8 +215,6 @@ insert  into expenses_data(id, user_id, month, year, expenses_type_id, descripti
 values(nextval('expenses_seq'), 1, 1, 2019, 1, 'Test expenses description', 0, now());
 
 
-select id, user_id, month, year, expenses_type_id, description, amount, update_date from expenses_data;
-
 
 ----------FUNDS ---------------------------------
 create sequence funds_seq maxvalue 999999999 start 1;
@@ -232,5 +236,3 @@ values(nextval('funds_seq'), 1, 1, 100, 62.05, 'test funds', now());
 
 insert into funds (id, user_id, currency_id, amount, price, description, update_date)
 values(nextval('funds_seq'), 1, 2, 130, 73.05, 'test funds 2', now());
-
-select * from funds;

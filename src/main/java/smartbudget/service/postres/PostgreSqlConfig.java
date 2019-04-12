@@ -3,33 +3,33 @@ package smartbudget.service.postres;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import smartbudget.service.CommonService;
-import smartbudget.service.postres.expenses.ExpensesService;
-import smartbudget.service.postres.expenses.ExpensesServiceImpl;
-import smartbudget.service.postres.property.PropertyService;
-import smartbudget.service.postres.property.PropertyServiceImpl;
+import smartbudget.service.CommonRepository;
+import smartbudget.service.postres.expenses.ExpensesRepository;
+import smartbudget.service.postres.expenses.ExpensesRepositoryImpl;
+import smartbudget.service.postres.property.PropertyRepository;
+import smartbudget.service.postres.property.PropertyRepositoryImpl;
 
 @Configuration
 public class PostgreSqlConfig {
 
     @Bean
-    CommonService commonService(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        return new CommonServiceImpl(namedParameterJdbcTemplate);
+    CommonRepository commonRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+        return new CommonRepositoryImpl(namedParameterJdbcTemplate);
     }
 
     @Bean
-    VehicleServiceVersioned vehicleServiceVersioned(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        return new VehicleServiceImpl(namedParameterJdbcTemplate);
+    VehicleRepository vehicleRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+        return new VehicleRepositoryImpl(namedParameterJdbcTemplate);
     }
 
     @Bean
-    PropertyService propertyService(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        return new PropertyServiceImpl(namedParameterJdbcTemplate);
+    PropertyRepository propertyRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+        return new PropertyRepositoryImpl(namedParameterJdbcTemplate);
     }
 
     @Bean
-    public ExpensesService expensesService(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        return new ExpensesServiceImpl(namedParameterJdbcTemplate);
+    public ExpensesRepository expensesRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+        return new ExpensesRepositoryImpl(namedParameterJdbcTemplate);
     }
 
 }

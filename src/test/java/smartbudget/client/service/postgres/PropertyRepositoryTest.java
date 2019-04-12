@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 import smartbudget.model.services.VersionedProperty;
 import smartbudget.model.services.VersionedPropertyData;
 import smartbudget.model.services.VersionedPropertyServiceType;
-import smartbudget.service.postres.property.PropertyServiceImpl;
+import smartbudget.service.postres.property.PropertyRepositoryImpl;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -30,13 +30,13 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class PropertyServiceTest {
+public class PropertyRepositoryTest {
 
     @Mock
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @InjectMocks
-    private PropertyServiceImpl propertyService;
+    private PropertyRepositoryImpl propertyService;
 
     @BeforeClass
     public void setUp() {

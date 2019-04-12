@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-public interface ExpensesService {
+public interface ExpensesRepository {
 
     List<ExpensesType> getExpensesTypes(int userId);
 
@@ -18,5 +18,9 @@ public interface ExpensesService {
 
     List<ExpensesData> getExpensesByPeriod(int userId, LocalDate startDate, LocalDate endDate);
 
+    List<ExpensesData> getExpensesSinceId(int userId, int startId);
+
     Map<Integer, BigDecimal> getFundState(int userId, int startId);
+
+    Map<Integer, BigDecimal> getCurrencyPrice();
 }

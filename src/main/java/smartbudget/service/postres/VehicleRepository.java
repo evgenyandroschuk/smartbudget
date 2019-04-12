@@ -7,7 +7,7 @@ import smartbudget.model.vehicles.VersionedVehicleServiceType;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface VehicleServiceVersioned {
+public interface VehicleRepository {
 
     void createVehicleData(VersionedVehicleData vehicleData);
     void deleteVehicleData(Long id);

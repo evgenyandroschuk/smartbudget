@@ -11,7 +11,7 @@ public class ExpensesData {
     private final int userId;
     private final int month;
     private final int year;
-    private final int expensesType;
+    private final ExpensesType expensesType;
     private final String description;
     private final BigDecimal amount;
     private final LocalDate date;
@@ -21,7 +21,7 @@ public class ExpensesData {
         int userId,
         int month,
         int year,
-        int expensesType,
+        ExpensesType expensesType,
         String description,
         BigDecimal amount,
         LocalDate date
@@ -40,7 +40,7 @@ public class ExpensesData {
         int userId,
         int month,
         int year,
-        int expensesType,
+        ExpensesType expensesType,
         String description,
         BigDecimal amount,
         LocalDate date
@@ -70,7 +70,7 @@ public class ExpensesData {
         return year;
     }
 
-    public int getExpensesType() {
+    public ExpensesType getExpensesType() {
         return expensesType;
     }
 

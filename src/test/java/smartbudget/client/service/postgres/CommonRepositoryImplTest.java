@@ -19,20 +19,20 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import smartbudget.service.postres.CommonServiceImpl;
+import smartbudget.service.postres.CommonRepositoryImpl;
 
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Map;
 
-public class CommonServiceImplTest {
+public class CommonRepositoryImplTest {
 
     @Mock
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @InjectMocks
-    private CommonServiceImpl commonService;
+    private CommonRepositoryImpl commonService;
 
     @BeforeClass
     public void setUp() {
@@ -200,14 +200,13 @@ public class CommonServiceImplTest {
         int currencyId = 1;
         int userId = 1;
 
-        String query = "update t_currency set price = :price where user_id = :userId and currency_id = :currencyId";
+        String query = "update t_currency set price = :price where id = :currencyId";
         Map<String, Object> params = ImmutableMap.of(
-            "userId", userId,
             "price", price,
             "currencyId", currencyId
         );
         when(namedParameterJdbcTemplate.execute(eq(query), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class))).thenReturn(true);
-        commonService.updateCurrency(userId, currencyId, price);
+        commonService.updateCurrency(currencyId, price);
         verify(namedParameterJdbcTemplate).execute(eq(query), eq(params), any(PreparedStatementCallback.class));
     }
 

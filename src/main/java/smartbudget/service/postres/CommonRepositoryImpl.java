@@ -2,7 +2,7 @@ package smartbudget.service.postres;
 
 import com.google.common.collect.ImmutableMap;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import smartbudget.service.CommonService;
+import smartbudget.service.CommonRepository;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.math.BigDecimal;
@@ -11,9 +11,9 @@ import java.sql.PreparedStatement;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
-public class CommonServiceImpl extends AbstractDao implements CommonService {
+public class CommonRepositoryImpl extends AbstractDao implements CommonRepository {
 
-    protected CommonServiceImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    protected CommonRepositoryImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         super(namedParameterJdbcTemplate);
     }
 
@@ -107,10 +107,9 @@ public class CommonServiceImpl extends AbstractDao implements CommonService {
     }
 
     @Override
-    public void updateCurrency(int userId, int currencyId, BigDecimal price) {
-        String query = "update t_currency set price = :price where user_id = :userId and currency_id = :currencyId";
+    public void updateCurrency(int currencyId, BigDecimal price) {
+        String query = "update t_currency set price = :price where id = :currencyId";
         Map<String, Object> params = ImmutableMap.of(
-            "userId", userId,
             "price", price,
             "currencyId", currencyId
         );

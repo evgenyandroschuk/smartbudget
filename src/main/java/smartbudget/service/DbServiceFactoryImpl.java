@@ -43,7 +43,7 @@ public class DbServiceFactoryImpl implements DbServiceFactory {
         throw throwException(name);
     }
 
-    public CommonService getCommonService() {
+    public CommonRepository getCommonService() {
         if(name.equals("mysql")) {
                 return new CommonMySQLImpl(connection);
         }

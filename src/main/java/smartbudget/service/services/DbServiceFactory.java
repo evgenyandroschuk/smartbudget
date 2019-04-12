@@ -1,6 +1,6 @@
 package smartbudget.service.services;
 
-import smartbudget.service.CommonService;
+import smartbudget.service.CommonRepository;
 import smartbudget.service.ExpensesService;
 import smartbudget.service.ExpensesTypeService;
 import smartbudget.service.VehicleService;
@@ -11,7 +11,7 @@ public interface DbServiceFactory {
 
     ExpensesService getExpensesService();
 
-    CommonService getCommonService();
+    CommonRepository getCommonService();
 
     VehicleService getVehicleService();
 

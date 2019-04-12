@@ -14,9 +14,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class VehicleServiceImpl extends AbstractDao implements VehicleServiceVersioned {
+public class VehicleRepositoryImpl extends AbstractDao implements VehicleRepository {
 
-    public VehicleServiceImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    public VehicleRepositoryImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         super(namedParameterJdbcTemplate);
     }
 
