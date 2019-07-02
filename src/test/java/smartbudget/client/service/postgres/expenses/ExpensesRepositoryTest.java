@@ -22,6 +22,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -202,6 +203,30 @@ public class ExpensesRepositoryTest {
             eq(query),
             (ResultSetExtractor<Map<Integer, BigDecimal>>) any(ResultSetExtractor.class)
         );
+    }
+
+    @Test
+    public void testGetExpensesDataById() {
+        long id = 20;
+        String query = "select id, user_id, month, year, expenses_type_id, description, amount, update_date\n" +
+            "from expenses_data where user_id = :userId and id = :id";
+        Map<String, Object> params = ImmutableMap.of("userId", USER_ID, "id", id);
+        when(namedParameterJdbcTemplate.query(
+            eq(query),
+            eq(params),
+            (ResultSetExtractor<List<ExpensesData>>) any(ResultSetExtractor.class)
+        )).thenReturn(getDefaultExpensesDataList().stream().filter(t -> t.getId().equals(1L)).collect(Collectors.toList()));
+
+        List<ExpensesData> result = expensesService.getExpensesDataById(USER_ID, id);
+
+        Assert.assertEquals(result.size(), 1);
+
+        verify(namedParameterJdbcTemplate).query(
+            eq(query),
+            eq(params),
+            (ResultSetExtractor<List<ExpensesData>>) any(ResultSetExtractor.class)
+        );
+
     }
 
     private List<ExpensesData> getDefaultExpensesDataList() {

@@ -9,7 +9,7 @@ import smartbudget.service.postres.DateProvider;
 public class ServicesConfiguration {
 
     @Bean
-    ExpensesDataService expensesDataService(
+    public ExpensesDataService expensesDataService(
         ExpensesRepository expensesRepository,
         CommonRepository commonRepository,
         DateProvider dateProvider

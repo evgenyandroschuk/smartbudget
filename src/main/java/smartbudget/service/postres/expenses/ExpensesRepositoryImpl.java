@@ -78,6 +78,14 @@ public class ExpensesRepositoryImpl extends AbstractDao implements ExpensesRepos
     }
 
     @Override
+    public List<ExpensesData> getExpensesDataById(int userId, long id) {
+        String query = "select id, user_id, month, year, expenses_type_id, description, amount, update_date\n" +
+            "from expenses_data where user_id = :userId and id = :id";
+        Map<String, Object> params = ImmutableMap.of("userId", userId, "id", id);
+        return namedParameterJdbcTemplate.query(query, params, getExpensesResultSetExtractor(userId));
+    }
+
+    @Override
     public Map<Integer, BigDecimal> getFundState(int userId, int startId) {
         String query = "select currency_id, sum(amount) amount " +
             "from funds where id > :startId and user_id = :userId group by currency_id";

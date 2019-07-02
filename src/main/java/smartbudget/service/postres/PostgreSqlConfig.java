@@ -13,17 +13,17 @@ import smartbudget.service.postres.property.PropertyRepositoryImpl;
 public class PostgreSqlConfig {
 
     @Bean
-    CommonRepository commonRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    public CommonRepository commonRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         return new CommonRepositoryImpl(namedParameterJdbcTemplate);
     }
 
     @Bean
-    VehicleRepository vehicleRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    public VehicleRepository vehicleRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         return new VehicleRepositoryImpl(namedParameterJdbcTemplate);
     }
 
     @Bean
-    PropertyRepository propertyRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    public PropertyRepository propertyRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         return new PropertyRepositoryImpl(namedParameterJdbcTemplate);
     }
 

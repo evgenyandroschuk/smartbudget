@@ -20,6 +20,8 @@ public interface ExpensesRepository {
 
     List<ExpensesData> getExpensesSinceId(int userId, int startId);
 
+    List<ExpensesData> getExpensesDataById(int userId, long id);
+
     Map<Integer, BigDecimal> getFundState(int userId, int startId);
 
     Map<Integer, BigDecimal> getCurrencyPrice();
