@@ -26,15 +26,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         String role = properties.getProperty("app.security.role");
 
         http
-                .csrf().disable()
-                .authorizeRequests()
-                .mvcMatchers("/", "/home", "/budget/fund/").hasAuthority(role)
-                .mvcMatchers("/**")
-                .permitAll()
-                .anyRequest().hasAuthority(role)
-                .and()
-                .httpBasic()
-                ;
+            .authorizeRequests()
+            .antMatchers("/**")
+            .hasRole(role).and()
+            //.formLogin() В отличии от httpBasic выкидывает на страницу логина и пароля
+            .httpBasic()
+        ;
     }
 
     @Bean

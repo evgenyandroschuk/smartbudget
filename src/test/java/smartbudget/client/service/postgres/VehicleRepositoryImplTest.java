@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 import smartbudget.model.vehicles.VersionedVehicle;
 import smartbudget.model.vehicles.VersionedVehicleData;
 import smartbudget.model.vehicles.VersionedVehicleServiceType;
-import smartbudget.service.postres.VehicleRepositoryImpl;
+import smartbudget.service.postres.vehicle.VehicleRepositoryImpl;
 
 import java.math.BigDecimal;
 import java.sql.Date;

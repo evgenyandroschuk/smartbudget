@@ -26,7 +26,7 @@ import java.util.Map;
 public class ExpensesOperationController {
 
 
-    private  final DbServiceFactory dbServiceFactory;
+    private final DbServiceFactory dbServiceFactory;
 
     @Autowired
     public ExpensesOperationController(DbServiceFactory dbServiceFactory) {

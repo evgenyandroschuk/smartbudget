@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.ObjectUtils;
@@ -19,13 +20,17 @@ import smartbudget.service.postres.expenses.ExpensesRepositoryImpl;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -227,6 +232,29 @@ public class ExpensesRepositoryTest {
             (ResultSetExtractor<List<ExpensesData>>) any(ResultSetExtractor.class)
         );
 
+    }
+
+    @Test
+    public void testSaveExpenses() {
+        ExpensesData data = getDefaultExpensesDataList().get(0);
+        String query = "insert  into expenses_data(id, user_id, month, year, expenses_type_id, description, amount, update_date )\n" +
+            "values(nextval('expenses_seq'), :userId, :month, :year, :type, :description, :amount, now())";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", data.getUserId());
+        params.put("month", data.getMonth());
+        params.put("year", data.getYear());
+        params.put("type", data.getExpensesType().getId());
+        params.put("description", data.getDescription());
+        params.put("amount", data.getAmount());
+
+        when(namedParameterJdbcTemplate.execute(
+            eq(query), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class))
+        ).thenReturn(true);
+
+        expensesService.saveExpenses(data);
+
+        verify(namedParameterJdbcTemplate).execute(eq(query), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class));
     }
 
     private List<ExpensesData> getDefaultExpensesDataList() {

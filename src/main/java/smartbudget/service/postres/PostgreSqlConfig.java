@@ -8,6 +8,8 @@ import smartbudget.service.postres.expenses.ExpensesRepository;
 import smartbudget.service.postres.expenses.ExpensesRepositoryImpl;
 import smartbudget.service.postres.property.PropertyRepository;
 import smartbudget.service.postres.property.PropertyRepositoryImpl;
+import smartbudget.service.postres.vehicle.VehicleRepository;
+import smartbudget.service.postres.vehicle.VehicleRepositoryImpl;
 
 @Configuration
 public class PostgreSqlConfig {

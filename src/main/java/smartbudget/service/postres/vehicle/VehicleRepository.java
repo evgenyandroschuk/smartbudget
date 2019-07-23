@@ -1,4 +1,4 @@
-package smartbudget.service.postres;
+package smartbudget.service.postres.vehicle;
 
 import smartbudget.model.vehicles.VersionedVehicle;
 import smartbudget.model.vehicles.VersionedVehicleData;

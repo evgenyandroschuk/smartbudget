@@ -10,6 +10,7 @@ import smartbudget.service.postres.DataNotFoundException;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -137,5 +138,20 @@ public class ExpensesRepositoryImpl extends AbstractDao implements ExpensesRepos
             }
             return expensesDataList;
         };
+    }
+
+    public void saveExpenses(ExpensesData data) {
+        String query = "insert  into expenses_data(id, user_id, month, year, expenses_type_id, description, amount, update_date )\n" +
+            "values(nextval('expenses_seq'), :userId, :month, :year, :type, :description, :amount, now())";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", data.getUserId());
+        params.put("month", data.getMonth());
+        params.put("year", data.getYear());
+        params.put("type", data.getExpensesType().getId());
+        params.put("description", data.getDescription());
+        params.put("amount", data.getAmount());
+
+        namedParameterJdbcTemplate.execute(query, params, PreparedStatement::execute);
     }
 }

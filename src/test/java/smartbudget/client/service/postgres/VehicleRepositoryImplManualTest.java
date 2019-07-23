@@ -10,7 +10,7 @@ import smartbudget.model.vehicles.VersionedVehicleData;
 import smartbudget.model.vehicles.VersionedVehicleServiceType;
 import smartbudget.service.postres.DbConfig;
 import smartbudget.service.postres.PostgreSqlConfig;
-import smartbudget.service.postres.VehicleRepository;
+import smartbudget.service.postres.vehicle.VehicleRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

@@ -8,10 +8,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import smartbudget.model.expenses.CurrentStatistic;
 import smartbudget.model.expenses.ExpensesData;
+import smartbudget.model.expenses.ExpensesType;
 import smartbudget.service.postres.DateProvider;
 import smartbudget.service.postres.expenses.ExpensesDataService;
 import smartbudget.service.postres.expenses.ExpensesRepository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +38,7 @@ public class ExpensesOperationV2Controller {
         this.dateProvider = dateProvider;
     }
 
+    @RequestMapping(value = "/expenses", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public List<ExpensesData> getExpenses(
         @RequestParam(value = "user_id", required = false, defaultValue = "") Integer userId,
         @RequestParam(value = "id", required = false, defaultValue = "") Long id,
@@ -74,6 +77,32 @@ public class ExpensesOperationV2Controller {
     @RequestMapping(value = "/statistic/current", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public CurrentStatistic getCurrentStatistic(@RequestParam(value = "user_id")int userId) {
         return expensesDataService.getCurrentStatistic(userId);
+    }
+
+    @RequestMapping(value =  "/expenses/save")
+    public String saveExpenses(
+        @RequestParam Integer userId,
+        @RequestParam Integer month,
+        @RequestParam Integer year,
+        @RequestParam Integer type,
+        @RequestParam Double amount,
+        @RequestParam(value = "description", required = false, defaultValue = "") String description
+    ) {
+
+        ExpensesType expensesType = expensesRepository.getExpensesTypes(userId)
+            .stream().filter(t -> type.equals(t.getExpensesTypeId())).findFirst()
+            .orElseThrow(() -> new RuntimeException("Expenses type not found by Id = " + type));
+        ExpensesData data = new ExpensesData(
+            userId, month, year, expensesType, description, BigDecimal.valueOf(amount), LocalDate.now()
+        );
+
+        expensesRepository.saveExpenses(data);
+        return "expenses successfully saved";
+    }
+
+    @RequestMapping(value =  "/expenses/types")
+    public List<ExpensesType> getExpensesTypes(@RequestParam Integer userId) {
+        return expensesRepository.getExpensesTypes(userId);
     }
 
 }

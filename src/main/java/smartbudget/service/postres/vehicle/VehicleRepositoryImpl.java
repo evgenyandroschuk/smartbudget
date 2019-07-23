@@ -1,10 +1,12 @@
-package smartbudget.service.postres;
+package smartbudget.service.postres.vehicle;
 
 import com.google.common.collect.ImmutableMap;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import smartbudget.model.vehicles.VersionedVehicle;
 import smartbudget.model.vehicles.VersionedVehicleData;
 import smartbudget.model.vehicles.VersionedVehicleServiceType;
+import smartbudget.service.postres.AbstractDao;
+import smartbudget.service.postres.DataNotFoundException;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
