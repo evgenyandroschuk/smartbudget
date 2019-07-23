@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 import smartbudget.model.expenses.CurrentStatistic;
 import smartbudget.model.expenses.ExpensesData;
 import smartbudget.model.expenses.ExpensesType;
+import smartbudget.service.CommonRepository;
 import smartbudget.service.postres.DateProvider;
 import smartbudget.service.postres.expenses.ExpensesDataService;
 import smartbudget.service.postres.expenses.ExpensesRepository;
+import smartbudget.util.SystemParams;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,16 +28,19 @@ public class ExpensesOperationV2Controller {
     private ExpensesDataService expensesDataService;
     private ExpensesRepository expensesRepository;
     private DateProvider dateProvider;
+    private CommonRepository commonRepository;
 
     @Autowired
     public ExpensesOperationV2Controller(
         ExpensesDataService expensesDataService,
         ExpensesRepository expensesRepository,
-        DateProvider dateProvider
+        DateProvider dateProvider,
+        CommonRepository commonRepository
     ) {
         this.expensesDataService = expensesDataService;
         this.expensesRepository = expensesRepository;
         this.dateProvider = dateProvider;
+        this.commonRepository = commonRepository;
     }
 
     @RequestMapping(value = "/expenses", method = RequestMethod.GET,  produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -103,6 +108,18 @@ public class ExpensesOperationV2Controller {
     @RequestMapping(value =  "/expenses/types")
     public List<ExpensesType> getExpensesTypes(@RequestParam Integer userId) {
         return expensesRepository.getExpensesTypes(userId);
+    }
+
+    @RequestMapping(value =  "/expenses/balance/update")
+    public String updateBalance(
+        @RequestParam Integer userId,
+        @RequestParam Double amount
+    ) {
+        // Получить последниий id
+        long expensesId = expensesRepository.getLastExpensesId(userId);
+        commonRepository.createOrReplaceUserParams(userId, SystemParams.EXPENSES_OPENING_BALANCE, BigDecimal.valueOf(amount));
+        commonRepository.createOrReplaceUserParams(userId, SystemParams.EXPENSES_OPENING_ID, BigDecimal.valueOf(expensesId));
+        return "balance successfully updated";
     }
 
 }

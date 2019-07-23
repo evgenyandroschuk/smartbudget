@@ -20,7 +20,7 @@ public class CommonRepositoryImpl extends AbstractDao implements CommonRepositor
     @Override
     public void createOrReplaceUserParams(int userId, int paramId, BigDecimal value) {
         if (value.scale() != 2) {
-            throw new IllegalArgumentException("Attrubute value must have scale = 2!");
+            throw new IllegalArgumentException("Attribute value must have scale = 2!");
         }
         String updateQuery = "update t_user_system_params set system_value = :paramValue, update_date = now() " +
             "where user_id = :userId and system_param_id = :paramId";

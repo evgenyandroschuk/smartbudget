@@ -26,6 +26,8 @@ public interface ExpensesRepository {
 
     Map<Integer, BigDecimal> getCurrencyPrice();
 
+    long getLastExpensesId(int userId);
+
     void saveExpenses(ExpensesData data);
 
 }

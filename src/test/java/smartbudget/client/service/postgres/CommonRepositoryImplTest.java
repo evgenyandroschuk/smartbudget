@@ -134,7 +134,7 @@ public class CommonRepositoryImplTest {
     @Test(
         dataProvider = "createParamErrorProvider",
         expectedExceptions = IllegalArgumentException.class,
-        expectedExceptionsMessageRegExp = "Attrubute value must have scale = 2!"
+        expectedExceptionsMessageRegExp = "Attribute value must have scale = 2!"
     )
     public void testCreateParamError(int userId, int paramId, BigDecimal value) {
         commonService.createOrReplaceUserParams(userId, paramId, value);

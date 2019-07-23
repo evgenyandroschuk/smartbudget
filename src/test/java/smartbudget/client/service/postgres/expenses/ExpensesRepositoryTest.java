@@ -257,6 +257,21 @@ public class ExpensesRepositoryTest {
         verify(namedParameterJdbcTemplate).execute(eq(query), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class));
     }
 
+    @Test
+    public void testLastExpensesId() {
+        String query = "select max(id) from expenses_data where user_id = :userId";
+        Map<String, Object> params = ImmutableMap.of("userId", USER_ID);
+        when(namedParameterJdbcTemplate.query(
+            eq(query), eq(params), (ResultSetExtractor<Long>) any(ResultSetExtractor.class))
+        ).thenReturn(1200L);
+
+        long lastId = expensesService.getLastExpensesId(USER_ID);
+        Assert.assertEquals(lastId, 1200L);
+
+        verify(namedParameterJdbcTemplate).query(
+            eq(query), eq(params), (ResultSetExtractor<Long>) any(ResultSetExtractor.class));
+    }
+
     private List<ExpensesData> getDefaultExpensesDataList() {
         ExpensesType expensesType = new ExpensesType(1, USER_ID,1, "Others", false);
         return ImmutableList.of(

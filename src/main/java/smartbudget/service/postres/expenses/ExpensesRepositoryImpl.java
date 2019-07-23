@@ -116,6 +116,13 @@ public class ExpensesRepositoryImpl extends AbstractDao implements ExpensesRepos
         });
     }
 
+    @Override
+    public long getLastExpensesId(int userId) {
+        String query = "select max(id) from expenses_data where user_id = :userId";
+        Map<String, Object> params = ImmutableMap.of("userId", userId);
+        return namedParameterJdbcTemplate.query(query, params, rs -> rs.next() ? rs.getLong("id") : 0L);
+    }
+
     private ResultSetExtractor<List<ExpensesData>> getExpensesResultSetExtractor(int userId) {
         List<ExpensesType> expensesTypes = getExpensesTypes(userId);
         return rs -> {
