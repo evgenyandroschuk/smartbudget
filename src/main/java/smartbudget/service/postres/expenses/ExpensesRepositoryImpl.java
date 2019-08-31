@@ -55,7 +55,7 @@ public class ExpensesRepositoryImpl extends AbstractDao implements ExpensesRepos
     @Override
     public List<ExpensesData> getExpensesByYearMonth(int userId, int year, int month) {
         String query = "select id, user_id, month, year, expenses_type_id, description, amount, update_date\n" +
-            "from expenses_data where user_id = :userId and year = :year and month = :month";
+            "from expenses_data where user_id = :userId and year = :year and month = :month order by id desc";
         Map<String, Object> params = ImmutableMap.of("userId", userId, "year", year, "month", month);
         return namedParameterJdbcTemplate.query(query, params, getExpensesResultSetExtractor(userId));
     }
@@ -96,6 +96,9 @@ public class ExpensesRepositoryImpl extends AbstractDao implements ExpensesRepos
             query, params,
             rs -> {
                 Map<Integer, BigDecimal> fundMap = new HashMap<>();
+                fundMap.put(1, BigDecimal.ZERO); // By default
+                fundMap.put(2, BigDecimal.ZERO); // By default
+                fundMap.put(3, BigDecimal.ZERO); // By default
                 while(rs.next()) {
                     fundMap.put(rs.getInt("currency_id"), rs.getBigDecimal("amount"));
                 }
@@ -118,7 +121,7 @@ public class ExpensesRepositoryImpl extends AbstractDao implements ExpensesRepos
 
     @Override
     public long getLastExpensesId(int userId) {
-        String query = "select max(id) from expenses_data where user_id = :userId";
+        String query = "select max(id) id from expenses_data where user_id = :userId";
         Map<String, Object> params = ImmutableMap.of("userId", userId);
         return namedParameterJdbcTemplate.query(query, params, rs -> rs.next() ? rs.getLong("id") : 0L);
     }
@@ -133,7 +136,7 @@ public class ExpensesRepositoryImpl extends AbstractDao implements ExpensesRepos
                     .orElseThrow( () -> new DataNotFoundException("expensesType not found by id = " + typeId));
                 ExpensesData data = new ExpensesData(
                     rs.getLong("id"),
-                    rs.getInt("year"),
+                    rs.getInt("user_id"),
                     rs.getInt("month"),
                     rs.getInt("year"),
                     expensesType,

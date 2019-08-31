@@ -86,19 +86,20 @@ public class ExpensesOperationV2Controller {
 
     @RequestMapping(value =  "/expenses/save")
     public String saveExpenses(
-        @RequestParam Integer userId,
+        @RequestParam(value = "user_id") Integer userId,
         @RequestParam Integer month,
         @RequestParam Integer year,
         @RequestParam Integer type,
-        @RequestParam Double amount,
+        @RequestParam String amount,
         @RequestParam(value = "description", required = false, defaultValue = "") String description
     ) {
 
+        BigDecimal amountValue = new BigDecimal(amount.replace(",", "."));
         ExpensesType expensesType = expensesRepository.getExpensesTypes(userId)
             .stream().filter(t -> type.equals(t.getExpensesTypeId())).findFirst()
             .orElseThrow(() -> new RuntimeException("Expenses type not found by Id = " + type));
         ExpensesData data = new ExpensesData(
-            userId, month, year, expensesType, description, BigDecimal.valueOf(amount), LocalDate.now()
+            userId, month, year, expensesType, description, amountValue, LocalDate.now()
         );
 
         expensesRepository.saveExpenses(data);
@@ -106,19 +107,24 @@ public class ExpensesOperationV2Controller {
     }
 
     @RequestMapping(value =  "/expenses/types")
-    public List<ExpensesType> getExpensesTypes(@RequestParam Integer userId) {
+    public List<ExpensesType> getExpensesTypes(@RequestParam(value = "user_id") Integer userId) {
         return expensesRepository.getExpensesTypes(userId);
     }
 
     @RequestMapping(value =  "/expenses/balance/update")
     public String updateBalance(
-        @RequestParam Integer userId,
-        @RequestParam Double amount
+        @RequestParam(value = "user_id") Integer userId,
+        @RequestParam String amount
     ) {
         // Получить последниий id
+        BigDecimal amountValue = new BigDecimal(amount.replace(",", "."));
         long expensesId = expensesRepository.getLastExpensesId(userId);
-        commonRepository.createOrReplaceUserParams(userId, SystemParams.EXPENSES_OPENING_BALANCE, BigDecimal.valueOf(amount));
-        commonRepository.createOrReplaceUserParams(userId, SystemParams.EXPENSES_OPENING_ID, BigDecimal.valueOf(expensesId));
+        commonRepository.createOrReplaceUserParams(
+                userId, SystemParams.EXPENSES_OPENING_BALANCE, amountValue.setScale(2)
+        );
+        commonRepository.createOrReplaceUserParams(
+                userId, SystemParams.EXPENSES_OPENING_ID, BigDecimal.valueOf(expensesId).setScale(2)
+        );
         return "balance successfully updated";
     }
 

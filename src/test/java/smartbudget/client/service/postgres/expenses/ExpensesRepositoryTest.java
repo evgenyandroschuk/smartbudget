@@ -97,7 +97,7 @@ public class ExpensesRepositoryTest {
     @Test
     public void testGetExpensesByYearMonth() {
         String query = "select id, user_id, month, year, expenses_type_id, description, amount, update_date\n" +
-            "from expenses_data where user_id = :userId and year = :year and month = :month";
+            "from expenses_data where user_id = :userId and year = :year and month = :month order by id desc";
         Map<String, Object> params = ImmutableMap.of("userId", USER_ID, "year", YEAR, "month", MONTH);
 
         when(namedParameterJdbcTemplate.query(
@@ -259,7 +259,7 @@ public class ExpensesRepositoryTest {
 
     @Test
     public void testLastExpensesId() {
-        String query = "select max(id) from expenses_data where user_id = :userId";
+        String query = "select max(id) id from expenses_data where user_id = :userId";
         Map<String, Object> params = ImmutableMap.of("userId", USER_ID);
         when(namedParameterJdbcTemplate.query(
             eq(query), eq(params), (ResultSetExtractor<Long>) any(ResultSetExtractor.class))

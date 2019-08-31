@@ -83,4 +83,17 @@ public class VersionedVehicleData  {
     public LocalDate getDate() {
         return date;
     }
+
+    @Override
+    public String toString() {
+        return "VersionedVehicleData{" +
+                "userId=" + userId +
+                ", vehicleId=" + vehicleId +
+                ", vehicleServiceType=" + vehicleServiceType +
+                ", description='" + description + '\'' +
+                ", mileAge=" + mileAge +
+                ", price=" + price +
+                ", date=" + date +
+                '}';
+    }
 }

@@ -76,10 +76,13 @@ create table t_vehicle (
 );
 
 insert into t_vehicle(user_id, vehicle_id, description, license_plate, vin, sts)
-values (1, 1, 'VW Tiguan', 'Е222ЕЕ777', 'vin nr', 'sts nr');
+values (1, 1, 'VW Tiguan', 'О109ОК777', 'XW8ZZZ5NZFG112440', '7736605787');
 
 insert into t_vehicle(user_id, vehicle_id, description, license_plate, vin, sts)
-values (1, 2, 'BMW G310R', '2525ВМ77', 'vin nr', 'sts nr');
+values (1, 2, 'Hyundai Santa Fe', 'О136ВО777', 'KMHSU81CDEU280908', '7717 724147');
+
+insert into t_vehicle(user_id, vehicle_id, description, license_plate, vin, sts)
+values (1, 3, 'BMW G310R', '2595ВМ77', 'WB30G0107JR844791', '7761 000768');
 
 
 create sequence vehicle_seq maxvalue 999999999 start 1;

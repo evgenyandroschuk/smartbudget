@@ -67,7 +67,7 @@ public class CommonRepositoryImpl extends AbstractDao implements CommonRepositor
                  if(rs.next()) {
                      return rs.getBigDecimal("system_value").setScale(2, BigDecimal.ROUND_CEILING);
                  } else {
-                     throw new DataNotFoundException();
+                     throw new DataNotFoundException("paramId = " + namedParameters.get("paramId"));
                  }
              }
          );
