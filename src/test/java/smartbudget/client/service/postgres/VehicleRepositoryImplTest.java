@@ -129,7 +129,7 @@ public class VehicleRepositoryImplTest {
         String query =
             "select id, user_id, vehicle_id, vehicle_service_type_id, description, mile_age, price, update_date " +
                 "from vehicle_data\n" +
-                "where user_id = :userId and update_date >= :startDate and update_date <= :endDate";
+                "where user_id = :userId and update_date >= :startDate and update_date <= :endDate order by id desc";
 
         LocalDate startDate = LocalDate.parse("2019-01-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         LocalDate endDate = LocalDate.parse("2019-05-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -219,7 +219,7 @@ public class VehicleRepositoryImplTest {
         params.put("vehicleId", vehicleData.getVehicleId());
         params.put("serviceTypId", vehicleData.getVehicleServiceType());
         params.put("description", vehicleData.getDescription());
-        params.put("mileAge", vehicleData.getPrice());
+        params.put("mileAge", vehicleData.getMileAge());
         params.put("price", vehicleData.getPrice());
         params.put("updateDate", Date.valueOf(vehicleData.getDate()));
 
