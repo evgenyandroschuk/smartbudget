@@ -2,7 +2,7 @@ package smartbudget.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import smartbudget.view.PropertyDataRequest;
+import smartbudget.view.property.PropertyDataRequest;
 import smartbudget.view.property.ServiceData;
 import smartbudget.view.property.TypeData;
 

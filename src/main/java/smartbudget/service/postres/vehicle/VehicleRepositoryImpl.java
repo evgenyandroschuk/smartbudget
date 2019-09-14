@@ -49,7 +49,7 @@ public class VehicleRepositoryImpl extends AbstractDao implements VehicleReposit
         Map<String, Object> params = new HashMap<>();
         params.put("userId", vehicleData.getUserId());
         params.put("vehicleId", vehicleData.getVehicleId());
-        params.put("serviceTypId", vehicleData.getVehicleServiceType());
+        params.put("serviceTypId", vehicleData.getVehicleServiceType().getId());
         params.put("description", vehicleData.getDescription());
         params.put("mileAge", vehicleData.getMileAge());
         params.put("price", vehicleData.getPrice());
@@ -80,11 +80,15 @@ public class VehicleRepositoryImpl extends AbstractDao implements VehicleReposit
             rs -> {
                 VersionedVehicleData result = null;
                 while(rs.next()) {
+
+                    int userId = rs.getInt("vehicle_id");
+                    int vehServicetype = rs.getInt("vehicle_service_type_id");
+                    VersionedVehicleServiceType serviceType = findServiceTypeById(userId, vehServicetype);
                     return new VersionedVehicleData(
                         id,
-                        rs.getInt("user_id"),
+                        userId,
                         rs.getInt("vehicle_id"),
-                        rs.getInt("vehicle_service_type_id"),
+                        serviceType,
                         rs.getString("description"),
                         rs.getInt("mile_age"),
                         rs.getBigDecimal("price"),
@@ -112,11 +116,13 @@ public class VehicleRepositoryImpl extends AbstractDao implements VehicleReposit
             rs -> {
                 List<VersionedVehicleData> result = new LinkedList<>();
                 while(rs.next()) {
+                    int serviceTypeId = rs.getInt("vehicle_service_type_id");
+                    VersionedVehicleServiceType vehicleServiceType = findServiceTypeById(userId, serviceTypeId);
                     VersionedVehicleData data = new VersionedVehicleData(
                         rs.getLong("id"),
                         rs.getInt("user_id"),
                         rs.getInt("vehicle_id"),
-                        rs.getInt("vehicle_service_type_id"),
+                        vehicleServiceType,
                         rs.getString("description"),
                         rs.getInt("mile_age"),
                         rs.getBigDecimal("price"),

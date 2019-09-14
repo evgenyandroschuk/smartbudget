@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Описание объекта</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand">Smart Budget</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/expenses/">Expenses</a></li>
+            <li><a href="/vehicle/">Vehicles</a></li>
+            <li class="active"><a href="/communication/">Communications</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+
+    <form action="/property/data/add">
+        <input type="hidden" class="form-control" name = "propertyId" id="propertyId" th:value ="${property.id}" required="true" />
+        <input type="submit" class="btn btn-primary" value="Добавить запись"/>
+    </form>
+
+    <h3>Объект</h3>
+    <table class="table table-bordered">
+        <tr>
+            <th>ID</th>
+            <th>Описание</th>
+        </tr>
+        <tbody>
+        <tr>
+            <th><p th:text="${property.id}"></p></th>
+            <th><p th:text="${property.description}"></p></th>
+        </tr>
+        </tbody>
+    </table>
+
+
+    <h3>История обслуживания</h3>
+    <!--<p th:text="${vehicleData}"></p>-->
+    <table class="table table-bordered" width="100">
+        <thead>
+        <tr>
+            <td width="20" height="1">ID</td>
+            <td width="50">Сервис</td>
+            <td width="50">Описание</td>
+            <td width="50">Мастер</td>
+            <td width="50">Стоимость</td>
+            <td width="50">Дата</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="data : ${propertyData}" >
+            <td th:text="${data.id}"></td>
+            <td th:text="${data.serviceType.description}"></td>
+            <td th:text="${data.description}"></td>
+            <td th:text="${data.master}"></td>
+            <td th:text="${data.price}"></td>
+            <td th:text="${data.updateDateString}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>

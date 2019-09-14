@@ -64,10 +64,10 @@ public class ExpensesDataServiceImpl implements ExpensesDataService {
         BigDecimal restAmount = openBalanceAmount.subtract(expensesAmount).add(incomeAmount);
 
         Map<String, BigDecimal> fundAmounts = calculateFunds(userId);
-        BigDecimal restDollarAmount = fundAmounts.get(DOLLAR_AMOUNT_IN_RUB);
-        BigDecimal restEuroAmount = fundAmounts.get(EURO_AMOUNT_IN_RUB);
+        BigDecimal restDollarAmount = fundAmounts.get(DOLLAR_AMOUNT_IN_RUB).setScale(2);
+        BigDecimal restEuroAmount = fundAmounts.get(EURO_AMOUNT_IN_RUB).setScale(2);
         BigDecimal restRubAmount  = fundAmounts.get(RUB_AMOUNT);
-        BigDecimal restAllAmount = restAmount.add(restDollarAmount).add(restEuroAmount).add(restRubAmount);
+        BigDecimal restAllAmount = restAmount.add(restDollarAmount).add(restEuroAmount).add(restRubAmount).setScale(2);
 
         return CurrentStatistic.CurrentStatisticBuilder.builder()
             .setExpensesTotalAmount(expensesTotalAmount)

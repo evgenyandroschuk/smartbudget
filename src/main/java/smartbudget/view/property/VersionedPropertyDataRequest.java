@@ -1,22 +1,25 @@
-package smartbudget.view;
+package smartbudget.view.property;
 
-import smartbudget.view.property.TypeData;
+public class VersionedPropertyDataRequest {
 
-
-public class PropertyDataRequest {
-
+    private Integer userId;
     private TypeData property;
     private String startDate;
     private String endDate;
 
-    public PropertyDataRequest() {
-        super();
-    }
-
-    public PropertyDataRequest(TypeData property, String startDate, String endDate) {
+    public VersionedPropertyDataRequest(Integer userId, TypeData property, String startDate, String endDate) {
+        this.userId = userId;
         this.property = property;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public TypeData getProperty() {

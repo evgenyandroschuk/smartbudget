@@ -51,7 +51,7 @@ public class VehicleRepositoryImplManualTest extends AbstractTestNGSpringContext
 
     public void testCreateVehicleData() {
         VersionedVehicleData vehicleData = new VersionedVehicleData(
-                1, 1, 1, "test desc",
+                1, 1, getVersionedVehicleServiceType(), "test desc",
                 31002, BigDecimal.valueOf(12000.10), LocalDate.now()
         );
         vehicleRepository.createVehicleData(vehicleData);
@@ -59,6 +59,12 @@ public class VehicleRepositoryImplManualTest extends AbstractTestNGSpringContext
 
     public void testDeleteVehicleData() {
         vehicleRepository.deleteVehicleData(2L);
+    }
+
+    private static VersionedVehicleServiceType getVersionedVehicleServiceType() {
+        return new VersionedVehicleServiceType(
+                1, USER_ID, 1, "service"
+        );
     }
 
 

@@ -210,14 +210,14 @@ public class VehicleRepositoryImplTest {
 
 
         VersionedVehicleData vehicleData = new VersionedVehicleData(
-                1, 1, 1, "test desc",
+                1, 1, getVersionedVehicleServiceType(), "test desc",
                 31002, BigDecimal.valueOf(12000.10), LocalDate.of(2019,1,20)
         );
 
         Map<String, Object> params = new HashMap<>();
         params.put("userId", vehicleData.getUserId());
         params.put("vehicleId", vehicleData.getVehicleId());
-        params.put("serviceTypId", vehicleData.getVehicleServiceType());
+        params.put("serviceTypId", vehicleData.getVehicleServiceType().getId());
         params.put("description", vehicleData.getDescription());
         params.put("mileAge", vehicleData.getMileAge());
         params.put("price", vehicleData.getPrice());
@@ -251,11 +251,18 @@ public class VehicleRepositoryImplTest {
 
 
     private static VersionedVehicleData getVehicleData(double price, String description,  String dateString) {
+        VersionedVehicleServiceType vehicleServiceType = getVersionedVehicleServiceType();
         return new VersionedVehicleData(
-            1L, 1, 1, 1, description, 43000, BigDecimal.valueOf(price),
+            1L, 1, 1, vehicleServiceType, description, 43000, BigDecimal.valueOf(price),
             LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         );
 
+    }
+
+    private static VersionedVehicleServiceType getVersionedVehicleServiceType() {
+        return new VersionedVehicleServiceType(
+                    1, USER_ID, 1, "service"
+            );
     }
 
 

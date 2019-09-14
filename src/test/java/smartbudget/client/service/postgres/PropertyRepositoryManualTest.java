@@ -48,16 +48,20 @@ public class PropertyRepositoryManualTest extends AbstractTestNGSpringContextTes
     public void testGetPropertyData() {
         LocalDate startDate = LocalDate.of(2019, 4,6);
         LocalDate endDate = startDate.plusDays(2);
-        List<VersionedPropertyData> propertyData = propertyRepository.getPropertyData(1,startDate, endDate);
+        List<VersionedPropertyData> propertyData = propertyRepository.getPropertyData(1, 1, startDate, endDate);
         System.out.println(propertyData);
     }
 
     public void testSavePropertyData() {
         VersionedPropertyData propertyData = new VersionedPropertyData(
-                USER_ID, PROPERTY_ID, 1, "Test desc", "Test master",
+                USER_ID, PROPERTY_ID, getDefaultServiceType(), "Test desc", "Test master",
                 BigDecimal.valueOf(100.00), LocalDate.of(2019, 4, 5)
         );
         propertyRepository.savePropertyData(propertyData);
+    }
+
+    private static VersionedPropertyServiceType getDefaultServiceType() {
+        return new VersionedPropertyServiceType(1, 1, 1, "Service 01");
     }
 
     public void testDeletePropertyData() {

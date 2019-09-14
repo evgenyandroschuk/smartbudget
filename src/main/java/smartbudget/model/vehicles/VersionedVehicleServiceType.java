@@ -51,4 +51,14 @@ public class VersionedVehicleServiceType {
     public int hashCode() {
         return Objects.hashCode(id, userId, serviceTypeId, description);
     }
+
+    @Override
+    public String toString() {
+        return "VersionedVehicleServiceType{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", serviceTypeId=" + serviceTypeId +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

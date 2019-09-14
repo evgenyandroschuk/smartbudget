@@ -60,10 +60,11 @@ public class VehicleV2Controller {
     ) {
         LocalDate updateDate = LocalDate.parse(date, YYYY_MM_DD_FORMAT);
         BigDecimal priceValue = new BigDecimal(price.replace(",", "."));
+        VersionedVehicleServiceType serviceType = vehicleRepository.findServiceTypeById(1, type);
         VersionedVehicleData versionedVehicleData = new VersionedVehicleData(
                 userId,
                 vehicle,
-                type,
+                serviceType,
                 description,
                 mileage,
                 priceValue.setScale(2),

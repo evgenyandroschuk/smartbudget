@@ -2,13 +2,14 @@ package smartbudget.model.vehicles;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class VersionedVehicleData  {
 
     private Long id;
     private final int userId;
     private final int vehicleId;
-    private final int vehicleServiceType;
+    private final VersionedVehicleServiceType vehicleServiceType;
     private final String description;
     private final int mileAge;
     private final BigDecimal price;
@@ -18,7 +19,7 @@ public class VersionedVehicleData  {
         Long id,
         int userId,
         int vehicleId,
-        int vehicleServiceType,
+        VersionedVehicleServiceType vehicleServiceType,
         String description,
         int mileAge,
         BigDecimal price,
@@ -32,12 +33,13 @@ public class VersionedVehicleData  {
         this.mileAge = mileAge;
         this.price = price;
         this.date = date;
+
     }
 
     public VersionedVehicleData(
             int userId,
             int vehicleId,
-            int vehicleServiceType,
+            VersionedVehicleServiceType vehicleServiceType,
             String description,
             int mileAge,
             BigDecimal price,
@@ -60,7 +62,7 @@ public class VersionedVehicleData  {
         return userId;
     }
 
-    public int getVehicleServiceType() {
+    public VersionedVehicleServiceType getVehicleServiceType() {
         return vehicleServiceType;
     }
 
@@ -82,6 +84,10 @@ public class VersionedVehicleData  {
 
     public LocalDate getDate() {
         return date;
+    }
+
+    public String getDateString() {
+        return date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
     }
 
     @Override

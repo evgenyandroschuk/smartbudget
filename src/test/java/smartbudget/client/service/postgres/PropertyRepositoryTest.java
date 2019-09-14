@@ -109,20 +109,22 @@ public class PropertyRepositoryTest {
         LocalDate endDate = startDate.plusDays(3);
 
         String query = "select id, user_id, property_id, service_type_id, description, master, price, update_date " +
-                "from property_data where user_id = :userId and update_date >= :startDate and update_date < :endDate";
+                "from property_data where user_id = :userId and property_id = :propertyId " +
+                "and update_date >= :startDate and update_date < :endDate order by id desc";
         Map<String, Object> params = ImmutableMap.of(
                 "userId", USER_ID,
+                "propertyId", 1,
                 "startDate", Date.valueOf(startDate),
                 "endDate", Date.valueOf(endDate)
         );
 
         List<VersionedPropertyData> propertyData = ImmutableList.of(
                 new VersionedPropertyData(
-                        1L, USER_ID, PROPERTY_ID, 1, "desc 01",
+                        1L, USER_ID, PROPERTY_ID, getDefaultServiceType(), "desc 01",
                         "master 01", BigDecimal.valueOf(100.02), startDate
                 ),
                 new VersionedPropertyData(
-                        2L, USER_ID, PROPERTY_ID, 1, "desc 02",
+                        2L, USER_ID, PROPERTY_ID, getDefaultServiceType(), "desc 02",
                         "master 01", BigDecimal.valueOf(110.02), startDate
                 )
         );
@@ -133,7 +135,7 @@ public class PropertyRepositoryTest {
                 (ResultSetExtractor<List<VersionedPropertyData>>) any(ResultSetExtractor.class))
         ).thenReturn(propertyData);
 
-        List<VersionedPropertyData> result = propertyService.getPropertyData(1, startDate, endDate);
+        List<VersionedPropertyData> result = propertyService.getPropertyData(1, 1, startDate, endDate);
 
         Assert.assertEquals(result.get(1).getDescription(), "desc 02");
         verify(namedParameterJdbcTemplate).query(
@@ -146,14 +148,14 @@ public class PropertyRepositoryTest {
     @Test
     public void testSavePropertyData() {
         VersionedPropertyData propertyData = new VersionedPropertyData(
-                USER_ID, PROPERTY_ID, 1, "Test desc", "Test master",
+                USER_ID, PROPERTY_ID, getDefaultServiceType(), "Test desc", "Test master",
                 BigDecimal.valueOf(10.02), LocalDate.of(2019, 4, 5)
         );
 
         Map<String, Object> params = ImmutableMap.<String, Object>builder()
                 .put("userId", propertyData.getUserId())
                 .put("propertyId", propertyData.getPropertyId())
-                .put("serviceTypeId", propertyData.getServiceTypeId())
+                .put("serviceTypeId", propertyData.getServiceType().getServiceTypeId())
                 .put("description", propertyData.getDescription())
                 .put("master", propertyData.getMaster())
                 .put("price", propertyData.getPrice())
@@ -181,14 +183,14 @@ public class PropertyRepositoryTest {
     )
     public void testSavePropertyDataFailed(BigDecimal price) {
         VersionedPropertyData propertyData = new VersionedPropertyData(
-                USER_ID, PROPERTY_ID, 1, "Test desc", "Test master",
+                USER_ID, PROPERTY_ID, getDefaultServiceType(), "Test desc", "Test master",
                 price, LocalDate.of(2019, 4, 5)
         );
 
         Map<String, Object> params = ImmutableMap.<String, Object>builder()
                 .put("userId", propertyData.getUserId())
                 .put("propertyId", propertyData.getPropertyId())
-                .put("serviceTypeId", propertyData.getServiceTypeId())
+                .put("serviceTypeId", propertyData.getServiceType())
                 .put("description", propertyData.getDescription())
                 .put("master", propertyData.getMaster())
                 .put("price", propertyData.getPrice())
@@ -233,6 +235,10 @@ public class PropertyRepositoryTest {
         verify(namedParameterJdbcTemplate).execute(
                 eq(sql), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class));
 
+    }
+
+    private static VersionedPropertyServiceType getDefaultServiceType() {
+        return new VersionedPropertyServiceType(1, 1, 1, "Service 01");
     }
 
     private static final String INSERT_PROPETY = "insert into property_data\n" +

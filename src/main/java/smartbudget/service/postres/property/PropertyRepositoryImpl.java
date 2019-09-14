@@ -21,11 +21,13 @@ public class PropertyRepositoryImpl extends AbstractDao implements PropertyRepos
     }
 
     @Override
-    public List<VersionedPropertyData> getPropertyData(int userId, LocalDate startDate, LocalDate endDate) {
+    public List<VersionedPropertyData> getPropertyData(int userId, Integer propertyId, LocalDate startDate, LocalDate endDate) {
         String query = "select id, user_id, property_id, service_type_id, description, master, price, update_date " +
-                "from property_data where user_id = :userId and update_date >= :startDate and update_date < :endDate";
+                "from property_data where user_id = :userId and property_id = :propertyId " +
+                "and update_date >= :startDate and update_date < :endDate order by id desc";
         Map<String, Object> params = ImmutableMap.of(
                 "userId", userId,
+                "propertyId", propertyId,
                 "startDate", Date.valueOf(startDate),
                 "endDate", Date.valueOf(endDate)
                 );
@@ -33,11 +35,17 @@ public class PropertyRepositoryImpl extends AbstractDao implements PropertyRepos
         return namedParameterJdbcTemplate.query(query, params, rs -> {
             List<VersionedPropertyData> data = new LinkedList<>();
             while(rs.next()) {
+                int serviceTypeId = rs.getInt("service_type_id");
+                VersionedPropertyServiceType serviceType = getServiceTypes(userId)
+                        .stream()
+                        .filter(t -> t.getServiceTypeId() == serviceTypeId)
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("No such service_type_id = " + serviceTypeId));
                 VersionedPropertyData propertyData = new VersionedPropertyData(
                   rs.getLong("id"),
                   rs.getInt("user_id"),
                   rs.getInt("property_id"),
-                  rs.getInt("service_type_id"),
+                  serviceType,
                   rs.getString("description"),
                   rs.getString("master"),
                   rs.getBigDecimal("price"),
@@ -103,7 +111,7 @@ public class PropertyRepositoryImpl extends AbstractDao implements PropertyRepos
         Map<String, Object> params = ImmutableMap.<String, Object>builder()
                 .put("userId", propertyData.getUserId())
                 .put("propertyId", propertyData.getPropertyId())
-                .put("serviceTypeId", propertyData.getServiceTypeId())
+                .put("serviceTypeId", propertyData.getServiceType().getServiceTypeId())
                 .put("description", propertyData.getDescription())
                 .put("master", propertyData.getMaster())
                 .put("price", propertyData.getPrice())

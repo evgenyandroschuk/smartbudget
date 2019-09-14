@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface PropertyRepository {
 
-    List<VersionedPropertyData> getPropertyData(int userId, LocalDate startDate, LocalDate endDate);
+    List<VersionedPropertyData> getPropertyData(int userId, Integer propertyId, LocalDate startDate, LocalDate endDate);
     List<VersionedProperty> getProperties(int userId);
     List<VersionedPropertyServiceType> getServiceTypes(int userId);
 

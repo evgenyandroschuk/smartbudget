@@ -7,7 +7,7 @@ import smartbudget.model.services.Property;
 import smartbudget.model.services.PropertyServiceData;
 import smartbudget.model.services.PropertyServiceType;
 import smartbudget.service.services.DbServiceFactory;
-import smartbudget.view.PropertyDataRequest;
+import smartbudget.view.property.PropertyDataRequest;
 import smartbudget.view.property.PropertyResponse;
 import smartbudget.view.property.ServiceData;
 
