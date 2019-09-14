@@ -10,8 +10,8 @@ import java.util.List;
 public interface PropertyRepository {
 
     List<VersionedPropertyData> getPropertyData(int userId, LocalDate startDate, LocalDate endDate);
-    List<VersionedProperty> getProperties();
-    List<VersionedPropertyServiceType> getServiceTypes();
+    List<VersionedProperty> getProperties(int userId);
+    List<VersionedPropertyServiceType> getServiceTypes(int userId);
 
     void savePropertyData(VersionedPropertyData propertyData);
 

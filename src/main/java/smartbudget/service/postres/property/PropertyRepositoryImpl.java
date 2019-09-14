@@ -50,10 +50,12 @@ public class PropertyRepositoryImpl extends AbstractDao implements PropertyRepos
     }
 
     @Override
-    public List<VersionedProperty> getProperties() {
-        String query = "select id, user_id, property_id, description from t_property";
+    public List<VersionedProperty> getProperties(int userId) {
+        String query = "select id, user_id, property_id, description from t_property where user_id = :userId";
 
-        return namedParameterJdbcTemplate.query(query, rs -> {
+        Map<String, Object> params = ImmutableMap.of("userId", userId);
+
+        return namedParameterJdbcTemplate.query(query, params, rs -> {
             List<VersionedProperty> properties = new LinkedList<>();
             while(rs.next()) {
                 VersionedProperty property = new VersionedProperty(
@@ -69,9 +71,11 @@ public class PropertyRepositoryImpl extends AbstractDao implements PropertyRepos
     }
 
     @Override
-    public List<VersionedPropertyServiceType> getServiceTypes() {
-        String query = "select id, user_id, service_type_id, description from t_property_service_type";
-        return namedParameterJdbcTemplate.query(query, rs -> {
+    public List<VersionedPropertyServiceType> getServiceTypes(int userId) {
+        String query =
+                "select id, user_id, service_type_id, description from t_property_service_type where user_id = :userId";
+        Map<String, Object> params = ImmutableMap.of("userId", userId);
+        return namedParameterJdbcTemplate.query(query, params, rs -> {
             List<VersionedPropertyServiceType> serviceTypes = new LinkedList<>();
             while(rs.next()) {
                 VersionedPropertyServiceType serviceType = new VersionedPropertyServiceType(

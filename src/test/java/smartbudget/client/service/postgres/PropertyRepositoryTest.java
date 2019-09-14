@@ -50,44 +50,62 @@ public class PropertyRepositoryTest {
 
     @Test
     public void testGetProperties() {
-        String query = "select id, user_id, property_id, description from t_property";
+        String query = "select id, user_id, property_id, description from t_property where user_id = :userId";
         List<VersionedProperty> properties = ImmutableList.of(
-                new VersionedProperty(1, 1,1, "Property 1"),
-                new VersionedProperty(2, 1,1, "Property 2")
+                new VersionedProperty(1, 1, 1, "Property 1"),
+                new VersionedProperty(2, 1, 1, "Property 2")
         );
 
+        Map<String, Object> params = ImmutableMap.of("userId", USER_ID);
+
         when(namedParameterJdbcTemplate.query(
-                eq(query), (ResultSetExtractor<List<VersionedProperty>>) any(ResultSetExtractor.class))
+                eq(query),
+                eq(params),
+                (ResultSetExtractor<List<VersionedProperty>>) any(ResultSetExtractor.class))
         ).thenReturn(properties);
 
-        List<VersionedProperty> result = propertyService.getProperties();
+        List<VersionedProperty> result = propertyService.getProperties(USER_ID);
         Assert.assertEquals(result.get(1).getDescription(), "Property 2");
 
         verify(namedParameterJdbcTemplate)
-                .query(eq(query), (ResultSetExtractor<List<VersionedProperty>>) any(ResultSetExtractor.class));
+                .query(
+                        eq(query),
+                        eq(params),
+                        (ResultSetExtractor<List<VersionedProperty>>) any(ResultSetExtractor.class)
+                );
     }
 
     @Test
     public void testGetServiceType() {
-        String query = "select id, user_id, service_type_id, description from t_property_service_type";
+        String query =
+                "select id, user_id, service_type_id, description from t_property_service_type where user_id = :userId";
         List<VersionedPropertyServiceType> serviceTypes = ImmutableList.of(
-            new VersionedPropertyServiceType(1,1,1,"Service 01"),
-            new VersionedPropertyServiceType(1,1,2,"Service 02")
+                new VersionedPropertyServiceType(1, 1, 1, "Service 01"),
+                new VersionedPropertyServiceType(1, 1, 2, "Service 02")
         );
+        Map<String, Object> params = ImmutableMap.of("userId", USER_ID);
         when(namedParameterJdbcTemplate.query(
-            eq(query), (ResultSetExtractor<List<VersionedPropertyServiceType>>) any(ResultSetExtractor.class)
+                eq(query),
+                eq(params),
+                (ResultSetExtractor<List<VersionedPropertyServiceType>>) any(ResultSetExtractor.class)
         )).thenReturn(serviceTypes);
 
-        List<VersionedPropertyServiceType> result = propertyService.getServiceTypes();
+        List<VersionedPropertyServiceType> result = propertyService.getServiceTypes(USER_ID);
         Assert.assertEquals(
-            result.stream().filter(t -> t.getServiceTypeId() == 2).findFirst().get().getDescription(),
-            "Service 02"
+                result.stream().filter(t -> t.getServiceTypeId() == 2).findFirst().get().getDescription(),
+                "Service 02"
+        );
+
+        verify(namedParameterJdbcTemplate).query(
+                eq(query),
+                eq(params),
+                (ResultSetExtractor<List<VersionedPropertyServiceType>>) any(ResultSetExtractor.class)
         );
     }
 
     @Test
     public void getPropertyDataTest() {
-        LocalDate startDate = LocalDate.of(2019, 04,05);
+        LocalDate startDate = LocalDate.of(2019, 04, 05);
         LocalDate endDate = startDate.plusDays(3);
 
         String query = "select id, user_id, property_id, service_type_id, description, master, price, update_date " +
@@ -193,12 +211,12 @@ public class PropertyRepositoryTest {
 
     @DataProvider
     private static Object[][] savePropertyDataFailed() {
-        return new Object[][] {
+        return new Object[][]{
                 {
-                    BigDecimal.valueOf(100.002)
+                        BigDecimal.valueOf(100.002)
                 },
                 {
-                    BigDecimal.valueOf(100.1002),
+                        BigDecimal.valueOf(100.1002),
                 }
         };
     }
@@ -208,12 +226,12 @@ public class PropertyRepositoryTest {
         String sql = "delete from property_data where id = :id";
         Map<String, Object> params = ImmutableMap.of("id", 2L);
         when(namedParameterJdbcTemplate.execute(
-                eq(sql), eq(params), (PreparedStatementCallback<Boolean>)any(PreparedStatementCallback.class))
+                eq(sql), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class))
         ).thenReturn(true);
         propertyService.deletePropertyData(2L);
 
         verify(namedParameterJdbcTemplate).execute(
-                eq(sql), eq(params), (PreparedStatementCallback<Boolean>)any(PreparedStatementCallback.class));
+                eq(sql), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class));
 
     }
 
@@ -221,7 +239,6 @@ public class PropertyRepositoryTest {
             "(id, user_id, property_id, service_type_id, description, master, price, update_date)\n" +
             "values (nextval('property_seq'), :userId, :propertyId, :serviceTypeId, " +
             ":description, :master, :price, :updateDate)";
-
 
 
     private static final int PROPERTY_ID = 1;

@@ -29,13 +29,13 @@ public class PropertyRepositoryManualTest extends AbstractTestNGSpringContextTes
     private PropertyRepository propertyRepository;
 
     public void testGetProperties() {
-        List<VersionedProperty> result = propertyRepository.getProperties();
+        List<VersionedProperty> result = propertyRepository.getProperties(USER_ID);
         System.out.println(result);
         Assert.assertTrue(!result.isEmpty());
     }
 
     public void testGetServiceTypes() {
-        List<VersionedPropertyServiceType> serviceTypes = propertyRepository.getServiceTypes();
+        List<VersionedPropertyServiceType> serviceTypes = propertyRepository.getServiceTypes(USER_ID);
         System.out.println(serviceTypes);
         Assert.assertEquals(
             serviceTypes.stream()
