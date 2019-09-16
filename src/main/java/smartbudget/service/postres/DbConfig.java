@@ -1,6 +1,8 @@
 package smartbudget.service.postres;
 
+import org.postgresql.Driver;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -9,20 +11,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 import javax.sql.DataSource;
-import java.sql.Driver;
 
+@EnableConfigurationProperties(JdbcSettings.class)
 @Configuration
-@PropertySource("classpath:db/postresql.properties")
 public class DbConfig {
-
-    @Value("${driverClassName}")
-    private String driverClassName;
-    @Value("${url}")
-    private String url;
-    @Value("${username}")
-    private String username;
-    @Value("${password}")
-    private String password;
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
@@ -30,19 +22,10 @@ public class DbConfig {
     }
 
     @Bean
-    public DataSource dataSource() {
-        try {
-            SimpleDriverDataSource dataSource =
-                new SimpleDriverDataSource();
-            Class<? extends Driver> driver = (Class<? extends Driver>)  Class.forName(driverClassName);
-            dataSource.setDriverClass(driver);
-            dataSource.setUrl(url);
-            dataSource.setUsername(username);
-            dataSource.setPassword(password);
-            return dataSource;
-        } catch (Exception e) {
-            return null;
-        }
+    public DataSource dataSource(JdbcSettings jdbcSettings) {
+        return new SimpleDriverDataSource(
+            new Driver(), jdbcSettings.getUrl(), jdbcSettings.getUser(), jdbcSettings.getUser()
+        );
     }
 
     @Bean

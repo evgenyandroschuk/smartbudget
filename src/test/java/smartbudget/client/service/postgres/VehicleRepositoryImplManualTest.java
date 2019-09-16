@@ -1,6 +1,7 @@
 package smartbudget.client.service.postgres;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
@@ -9,6 +10,7 @@ import smartbudget.model.vehicles.VersionedVehicle;
 import smartbudget.model.vehicles.VersionedVehicleData;
 import smartbudget.model.vehicles.VersionedVehicleServiceType;
 import smartbudget.service.postres.DbConfig;
+import smartbudget.service.postres.JdbcSettings;
 import smartbudget.service.postres.PostgreSqlConfig;
 import smartbudget.service.postres.vehicle.VehicleRepository;
 
@@ -17,6 +19,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+@EnableConfigurationProperties(JdbcSettings.class)
 @SpringBootTest(classes = {
     PostgreSqlConfig.class,
     DbConfig.class

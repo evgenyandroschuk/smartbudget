@@ -2,17 +2,19 @@ package smartbudget.client.service.postgres;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import smartbudget.service.CommonRepository;
 import smartbudget.service.postres.DbConfig;
+import smartbudget.service.postres.JdbcSettings;
 import smartbudget.service.postres.PostgreSqlConfig;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
+@EnableConfigurationProperties(JdbcSettings.class)
 @SpringBootTest(classes = {
     PostgreSqlConfig.class,
     DbConfig.class
