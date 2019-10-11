@@ -59,8 +59,8 @@ public class BudgetController {
         Map<String, BigDecimal> totalList = new HashMap<>();
         expensesList.forEach(t -> {
             String key = t.getExpensesType().getDescription();
-            BigDecimal sum = totalList.get(key) == null ? BigDecimal.ZERO : t.getAmount(); // Избегаем NPE
-            totalList.put(key, sum.add(t.getAmount()));
+            BigDecimal sum = t.getAmount(); // Избегаем NPE
+            totalList.merge(key, sum, BigDecimal::add);
         });
 
         model.addAttribute("results", expensesList);
