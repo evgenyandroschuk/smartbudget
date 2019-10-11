@@ -24,7 +24,7 @@ public class DbConfig {
     @Bean
     public DataSource dataSource(JdbcSettings jdbcSettings) {
         return new SimpleDriverDataSource(
-            new Driver(), jdbcSettings.getUrl(), jdbcSettings.getUser(), jdbcSettings.getUser()
+            new Driver(), jdbcSettings.getUrl(), jdbcSettings.getUser(), jdbcSettings.getPassword()
         );
     }
 
