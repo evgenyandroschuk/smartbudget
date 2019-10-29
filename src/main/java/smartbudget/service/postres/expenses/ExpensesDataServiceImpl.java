@@ -3,13 +3,16 @@ package smartbudget.service.postres.expenses;
 import com.google.common.collect.ImmutableMap;
 import smartbudget.model.expenses.CurrentStatistic;
 import smartbudget.model.expenses.ExpensesData;
+import smartbudget.model.expenses.ExpensesType;
+import smartbudget.model.expenses.YearlyReportData;
 import smartbudget.service.CommonRepository;
 import smartbudget.service.postres.DateProvider;
 import smartbudget.util.SystemParams;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static smartbudget.util.SystemParams.EXPENSES_OPENING_BALANCE;
 
@@ -85,6 +88,35 @@ public class ExpensesDataServiceImpl implements ExpensesDataService {
             .setAllAmountInRub(restAllAmount)
             .setOpenBalanceDate(commonRepository.getUserParamUpdateDateString(userId, EXPENSES_OPENING_BALANCE))
             .build();
+    }
+
+    @Override
+    public List<YearlyReportData> getReportsByYear(int userId, int year) {
+        List<ExpensesData> expensesByYear = expensesRepository.getExpensesByYear(userId, year);
+        List<ExpensesType> types = expensesRepository.getExpensesTypes(userId);
+        List<YearlyReportData> result = new LinkedList<>();
+        Set<Map.Entry<Integer, Map<ExpensesType, Double>>> entries = expensesByYear.stream().collect(
+                Collectors.groupingBy(ExpensesData::getMonth,
+                        Collectors.groupingBy(
+                                t -> t.getExpensesType(),
+                                Collectors.summingDouble(t -> Double.valueOf(t.getAmount().toString()))
+                        )
+                )
+        ).entrySet();
+
+        entries.forEach(entry -> {
+            List<String> amounts = types.stream().map(
+                    t -> Optional.ofNullable(
+                            entry.getValue().get(t))
+                            .orElse(0.0).toString()
+            ).collect(Collectors.toList());
+            String expensesAmount = entry.getValue().entrySet().stream().filter(e -> e.getKey().isIncome() == false)
+                    .map(t -> t.getValue()).reduce(0.0, (k, v) -> k+ v).toString();
+            amounts.add(expensesAmount);
+            result.add(new YearlyReportData(entry.getKey(), amounts));
+        });
+
+        return result;
     }
 
     private Map<String, BigDecimal> calculateFunds(int userId) {

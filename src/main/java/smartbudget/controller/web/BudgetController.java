@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import smartbudget.model.expenses.CurrentStatistic;
 import smartbudget.model.expenses.ExpensesData;
 import smartbudget.model.expenses.ExpensesType;
+import smartbudget.model.expenses.YearlyReportData;
 import smartbudget.service.CommonRepository;
 import smartbudget.service.postres.DateProvider;
 import smartbudget.service.postres.expenses.ExpensesDataService;
@@ -97,15 +98,15 @@ public class BudgetController {
 
     @RequestMapping(value = "/expenses/response/add", method = RequestMethod.GET)
     public String expensesResponse(Model model,
-                                   @RequestParam(value="month") Integer month,
-                                   @RequestParam(value="year") Integer year,
-                                   @RequestParam(value="type") Integer type,
-                                   @RequestParam(value="desc") String description,
+                                   @RequestParam(value = "month") Integer month,
+                                   @RequestParam(value = "year") Integer year,
+                                   @RequestParam(value = "type") Integer type,
+                                   @RequestParam(value = "desc") String description,
                                    @RequestParam(value = "amount") String amount
     ) {
 
         ExpensesType expensesType = expensesRepository.getExpensesTypes(DEFAULT_USER).stream()
-                .filter(t -> t.getExpensesTypeId()== type).findFirst().get();
+                .filter(t -> t.getExpensesTypeId() == type).findFirst().get();
 
         BigDecimal amountValue = BigDecimal.valueOf(parseAmountString(amount)).setScale(2);
         ExpensesData expensesData = new ExpensesData(
@@ -124,7 +125,7 @@ public class BudgetController {
     }
 
     @RequestMapping(value = "/expenses/balance/update", method = RequestMethod.GET)
-    public String updateExpensesBalance()  {
+    public String updateExpensesBalance() {
         return "expenses/expenses_update_balance";
     }
 
@@ -146,49 +147,52 @@ public class BudgetController {
         return "expenses/expenses_update_balance_response";
     }
 
-    public static double parseAmountString(String s) {
+    @RequestMapping(value = "/expenses/reports", method = RequestMethod.GET)
+    public String reports() {
+        return "expenses/reports/reports_main";
+    }
 
+    @RequestMapping(value = "/expenses/reports/yearly", method = RequestMethod.GET)
+    public String yearlyReports(
+            Model model,
+            @RequestParam(value = "year") Integer year
+    ) {
+        List<ExpensesType> types = expensesRepository.getExpensesTypes(DEFAULT_USER);
+        List<YearlyReportData> totalByMonth = expensesDataService.getReportsByYear(DEFAULT_USER, year);
+        model.addAttribute("types", types);
+        model.addAttribute("totalByMonth", totalByMonth);
+        model.addAttribute("year", year);
+        return "expenses/reports/yearly_response";
+    }
+
+    private static double parseAmountString(String s) {
         double amount = 0;
         double amtPlus;
-
-        String firstSimbol = s.substring(0,1);
-
-        if(firstSimbol.equals("=")){
-
+        String firstSimbol = s.substring(0, 1);
+        if (firstSimbol.equals("=")) {
             String sNumber = "";
-
-            char [] myChar = s.toCharArray ();
-            for (int i=0 ; i<myChar.length;i++ ){
-
-
-                if(Character.isDigit(myChar[i])==true && i!=myChar.length){
-
+            char[] myChar = s.toCharArray();
+            for (int i = 0; i < myChar.length; i++) {
+                if (Character.isDigit(myChar[i]) == true && i != myChar.length) {
                     String chStr = Character.toString(myChar[i]);
-
                     sNumber = sNumber.concat(chStr);
-
                 }
-                if(Character.toString(myChar[i]).equals("-")){
-
+                if (Character.toString(myChar[i]).equals("-")) {
                     amtPlus = Double.parseDouble(sNumber);
-                    amount = amount+amtPlus;
-
+                    amount = amount + amtPlus;
                     sNumber = "-";
-
                 }
-                if(Character.toString(myChar[i]).equals("+")){
-
+                if (Character.toString(myChar[i]).equals("+")) {
                     amtPlus = Double.parseDouble(sNumber);
-                    amount = amount+amtPlus;
+                    amount = amount + amtPlus;
                     sNumber = "";
-
                 }
             }
 
             amtPlus = Double.parseDouble(sNumber);
-            amount = amount+amtPlus;
+            amount = amount + amtPlus;
 
-        } else{
+        } else {
             amount = Double.parseDouble(s);
         }
         return amount;

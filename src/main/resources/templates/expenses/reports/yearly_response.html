@@ -32,16 +32,18 @@
     <table class="table table-bordered">
         <tr>
             <th><p>Месяц</p></th>
-            <th th:each="type : ${types}"><p th:text="${type[desc]}" ></p></th>
+            <th th:each="type : ${types}"><p th:text="${type.description}" ></p></th>
             <th><p>Итого</p></th>
         </tr>
-        <tr th:each="month: ${statistic}">
-            <th th:each="item: ${month}"><p th:text="${item}" ></p></th>
+        <tr th:each="details: ${totalByMonth}">
+           <th><p th:text="${details.month}"></p></th>
+            <th th:each="item: ${details.amounts}"><p th:text="${item}" ></p></th>
         </tr>
-        <tr>
-            <th><p>Общее Итого</p></th>
-            <th th:each="item: ${yearlyStatistic}"><p th:text="${item}" ></p></th>
-        </tr>
+
+<!--        <tr>-->
+<!--            <th><p>Общее Итого</p></th>-->
+<!--            <th th:each="item: ${yearlyStatistic}"><p th:text="${item}" ></p></th>-->
+<!--        </tr>-->
 
 
         <!--<tbody>-->
