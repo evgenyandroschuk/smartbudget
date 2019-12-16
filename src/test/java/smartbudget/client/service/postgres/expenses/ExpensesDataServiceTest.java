@@ -18,6 +18,7 @@ import smartbudget.model.expenses.CurrentStatistic;
 import smartbudget.model.expenses.ExpensesData;
 import smartbudget.model.expenses.ExpensesType;
 import smartbudget.model.expenses.YearlyReportData;
+import smartbudget.model.expenses.YearlyReport;
 import smartbudget.service.CommonRepository;
 import smartbudget.service.postres.DateProvider;
 import smartbudget.service.postres.expenses.ExpensesDataServiceImpl;
@@ -172,8 +173,14 @@ public class ExpensesDataServiceTest {
                 new YearlyReportData(4, ImmutableList.of("0.0", "5000.0", "0.0", "4000.0", "0.0", "9000.0"))
         );
 
-        List<YearlyReportData> result = expensesDataService.getReportsByYear(USER_ID, 2019);
+        List<String> expectedTotals = ImmutableList.of("1000.0", "7000.0", "3000.0", "4000.0", "0.0", "12000.0");
+
+        YearlyReport reportsByYear = expensesDataService.getReportsByYear(USER_ID, 2019);
+        List<YearlyReportData> result = reportsByYear.getReportDataList();
+        List<String> totals = reportsByYear.getTotals();
+
         Assert.assertEquals(result, expectedResult);
+        Assert.assertEquals(totals, expectedTotals);
     }
 
     private static final List<ExpensesType> EXPENSES_TYPES = ImmutableList.<ExpensesType>builder()

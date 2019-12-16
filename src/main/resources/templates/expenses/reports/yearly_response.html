@@ -40,17 +40,10 @@
             <th th:each="item: ${details.amounts}"><p th:text="${item}" ></p></th>
         </tr>
 
-<!--        <tr>-->
-<!--            <th><p>Общее Итого</p></th>-->
-<!--            <th th:each="item: ${yearlyStatistic}"><p th:text="${item}" ></p></th>-->
-<!--        </tr>-->
-
-
-        <!--<tbody>-->
-        <!--<tr>-->
-            <!--<td th:each="total : ${totals}"><p th:text="${total.value}"></p></td>-->
-        <!--</tr>-->
-        <!--</tbody>-->
+        <tr>
+            <th><p>Общее Итого</p></th>
+            <th th:each="item: ${totals}"><p th:text="${item}" ></p></th>
+        </tr>
     </table>
 
 </div>

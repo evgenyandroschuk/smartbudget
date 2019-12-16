@@ -5,6 +5,7 @@ import smartbudget.model.expenses.CurrentStatistic;
 import smartbudget.model.expenses.ExpensesData;
 import smartbudget.model.expenses.ExpensesType;
 import smartbudget.model.expenses.YearlyReportData;
+import smartbudget.model.expenses.YearlyReport;
 import smartbudget.service.CommonRepository;
 import smartbudget.service.postres.DateProvider;
 import smartbudget.util.SystemParams;
@@ -90,12 +91,11 @@ public class ExpensesDataServiceImpl implements ExpensesDataService {
             .build();
     }
 
-    @Override
-    public List<YearlyReportData> getReportsByYear(int userId, int year) {
+    public YearlyReport getReportsByYear(int userId, int year) {
         List<ExpensesData> expensesByYear = expensesRepository.getExpensesByYear(userId, year);
         List<ExpensesType> types = expensesRepository.getExpensesTypes(userId);
-        List<YearlyReportData> result = new LinkedList<>();
-        Set<Map.Entry<Integer, Map<ExpensesType, Double>>> entries = expensesByYear.stream().collect(
+        List<YearlyReportData> monthlyExpenses = new LinkedList<>();
+        Set<Map.Entry<Integer, Map<ExpensesType, Double>>> expensesByType = expensesByYear.stream().collect(
                 Collectors.groupingBy(ExpensesData::getMonth,
                         Collectors.groupingBy(
                                 t -> t.getExpensesType(),
@@ -104,19 +104,36 @@ public class ExpensesDataServiceImpl implements ExpensesDataService {
                 )
         ).entrySet();
 
-        entries.forEach(entry -> {
+        expensesByType.forEach(entry -> {
             List<String> amounts = types.stream().map(
                     t -> Optional.ofNullable(
                             entry.getValue().get(t))
                             .orElse(0.0).toString()
             ).collect(Collectors.toList());
-            String expensesAmount = entry.getValue().entrySet().stream().filter(e -> e.getKey().isIncome() == false)
-                    .map(t -> t.getValue()).reduce(0.0, (k, v) -> k+ v).toString();
-            amounts.add(expensesAmount);
-            result.add(new YearlyReportData(entry.getKey(), amounts));
+            Double amount = entry.getValue().entrySet().stream().filter(e -> !e.getKey().isIncome())
+                    .map(t -> t.getValue()).reduce(0.0, (k, v) -> k + v);
+            String expensesAmountString = amount.toString();
+            amounts.add(expensesAmountString);
+            monthlyExpenses.add(new YearlyReportData(entry.getKey(), amounts));
         });
 
-        return result;
+        Map<ExpensesType, Double> yearlyTotal = expensesByYear.stream().collect(
+                Collectors.groupingBy(
+                        ExpensesData::getExpensesType,
+                        Collectors.summingDouble(t -> Double.valueOf(t.getAmount().toString()))
+                )
+        );
+        List<String> totalAmounts = types.stream()
+                .map(t -> Optional.ofNullable(yearlyTotal.get(t)).orElse(0.0).toString())
+                .collect(Collectors.toList());
+        double yearlyExpensesAmount = expensesByYear.stream()
+                .filter(t -> !t.getExpensesType().isIncome())
+                .mapToDouble(t -> Double.valueOf(t.getAmount().toString()))
+                .sum();
+        totalAmounts.add(Double.toString(yearlyExpensesAmount));
+
+        YearlyReport report = new YearlyReport(monthlyExpenses, totalAmounts);
+        return report;
     }
 
     private Map<String, BigDecimal> calculateFunds(int userId) {

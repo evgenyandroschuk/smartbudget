@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import smartbudget.model.expenses.CurrentStatistic;
 import smartbudget.model.expenses.ExpensesData;
 import smartbudget.model.expenses.ExpensesType;
+import smartbudget.model.expenses.YearlyReport;
 import smartbudget.model.expenses.YearlyReportData;
 import smartbudget.service.CommonRepository;
 import smartbudget.service.postres.DateProvider;
@@ -158,10 +159,13 @@ public class BudgetController {
             @RequestParam(value = "year") Integer year
     ) {
         List<ExpensesType> types = expensesRepository.getExpensesTypes(DEFAULT_USER);
-        List<YearlyReportData> totalByMonth = expensesDataService.getReportsByYear(DEFAULT_USER, year);
+        YearlyReport reportsByYear = expensesDataService.getReportsByYear(DEFAULT_USER, year);
+        List<YearlyReportData> totalByMonth = reportsByYear.getReportDataList();
+        List<String> totals = reportsByYear.getTotals();
         model.addAttribute("types", types);
         model.addAttribute("totalByMonth", totalByMonth);
         model.addAttribute("year", year);
+        model.addAttribute("totals", totals);
         return "expenses/reports/yearly_response";
     }
 
