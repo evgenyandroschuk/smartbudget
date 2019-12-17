@@ -53,7 +53,7 @@
         <tr th:each="result : ${results}" >
             <td th:text="${result.id}"></td>
             <td th:text="${result.description}"></td>
-            <td th:text="${result.type}"></td>
+            <td th:text="${result.expensesType.description}"></td>
             <td th:text="${result.date}"></td>
             <td th:text="${result.amount}"></td>
         </tr>

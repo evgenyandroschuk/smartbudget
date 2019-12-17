@@ -6,12 +6,14 @@ import smartbudget.model.expenses.ExpensesData;
 import smartbudget.model.expenses.ExpensesType;
 import smartbudget.model.expenses.YearlyReportData;
 import smartbudget.model.expenses.YearlyReport;
+import smartbudget.model.expenses.DescriptionReport;
 import smartbudget.service.CommonRepository;
 import smartbudget.service.postres.DateProvider;
 import smartbudget.util.SystemParams;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -136,8 +138,26 @@ public class ExpensesDataServiceImpl implements ExpensesDataService {
         return report;
     }
 
+    @Override
+    public DescriptionReport getDescriptionReport(int userId, String description, String start, String end) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter stringFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        LocalDate startDate = LocalDate.parse(start, formatter);
+        LocalDate endDate = LocalDate.parse(end, formatter);
+        List<ExpensesData> expensesByPeriod = expensesRepository.getExpensesByPeriod(userId, startDate, endDate);
+        List<ExpensesData> filteredExpenses = expensesByPeriod.stream()
+                .filter(t -> t.getDescription().toLowerCase().contains(description.toLowerCase()))
+                .collect(Collectors.toList());
+        double sum = filteredExpenses.stream().mapToDouble(t -> Double.valueOf(t.getAmount().toString())).sum();
+        DescriptionReport report = new DescriptionReport(
+                sum, filteredExpenses, startDate.format(stringFormatter), endDate.format(stringFormatter)
+        );
+        return report;
+    }
+
     private Map<String, BigDecimal> calculateFunds(int userId) {
-        // Фиксированная сумма в копилке по валютам, для расчета остатка на текующую дату.
+        // Фиксированная сумма в копилке по валютам, для расчета остатка на текущую дату.
         BigDecimal fundOpenId = commonRepository.getParamValue(userId, SystemParams.FUND_OPENING_ID);
 
         BigDecimal startDollarAmount = commonRepository.getParamValue(userId, SystemParams.DOLLAR_OPENING_BALANCE);

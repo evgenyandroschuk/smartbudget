@@ -12,6 +12,7 @@ import smartbudget.model.expenses.ExpensesData;
 import smartbudget.model.expenses.ExpensesType;
 import smartbudget.model.expenses.YearlyReport;
 import smartbudget.model.expenses.YearlyReportData;
+import smartbudget.model.expenses.DescriptionReport;
 import smartbudget.service.CommonRepository;
 import smartbudget.service.postres.DateProvider;
 import smartbudget.service.postres.expenses.ExpensesDataService;
@@ -167,6 +168,22 @@ public class BudgetController {
         model.addAttribute("year", year);
         model.addAttribute("totals", totals);
         return "expenses/reports/yearly_response";
+    }
+
+    @RequestMapping(value = "/expenses/reports/description", method = RequestMethod.GET)
+    public String reportsByDescription(
+            Model model,
+            @RequestParam(value = "description") String description,
+            @RequestParam(value = "start") String start,
+            @RequestParam(value = "end") String end
+    ) {
+        DescriptionReport report = expensesDataService.getDescriptionReport(DEFAULT_USER, description, start, end);
+        model.addAttribute("results", report.getExpensesDataList());
+        model.addAttribute("total", report.getAmount().toString());
+        model.addAttribute("description", description);
+        model.addAttribute("start", report.getStartDate());
+        model.addAttribute("end", report.getEndDate());
+        return "expenses/reports/reports_description";
     }
 
     private static double parseAmountString(String s) {
