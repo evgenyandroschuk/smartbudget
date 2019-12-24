@@ -1,5 +1,7 @@
 package smartbudget.config;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,21 +11,21 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import smartbudget.util.AppProperties;
 
+@EnableConfigurationProperties(WebSecurityConfig.SecuritySettings.class)
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    public WebSecurityConfig(AppProperties properties) {
-        this.properties = properties;
+    public WebSecurityConfig(SecuritySettings securitySettings) {
+        this.securitySettings = securitySettings;
     }
 
-    AppProperties properties;
+    SecuritySettings securitySettings;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        String role = properties.getProperty("app.security.role");
+        String role = securitySettings.getRole();
 
         http
             .authorizeRequests()
@@ -38,9 +40,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public UserDetailsService userDetailsService() {
 
-        String userName = properties.getProperty("app.security.user");
-        String password = properties.getProperty("app.security.password");
-        String role = properties.getProperty("app.security.role");
+        String userName = securitySettings.getUser();
+        String password = securitySettings.getPassword();
+        String role = securitySettings.getRole();
 
         UserDetails user =
                 User.withDefaultPasswordEncoder()
@@ -50,5 +52,36 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .build();
 
         return new InMemoryUserDetailsManager(user);
+    }
+
+    @ConfigurationProperties(prefix = "security")
+    public static class SecuritySettings {
+        private String user;
+        private String password;
+        private String role;
+
+        public String getUser() {
+            return user;
+        }
+
+        public void setUser(String user) {
+            this.user = user;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getRole() {
+            return role;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
+        }
     }
 }
