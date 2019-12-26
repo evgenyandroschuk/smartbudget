@@ -2,14 +2,14 @@ package smartbudget.model.expenses;
 
 import java.util.List;
 
-public class DescriptionReport {
+public class ExpensesReport {
 
     private Double amount;
     private List<ExpensesData> expensesDataList;
     private String startDate;
     private String endDate;
 
-    public DescriptionReport(Double amount, List<ExpensesData> expensesDataList, String startDate, String endDate) {
+    public ExpensesReport(Double amount, List<ExpensesData> expensesDataList, String startDate, String endDate) {
         this.amount = amount;
         this.expensesDataList = expensesDataList;
         this.startDate = startDate;
@@ -34,7 +34,7 @@ public class DescriptionReport {
 
     @Override
     public String toString() {
-        return "DescriptionReport{" +
+        return "ExpensesReport{" +
                 "amount=" + amount +
                 ", expensesDataList=" + expensesDataList +
                 ", startDate='" + startDate + '\'' +

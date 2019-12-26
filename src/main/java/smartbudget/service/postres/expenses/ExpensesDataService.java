@@ -1,7 +1,7 @@
 package smartbudget.service.postres.expenses;
 
 import smartbudget.model.expenses.CurrentStatistic;
-import smartbudget.model.expenses.DescriptionReport;
+import smartbudget.model.expenses.ExpensesReport;
 import smartbudget.model.expenses.YearlyReport;
 
 public interface ExpensesDataService {
@@ -10,5 +10,7 @@ public interface ExpensesDataService {
 
     YearlyReport getReportsByYear(int userId, int year);
 
-    DescriptionReport getDescriptionReport(int userId, String description, String start, String end);
+    ExpensesReport getReportByDescription(int userId, String description, String start, String end);
+
+    ExpensesReport getReportByType(int user, int expensesType, String start, String end);
 }

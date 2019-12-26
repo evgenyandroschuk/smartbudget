@@ -3,10 +3,10 @@ package smartbudget.service.postres.expenses;
 import com.google.common.collect.ImmutableMap;
 import smartbudget.model.expenses.CurrentStatistic;
 import smartbudget.model.expenses.ExpensesData;
+import smartbudget.model.expenses.ExpensesReport;
 import smartbudget.model.expenses.ExpensesType;
 import smartbudget.model.expenses.YearlyReportData;
 import smartbudget.model.expenses.YearlyReport;
-import smartbudget.model.expenses.DescriptionReport;
 import smartbudget.service.CommonRepository;
 import smartbudget.service.postres.DateProvider;
 import smartbudget.util.SystemParams;
@@ -139,19 +139,31 @@ public class ExpensesDataServiceImpl implements ExpensesDataService {
     }
 
     @Override
-    public DescriptionReport getDescriptionReport(int userId, String description, String start, String end) {
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateTimeFormatter stringFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        LocalDate startDate = LocalDate.parse(start, formatter);
-        LocalDate endDate = LocalDate.parse(end, formatter);
+    public ExpensesReport getReportByDescription(int userId, String description, String start, String end) {
+        LocalDate startDate = LocalDate.parse(start, INPUT_DATE_FORMATTER);
+        LocalDate endDate = LocalDate.parse(end, INPUT_DATE_FORMATTER);
         List<ExpensesData> expensesByPeriod = expensesRepository.getExpensesByPeriod(userId, startDate, endDate);
         List<ExpensesData> filteredExpenses = expensesByPeriod.stream()
                 .filter(t -> t.getDescription().toLowerCase().contains(description.toLowerCase()))
                 .collect(Collectors.toList());
         double sum = filteredExpenses.stream().mapToDouble(t -> Double.valueOf(t.getAmount().toString())).sum();
-        DescriptionReport report = new DescriptionReport(
-                sum, filteredExpenses, startDate.format(stringFormatter), endDate.format(stringFormatter)
+        ExpensesReport report = new ExpensesReport(
+                sum, filteredExpenses, startDate.format(STRING_FORMATTER), endDate.format(STRING_FORMATTER)
+        );
+        return report;
+    }
+
+    @Override
+    public ExpensesReport getReportByType(int userId, int expensesType, String start, String end) {
+        LocalDate startDate = LocalDate.parse(start, INPUT_DATE_FORMATTER);
+        LocalDate endDate = LocalDate.parse(end, INPUT_DATE_FORMATTER);
+        List<ExpensesData> expensesByPeriod = expensesRepository.getExpensesByPeriod(userId, startDate, endDate);
+        List<ExpensesData> filteredExpenses = expensesByPeriod.stream()
+            .filter(t -> t.getExpensesType().getExpensesTypeId()==expensesType)
+            .collect(Collectors.toList());
+        double sum = filteredExpenses.stream().mapToDouble(t -> Double.valueOf(t.getAmount().toString())).sum();
+        ExpensesReport report = new ExpensesReport(
+            sum, filteredExpenses, startDate.format(STRING_FORMATTER), endDate.format(STRING_FORMATTER)
         );
         return report;
     }
@@ -191,5 +203,8 @@ public class ExpensesDataServiceImpl implements ExpensesDataService {
     private static final String RUB_AMOUNT = "rubAmount";
     private static final String DOLLAR_AMOUNT_IN_RUB = "dollarAmountRub";
     private static final String EURO_AMOUNT_IN_RUB = "euroAmountRub";
+
+    private static final DateTimeFormatter INPUT_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter STRING_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
 }

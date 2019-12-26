@@ -19,7 +19,7 @@ import smartbudget.model.expenses.ExpensesData;
 import smartbudget.model.expenses.ExpensesType;
 import smartbudget.model.expenses.YearlyReportData;
 import smartbudget.model.expenses.YearlyReport;
-import smartbudget.model.expenses.DescriptionReport;
+import smartbudget.model.expenses.ExpensesReport;
 import smartbudget.service.CommonRepository;
 import smartbudget.service.postres.DateProvider;
 import smartbudget.service.postres.expenses.ExpensesDataServiceImpl;
@@ -178,10 +178,11 @@ public class ExpensesDataServiceTest {
     }
 
     @Test(dataProvider = "descriptionReportProvider")
-    public void testDescriptionReport(
-            List<ExpensesData> mockedExpenses,
-            List<ExpensesData> expectedExpenses,
-            double sum
+    public void testReportByDescription(
+        String description,
+        List<ExpensesData> mockedExpenses,
+        List<ExpensesData> expectedExpenses,
+        double sum
     ) {
         String start = "2019-04-01";
         String end = "2019-05-01";
@@ -190,7 +191,7 @@ public class ExpensesDataServiceTest {
 
         when(expensesRepository.getExpensesByPeriod(USER_ID, startDate, endDate)).thenReturn(mockedExpenses);
 
-        DescriptionReport report = expensesDataService.getDescriptionReport(USER_ID, "Fuel", start, end);
+        ExpensesReport report = expensesDataService.getReportByDescription(USER_ID, description, start, end);
         Assert.assertEquals(report.getExpensesDataList(), expectedExpenses);
         Assert.assertEquals(report.getAmount(),sum);
         Assert.assertEquals("01.04.2019", report.getStartDate());
@@ -201,6 +202,7 @@ public class ExpensesDataServiceTest {
     private static Object[][] descriptionReportProvider() {
         return new Object[][] {
                 {
+                        "fuel",
                         ImmutableList.of(
                                 expenses(4, 1, "Products", 2100, LOCAL_DATE_NOW, 4),
                                 expenses(5, 2, "Fuel", 2100, LOCAL_DATE_NOW, 4),
@@ -214,6 +216,7 @@ public class ExpensesDataServiceTest {
                         3300.0
                 },
                 {
+                        "fuel",
                         ImmutableList.of(
                                 expenses(4, 1, "Products", 2100, LOCAL_DATE_NOW, 4),
                                 expenses(7, 2, "Other", 1200, LOCAL_DATE_NOW, 4)
@@ -222,6 +225,69 @@ public class ExpensesDataServiceTest {
                         ),
                         0.0
                 }
+        };
+    }
+
+    @Test(dataProvider = "typeReportProvider")
+    public void testReportByType(
+        int type,
+        List<ExpensesData> mockedExpenses,
+        List<ExpensesData> expectedExpenses,
+        double sum
+    ) {
+        String start = "2019-04-01";
+        String end = "2019-05-01";
+        LocalDate startDate = LocalDate.of(2019,4,1);
+        LocalDate endDate = LocalDate.of(2019,5,1);
+        when(expensesRepository.getExpensesByPeriod(USER_ID, startDate, endDate)).thenReturn(mockedExpenses);
+
+        ExpensesReport report = expensesDataService.getReportByType(USER_ID, type, start, end);
+        Assert.assertEquals(report.getExpensesDataList(), expectedExpenses);
+        Assert.assertEquals(report.getAmount(),sum);
+        Assert.assertEquals("01.04.2019", report.getStartDate());
+        Assert.assertEquals("01.05.2019", report.getEndDate());
+
+    }
+
+    @DataProvider
+    private static Object[][] typeReportProvider() {
+        return new Object[][] {
+            {
+                1, // expensesType
+                ImmutableList.of(
+                    expenses(4, 1, "Products", 2100, LOCAL_DATE_NOW, 4),
+                    expenses(5, 2, "Fuel", 2100, LOCAL_DATE_NOW, 4),
+                    expenses(6, 2, "Fuel", 1200, LOCAL_DATE_NOW, 4),
+                    expenses(7, 2, "Other", 1200, LOCAL_DATE_NOW, 4)
+                ),
+                ImmutableList.of(
+                    expenses(4, 1, "Products", 2100, LOCAL_DATE_NOW, 4)
+                ),
+                2100.0
+            },
+            {
+                2, // expensesType
+                ImmutableList.of(
+                    expenses(4, 1, "Products", 2100, LOCAL_DATE_NOW, 4),
+                    expenses(5, 2, "Fuel", 2100, LOCAL_DATE_NOW, 4),
+                    expenses(6, 1, "Any", 1200, LOCAL_DATE_NOW, 4),
+                    expenses(7, 2, "Other", 1200, LOCAL_DATE_NOW, 4)
+                ),
+                ImmutableList.of(
+                    expenses(5, 2, "Fuel", 2100, LOCAL_DATE_NOW, 4),
+                    expenses(7, 2, "Other", 1200, LOCAL_DATE_NOW, 4)
+                ),
+                3300.0
+            },
+            {
+                3, // expensesType
+                ImmutableList.of(
+                    expenses(4, 1, "Products", 2100, LOCAL_DATE_NOW, 4),
+                    expenses(5, 2, "Fuel", 2100, LOCAL_DATE_NOW, 4)
+                ),
+                ImmutableList.of(),
+                0.0
+            }
         };
     }
 

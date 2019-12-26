@@ -12,7 +12,7 @@ import smartbudget.model.expenses.ExpensesData;
 import smartbudget.model.expenses.ExpensesType;
 import smartbudget.model.expenses.YearlyReport;
 import smartbudget.model.expenses.YearlyReportData;
-import smartbudget.model.expenses.DescriptionReport;
+import smartbudget.model.expenses.ExpensesReport;
 import smartbudget.service.CommonRepository;
 import smartbudget.service.postres.DateProvider;
 import smartbudget.service.postres.expenses.ExpensesDataService;
@@ -177,7 +177,7 @@ public class BudgetController {
             @RequestParam(value = "start") String start,
             @RequestParam(value = "end") String end
     ) {
-        DescriptionReport report = expensesDataService.getDescriptionReport(DEFAULT_USER, description, start, end);
+        ExpensesReport report = expensesDataService.getReportByDescription(DEFAULT_USER, description, start, end);
         model.addAttribute("results", report.getExpensesDataList());
         model.addAttribute("total", report.getAmount().toString());
         model.addAttribute("description", description);
