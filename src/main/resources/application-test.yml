@@ -1,0 +1,9 @@
+postgres:
+  url: ${DB_URL}
+  user: ${DATABASE_USER}
+  password: ${DATABASE_PASSWORD}
+
+security:
+  user: ${MAIN_USER}
+  password: ${MAIN_PASSWORD}
+  role: ${MAIN_ROLE}

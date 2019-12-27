@@ -3,7 +3,6 @@ package smartbudget.service.postres;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import smartbudget.service.CommonRepository;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -40,16 +39,6 @@ public class CommonRepositoryImpl extends AbstractDao implements CommonRepositor
         if (updatedRows == 0) {
             namedParameterJdbcTemplate.execute(insertQuery, params, PreparedStatement::execute);
         }
-    }
-
-    @Override
-    public void createReplaceUserParams(int userId, int paramId, double value) {
-        throw new NotImplementedException(); // implemented in createOrReplaceUserParams
-    }
-
-    @Override
-    public double getUserParamValue(int userId, int paramId) {
-        throw new NotImplementedException(); // implemented in getParamValue
     }
 
     @Override
@@ -93,17 +82,6 @@ public class CommonRepositoryImpl extends AbstractDao implements CommonRepositor
             throw new DataNotFoundException("update_date");
         }
         return date.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-    }
-
-    @Override
-    public long getMaxIdByNumerator(int id) {
-        // Possible not actual, cause in postgreSql will be used sequence
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public void updateCurrencyCost(int currencyId, double amount) {
-        throw new NotImplementedException(); // implemented in updateCurrency()
     }
 
     @Override
