@@ -1,5 +1,5 @@
 postgres:
-  url: jdbc:postgresql://localhost:5432/budget/
+  url: jdbc:postgresql://localhost:5432/budget
   user: ${POSTGRESQL_USER}
   password: ${POSTGRESQL_PASSWORD}
 
