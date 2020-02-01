@@ -150,7 +150,11 @@ public class BudgetController {
     }
 
     @RequestMapping(value = "/expenses/reports", method = RequestMethod.GET)
-    public String reports() {
+    public String reports(
+            Model model
+    ) {
+        List<ExpensesType> types = expensesRepository.getExpensesTypes(DEFAULT_USER);
+        model.addAttribute("types", types);
         return "expenses/reports/reports_main";
     }
 
@@ -180,9 +184,28 @@ public class BudgetController {
         ExpensesReport report = expensesDataService.getReportByDescription(DEFAULT_USER, description, start, end);
         model.addAttribute("results", report.getExpensesDataList());
         model.addAttribute("total", report.getAmount().toString());
-        model.addAttribute("description", description);
+        model.addAttribute("description", "по названию  " + description);
         model.addAttribute("start", report.getStartDate());
         model.addAttribute("end", report.getEndDate());
+        return "expenses/reports/reports_description";
+    }
+
+    @RequestMapping(value = "/expenses/reports/type", method = RequestMethod.GET)
+    public String reportByType(
+            Model model,
+            @RequestParam(value = "type") Integer type,
+            @RequestParam(value = "start") String start,
+            @RequestParam(value = "end") String end
+    ) {
+        ExpensesReport report = expensesDataService.getReportByType(DEFAULT_USER, type, start, end);
+        List<ExpensesType> types = expensesRepository.getExpensesTypes(DEFAULT_USER);
+        String typeName = types.stream().filter(t -> t.getExpensesTypeId() == type).findFirst().get().getDescription();
+        String description = "по типу " + typeName;
+        model.addAttribute("results", report.getExpensesDataList());
+        model.addAttribute("total", report.getAmount().toString());
+        model.addAttribute("start", report.getStartDate());
+        model.addAttribute("end", report.getEndDate());
+        model.addAttribute("description", description);
         return "expenses/reports/reports_description";
     }
 
