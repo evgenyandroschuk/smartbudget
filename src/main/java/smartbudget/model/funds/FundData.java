@@ -1,28 +1,28 @@
 package smartbudget.model.funds;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.StringJoiner;
 
 public class FundData {
 
-    private long id;
+    private Long id;
     private int userId;
     private Currency currency;
     private BigDecimal amount;
     private BigDecimal price;
     private String description;
-    private LocalDateTime localDateTime;
+    private LocalDate localDate;
 
     public FundData(
-        long id,
+        Long id,
         int userId,
         Currency currency,
         BigDecimal amount,
         BigDecimal price,
         String description,
-        LocalDateTime localDateTime
+        LocalDate localDateTime
     ) {
         this.id = id;
         this.userId = userId;
@@ -30,10 +30,18 @@ public class FundData {
         this.amount = amount;
         this.price = price;
         this.description = description;
-        this.localDateTime = localDateTime;
+        this.localDate = localDateTime;
     }
 
-    public long getId() {
+    public FundData(int userId, Currency currency, BigDecimal amount, BigDecimal price, String description) {
+        this.userId = userId;
+        this.currency = currency;
+        this.amount = amount;
+        this.price = price;
+        this.description = description;
+    }
+
+    public Long getId() {
         return id;
     }
 
@@ -57,8 +65,8 @@ public class FundData {
         return description;
     }
 
-    public LocalDateTime getLocalDateTime() {
-        return localDateTime;
+    public LocalDate getLocalDate() {
+        return localDate;
     }
 
     @Override
@@ -76,12 +84,12 @@ public class FundData {
             Objects.equals(amount, fundData.amount) &&
             Objects.equals(price, fundData.price) &&
             Objects.equals(description, fundData.description) &&
-            Objects.equals(localDateTime, fundData.localDateTime);
+            Objects.equals(localDate, fundData.localDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, userId, currency, amount, price, description, localDateTime);
+        return Objects.hash(id, userId, currency, amount, price, description, localDate);
     }
 
     @Override
@@ -93,7 +101,7 @@ public class FundData {
             .add("amount=" + amount)
             .add("price=" + price)
             .add("description='" + description + "'")
-            .add("localDateTime=" + localDateTime)
+            .add("localDate=" + localDate)
             .toString();
     }
 }

@@ -1,9 +1,9 @@
 package smartbudget.client.service.postgres;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -11,18 +11,21 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import smartbudget.model.funds.Currency;
-import smartbudget.service.postres.fund.CurrencyDao;
+import smartbudget.model.funds.FundData;
+import smartbudget.service.postres.fund.FundDao;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class FundTest {
@@ -31,7 +34,7 @@ public class FundTest {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @InjectMocks
-    private CurrencyDao currencyDao;
+    private FundDao fundDao;
 
     @BeforeClass
     public void setUp() {
@@ -43,48 +46,113 @@ public class FundTest {
         reset(namedParameterJdbcTemplate);
     }
 
-    @Test
-    public void testCurrency() {
-        String query = "select * from t_currency where id = :id";
-        Map<String, Object> params = ImmutableMap.of("id", 1);
-        Currency dollar = new Currency(
-            1, "Dollar",
-            LocalDate.of(2020, 4, 20),
-            BigDecimal.valueOf(74.01).setScale(2)
-            );
+
+    @Test(dataProvider = "getFundsProvider")
+    public void testGetFunds(String description, LocalDate start, LocalDate end, int count) {
+        String query = "select * from funds where user_id =:userId order by update_date, id desc";
+        Map<String, Object> params = ImmutableMap.of("userId", 1);
+
+        ImmutableList<FundData> fundList = ImmutableList.of(
+            new FundData(
+                1L, 1, DOLLAR_CURRENCY,
+                BigDecimal.valueOf(100).setScale(2),
+                BigDecimal.valueOf(77.41).setScale(2),
+                "To Alpha",
+                LocalDate.of(2020, 4, 22)
+            )
+        );
         when(namedParameterJdbcTemplate.query(
             eq(query),
             eq(params),
-            ((ResultSetExtractor<Optional< Currency >>) any(ResultSetExtractor.class))
-        )).thenReturn(Optional.of(dollar));
+            ((ResultSetExtractor<List<FundData>>) any(ResultSetExtractor.class))
+        )).thenReturn(fundList);
 
-        Currency expected = currencyDao.getCurrencyById(1);
-        Assert.assertEquals("Dollar", expected.getDescription());
-        Mockito.verify(namedParameterJdbcTemplate).query(
-            eq(query),
-            eq(params),
-            ((ResultSetExtractor<Optional< Currency >>) any(ResultSetExtractor.class)));
+        List<FundData> result = fundDao.getFundData(1, start, end);
+
+        Assert.assertTrue(result.size() == count);
+    }
+
+    @DataProvider
+    private static Object[][] getFundsProvider() {
+        return new Object[][]{
+            {
+                "Fund between startDate and endDate",
+                LocalDate.of(2020, 4, 10),
+                LocalDate.of(2020, 4, 22),
+                1
+            },
+            {
+                "Fund after endDate",
+                LocalDate.of(2020, 4, 22),
+                LocalDate.of(2020, 4, 30),
+                0
+            },
+            {
+                "Fund before startDate",
+                LocalDate.of(2020, 3, 10),
+                LocalDate.of(2020, 3, 22),
+                0
+            }
+        };
     }
 
     @Test
-    public void updateCurrency() {
-        Currency currency = new Currency(
-            1, "Dollar",
-            LocalDate.of(2020, 4, 20),
-            BigDecimal.valueOf(74.01).setScale(2)
-        );
-        String update = "update t_currency \n" +
-            "set description = :description, update_date = now(), price = :price \n" +
-            "where id = :id";
+    public void testInsertFund() {
+        FundData fundData = new FundData(
+            1, EURO_CURRENCY, BigDecimal.valueOf(110), BigDecimal.valueOf(83.28), "euro");
+        String insert = "insert into funds(id, user_id, currency_id, amount, price, description, update_date)\n" +
+            "values (nextval('funds_seq'), :userId, :currencyId, :amount, :price, :description, now())";
         Map<String, Object> params = ImmutableMap.of(
-            "id", currency.getId(),
-            "description", currency.getDescription(),
-            "price", currency.getPrice()
+            "userId", fundData.getUserId(),
+            "currencyId", fundData.getCurrency().getId(),
+            "amount", fundData.getAmount(),
+            "price", fundData.getPrice(),
+            "description", fundData.getDescription()
         );
-        currencyDao.setCurrency(currency);
         when(namedParameterJdbcTemplate.execute(
-            eq(update), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class))
+            eq(insert), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class))
         ).thenReturn(true);
+        fundDao.setFund(fundData);
+        verify(namedParameterJdbcTemplate)
+            .execute(
+                eq(insert), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class)
+            );
     }
+
+    @Test
+    public void testDeleteFund() {
+        Map<String, Object> params = ImmutableMap.of("id", 1L);
+        when(namedParameterJdbcTemplate.execute(
+            eq(DELETE_QUERY), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class))
+        ).thenReturn(true);
+        fundDao.deleteFund(1L);
+        verify(namedParameterJdbcTemplate)
+            .execute(
+                eq(DELETE_QUERY), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class)
+            );
+    }
+
+    @Test(
+        expectedExceptions = IllegalArgumentException.class,
+        expectedExceptionsMessageRegExp = "ID cannot be null!"
+    )
+    public void testErrorDeleteFund() {
+        fundDao.deleteFund(null);
+    }
+
+    private static final String DELETE_QUERY = "delete from funds where id = :id";
+
+
+    private static final Currency DOLLAR_CURRENCY = new Currency(
+        1, "Dollar",
+        LocalDate.of(2020, 4, 20),
+        BigDecimal.valueOf(74.01).setScale(2)
+    );
+
+    private static final Currency EURO_CURRENCY = new Currency(
+        2, "EURO",
+        LocalDate.of(2020, 4, 20),
+        BigDecimal.valueOf(82).setScale(2)
+    );
 
 }

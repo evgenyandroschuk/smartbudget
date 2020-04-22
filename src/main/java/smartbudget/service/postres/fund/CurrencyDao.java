@@ -4,7 +4,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
-import org.apache.groovy.util.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,7 @@ public class CurrencyDao {
         );
     }
 
-    public void setCurrency(Currency currency ) {
+    public void setCurrency(Currency currency) {
         String update = "update t_currency \n" +
             "set description = :description, update_date = now(), price = :price \n" +
             "where id = :id";
