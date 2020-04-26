@@ -12,6 +12,7 @@ import smartbudget.service.postres.DateProvider;
 import smartbudget.util.SystemParams;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -70,10 +71,10 @@ public class ExpensesDataServiceImpl implements ExpensesDataService {
         BigDecimal restAmount = openBalanceAmount.subtract(expensesAmount).add(incomeAmount);
 
         Map<String, BigDecimal> fundAmounts = calculateFunds(userId);
-        BigDecimal restDollarAmount = fundAmounts.get(DOLLAR_AMOUNT_IN_RUB).setScale(2);
-        BigDecimal restEuroAmount = fundAmounts.get(EURO_AMOUNT_IN_RUB).setScale(2);
+        BigDecimal restDollarAmount = fundAmounts.get(DOLLAR_AMOUNT_IN_RUB).setScale(2, RoundingMode.HALF_EVEN);
+        BigDecimal restEuroAmount = fundAmounts.get(EURO_AMOUNT_IN_RUB).setScale(2, RoundingMode.HALF_EVEN);
         BigDecimal restRubAmount  = fundAmounts.get(RUB_AMOUNT);
-        BigDecimal restAllAmount = restAmount.add(restDollarAmount).add(restEuroAmount).add(restRubAmount).setScale(2);
+        BigDecimal restAllAmount = restAmount.add(restDollarAmount).add(restEuroAmount).add(restRubAmount).setScale(2, RoundingMode.HALF_EVEN);
 
         return CurrentStatistic.CurrentStatisticBuilder.builder()
             .setExpensesTotalAmount(expensesTotalAmount)

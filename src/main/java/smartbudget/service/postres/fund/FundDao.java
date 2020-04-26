@@ -31,7 +31,7 @@ public class FundDao {
     }
 
     public List<FundData> getFundData(int userId, LocalDate start, LocalDate end) {
-        String query = "select * from funds where user_id =:userId order by update_date desc, id desc";
+        String query = "select * from funds where user_id =:userId order by update_date desc";
         Map<String, Object> params = ImmutableMap.of("userId", userId);
         List<FundData> result = namedParameterJdbcTemplate.query(query, params, rs -> {
             List<FundData> fundDataList = new LinkedList<>();

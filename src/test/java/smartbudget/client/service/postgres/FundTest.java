@@ -51,7 +51,7 @@ public class FundTest {
 
     @Test(dataProvider = "getFundsProvider")
     public void testGetFunds(String description, LocalDate start, LocalDate end, int count) {
-        String query = "select * from funds where user_id =:userId order by update_date desc, id desc";
+        String query = "select * from funds where user_id =:userId order by update_date desc";
         Map<String, Object> params = ImmutableMap.of("userId", 1);
 
         ImmutableList<FundData> fundList = ImmutableList.of(
