@@ -75,7 +75,7 @@ public class FundManualTest extends AbstractTestNGSpringContextTests {
             testDescription
         );
         System.out.println("Trying to add fund...");
-        fundDao.setFund(fundData);
+        fundDao.addFund(fundData);
         FundData result = fundDao
             .getFundData(DEFAULT_USER, LocalDate.now().minusDays(1), LocalDate.now().plusDays(1))
             .stream().filter(t -> t.getDescription().equals(testDescription))

@@ -6,8 +6,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import smartbudget.model.funds.FundData;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -52,16 +54,17 @@ public class FundDao {
             .collect(Collectors.toList());
     }
 
-    public void setFund(FundData fundData) {
+    public void addFund(FundData fundData) {
+        LocalDate updateDate = fundData.getLocalDate() != null ? fundData.getLocalDate() : LocalDate.now();
         String insert = "insert into funds(id, user_id, currency_id, amount, price, description, update_date)\n" +
-            "values (nextval('funds_seq'), :userId, :currencyId, :amount, :price, :description, now())";
-        Map<String, Object> params = ImmutableMap.of(
-            "userId", fundData.getUserId(),
-            "currencyId", fundData.getCurrency().getId(),
-            "amount", fundData.getAmount(),
-            "price", fundData.getPrice(),
-            "description", fundData.getDescription()
-        );
+            "values (nextval('funds_seq'), :userId, :currencyId, :amount, :price, :description, :updateDate)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", fundData.getUserId());
+        params.put("currencyId", fundData.getCurrency().getId());
+        params.put("amount", fundData.getAmount());
+        params.put("description", fundData.getDescription());
+        params.put("price", fundData.getPrice());
+        params.put("updateDate", Date.valueOf(updateDate));
         namedParameterJdbcTemplate.execute(insert, params, PreparedStatement::execute);
     }
 

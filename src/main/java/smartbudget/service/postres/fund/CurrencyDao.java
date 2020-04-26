@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import smartbudget.model.funds.Currency;
 
 import java.sql.PreparedStatement;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -24,11 +26,17 @@ public class CurrencyDao {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
-
     public Currency getCurrencyById(Integer id) {
-        return currencyMap.getUnchecked(id).orElseThrow(
-            () -> new RuntimeException("Currency not found!")
-        );
+        List<Currency> currencies = getCurrencies();
+        return currencies.stream()
+            .filter(t -> t.getId() == id)
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Currency not found!"));
+    }
+
+    public List<Currency> getCurrencies() {
+        return currencyMap.getUnchecked("currencies")
+            .orElseThrow(() -> new RuntimeException("No any currencies"));
     }
 
     public void setCurrency(Currency currency) {
@@ -43,33 +51,32 @@ public class CurrencyDao {
         namedParameterJdbcTemplate.execute(update, params, PreparedStatement::execute);
     }
 
-    private LoadingCache<Integer, Optional<Currency>> currencyMap = CacheBuilder.newBuilder()
+    private LoadingCache<String, Optional<List<Currency>>> currencyMap = CacheBuilder.newBuilder()
         .refreshAfterWrite(2, TimeUnit.HOURS)
-        .build(new CacheLoader<Integer, Optional<Currency>>() {
+        .build(new CacheLoader<String, Optional<List<Currency>>>() {
             @Override
-            public Optional<Currency> load(Integer key) throws Exception {
+            public Optional<List<Currency>> load(String key) throws Exception {
                 return loadCache(key);
             }
         });
 
 
-    private Optional<Currency> loadCache(Integer id) {
-        String query = "select * from t_currency where id = :id";
-        return namedParameterJdbcTemplate.query(
-            query,
-            ImmutableMap.of("id", id),
-            rs -> {
-                Currency currency = null;
-                if (rs.next()) {
-                    currency = new Currency(
-                        rs.getInt("id"),
-                        rs.getString("description"),
-                        rs.getDate("update_date").toLocalDate(),
-                        rs.getBigDecimal("price"));
+    private Optional<List<Currency>> loadCache(String key) {
+        String query = "select * from t_currency order by id";
+        return namedParameterJdbcTemplate.query(query, rs -> {
+            List<Currency> currencies = new LinkedList<>();
+            while(rs.next()) {
+                Currency currency = new Currency(
+                    rs.getInt("id"),
+                    rs.getString("description"),
+                    rs.getDate("update_date").toLocalDate(),
+                    rs.getBigDecimal("price")
+                );
+                currencies.add(currency);
+            }
+            return Optional.of(currencies);
+        });
 
-                }
-                return Optional.ofNullable(currency);
-            });
     }
 
 }

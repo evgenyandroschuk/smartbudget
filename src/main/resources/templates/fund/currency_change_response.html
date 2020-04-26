@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Расходы добавлены</title>
+    <title>Копилка</title>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
+
 <body>
 
 <nav class="navbar navbar-default">
@@ -17,26 +18,26 @@
         </div>
         <ul class="nav navbar-nav">
             <li><a href="/">Home</a></li>
-            <li class="active"><a href="/expenses/">Expenses</a></li>
+            <li><a href="/expenses/">Expenses</a></li>
             <li><a href="/vehicle/">Vehicles</a></li>
             <li><a href="/communication/">Communications</a></li>
-            <li><a href="/fund/">Funds</a></li>
+            <li class="active"><a href="/fund/">Funds</a></li>
         </ul>
     </div>
 </nav>
 
 <div class="container">
-
-    <a href="/expenses/form/" role="button" class="btn btn-primary">Добавить еще расходы</a>
+    <p></p>
+    <a href="/currency/change" role="button" class="btn btn-primary">Обновить еще</a>
 
     <p></p>
-    <h4>Добавлено в список расходов: </h4>
+    <h4>Обновлена валюта: </h4>
     <div class="well">
-        <h5><p th:text="'Тип: ' + ${expenses.expensesType.description}"/></h5>
-        <h5><p th:text="'Описание: ' + ${expenses.description}"/></h5>
-        <h5><p th:text="'Сумма: ' + ${expenses.amount}"/></h5>
+        <h5><p th:text="'Валюта: ' + ${currency.description}"/></h5>
+        <h5><p th:text="'Цена: ' + ${currency.price}"/></h5>
     </div>
-
 </div>
+
+
+
 </body>
-</html>

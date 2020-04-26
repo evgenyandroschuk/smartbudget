@@ -2,6 +2,7 @@ package smartbudget.model.funds;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -67,6 +68,10 @@ public class FundData {
 
     public LocalDate getLocalDate() {
         return localDate;
+    }
+
+    public String getDateString() {
+        return localDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
     }
 
     @Override

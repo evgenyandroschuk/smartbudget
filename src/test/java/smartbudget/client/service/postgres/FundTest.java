@@ -18,7 +18,9 @@ import smartbudget.model.funds.FundData;
 import smartbudget.service.postres.fund.FundDao;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -98,21 +100,29 @@ public class FundTest {
 
     @Test
     public void testInsertFund() {
+        LocalDate updateDate = LocalDate.of(2020,4,20);
         FundData fundData = new FundData(
-            1, EURO_CURRENCY, BigDecimal.valueOf(110), BigDecimal.valueOf(83.28), "euro");
-        String insert = "insert into funds(id, user_id, currency_id, amount, price, description, update_date)\n" +
-            "values (nextval('funds_seq'), :userId, :currencyId, :amount, :price, :description, now())";
-        Map<String, Object> params = ImmutableMap.of(
-            "userId", fundData.getUserId(),
-            "currencyId", fundData.getCurrency().getId(),
-            "amount", fundData.getAmount(),
-            "price", fundData.getPrice(),
-            "description", fundData.getDescription()
+            null,
+            1,
+            EURO_CURRENCY,
+            BigDecimal.valueOf(110),
+            BigDecimal.valueOf(83.28),
+            "euro",
+            updateDate
         );
+        String insert = "insert into funds(id, user_id, currency_id, amount, price, description, update_date)\n" +
+            "values (nextval('funds_seq'), :userId, :currencyId, :amount, :price, :description, :updateDate)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", fundData.getUserId());
+        params.put("currencyId", fundData.getCurrency().getId());
+        params.put("amount", fundData.getAmount());
+        params.put("description", fundData.getDescription());
+        params.put("price", fundData.getPrice());
+        params.put("updateDate", Date.valueOf(updateDate));
         when(namedParameterJdbcTemplate.execute(
             eq(insert), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class))
         ).thenReturn(true);
-        fundDao.setFund(fundData);
+        fundDao.addFund(fundData);
         verify(namedParameterJdbcTemplate)
             .execute(
                 eq(insert), eq(params), (PreparedStatementCallback<Boolean>) any(PreparedStatementCallback.class)

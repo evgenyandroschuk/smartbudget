@@ -1,5 +1,6 @@
 package smartbudget.client.service.postgres;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -17,6 +18,7 @@ import smartbudget.service.postres.fund.CurrencyDao;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -44,9 +46,8 @@ public class CurrencyTest {
     }
 
     @Test
-    public void testGetCurrency() {
-        String query = "select * from t_currency where id = :id";
-        Map<String, Object> params = ImmutableMap.of("id", 1);
+    public void testGetCurrencies() {
+        String query = "select * from t_currency order by id";
         Currency dollar = new Currency(
             1, "Dollar",
             LocalDate.of(2020, 4, 20),
@@ -54,16 +55,17 @@ public class CurrencyTest {
         );
         when(namedParameterJdbcTemplate.query(
             eq(query),
-            eq(params),
-            ((ResultSetExtractor<Optional<Currency>>) any(ResultSetExtractor.class))
-        )).thenReturn(Optional.of(dollar));
+            ((ResultSetExtractor<Optional<List<Currency>>>) any(ResultSetExtractor.class))
+        )).thenReturn(
+
+            Optional.of(ImmutableList.of(dollar))
+        );
 
         Currency expected = currencyDao.getCurrencyById(1);
         Assert.assertEquals("Dollar", expected.getDescription());
         Mockito.verify(namedParameterJdbcTemplate).query(
             eq(query),
-            eq(params),
-            ((ResultSetExtractor<Optional<Currency>>) any(ResultSetExtractor.class)));
+            ((ResultSetExtractor<Optional<List<Currency>>>) any(ResultSetExtractor.class)));
     }
 
     @Test
